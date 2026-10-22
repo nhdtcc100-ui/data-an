@@ -100,7 +100,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   // الثيمات الفاتحة التي تحتاج نصوصاً سوداء على الخلفية البيضاء
   const LIGHT_THEME_IDS = ['minimalism-light', 'bento-light'];
   const activeThemeId = activeMotionTheme.id;
-  const isLightCard = LIGHT_THEME_IDS.includes(activeThemeId);
+  const isDark = theme === 'dark';
+  const isLightCard = !isDark || LIGHT_THEME_IDS.includes(activeThemeId);
 
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -241,7 +242,6 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     ? getDrillLeafRows(filteredRows, currentDrillPath)
     : filteredRows;
 
-  const isDark = theme === 'dark';
   const textColor = isDark ? '#94a3b8' : '#475569';
   const splitLineColor = isDark ? '#1e293b' : '#e2e8f0';
 
@@ -1065,7 +1065,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     >
       {/* Widget Header */}
       <div className={`flex items-center justify-between px-3.5 py-2 border-b select-none gap-2 ${
-        isDark ? 'border-slate-800 bg-slate-900/90' : 'border-slate-100 bg-slate-50/90'
+        isDark ? 'border-slate-800 bg-slate-900/90' : 'border-slate-200 bg-white/95 text-slate-950'
       }`}>
         <div className={`flex items-center gap-2 overflow-hidden flex-1 ${
           widget.config.titleAlign === 'center'
@@ -1094,7 +1094,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           )}
           <h3
             className={`font-bold truncate ${
-              isLightCard ? 'text-gray-900' : 'text-slate-200'
+              isLightCard ? 'text-slate-950 font-black' : 'text-slate-200'
             }`}
             title={widget.title}
             style={{

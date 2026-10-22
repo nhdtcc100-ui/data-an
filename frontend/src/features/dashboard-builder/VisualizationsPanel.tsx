@@ -177,7 +177,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
   return (
     <aside
       style={isMobile ? { width: '100%' } : { width: `${visualizationsPanelWidth}px` }}
-      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm overflow-y-auto custom-scrollbar transition-[width] duration-75 ${
+      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm overflow-y-auto custom-scrollbar transition-[width] duration-75 sidebar-3d ${
         isMobile ? 'w-full border-none' : dockSide === 'left' ? 'border-r border-slate-800' : 'border-l border-slate-800'
       } ${isResizing ? 'select-none pointer-events-none' : ''}`}
     >

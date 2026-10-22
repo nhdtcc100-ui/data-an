@@ -354,40 +354,111 @@ button, a {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   🌞 Light Theme — Full Text & Heading Color Overrides
+   🌞 Light Theme — Black Headings, Crisp Text & High-Contrast 3D Elements
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* When NOT in dark mode, force all slate-light classes to dark equivalents */
-:root:not(.dark) h1,
-:root:not(.dark) h2,
-:root:not(.dark) h3,
-:root:not(.dark) h4,
-:root:not(.dark) h5,
-:root:not(.dark) h6 {
-  color: #0f172a;
+/* Force all headings (h1 to h6) to deep crisp black in light mode */
+html:not(.dark) h1, html:not(.dark) h2, html:not(.dark) h3,
+html:not(.dark) h4, html:not(.dark) h5, html:not(.dark) h6,
+html.light h1, html.light h2, html.light h3,
+html.light h4, html.light h5, html.light h6,
+.light-mode h1, .light-mode h2, .light-mode h3,
+.light-mode h4, .light-mode h5, .light-mode h6,
+body.light-mode h1, body.light-mode h2, body.light-mode h3,
+body.light-mode h4, body.light-mode h5, body.light-mode h6 {
+  color: #090d16 !important;
 }
 
-/* Override light-specific text classes */
-body:not(.dark) .text-slate-200 { color: #1e293b !important; }
-body:not(.dark) .text-slate-300 { color: #334155 !important; }
-body:not(.dark) .text-slate-400 { color: #475569 !important; }
-body:not(.dark) .text-slate-500 { color: #64748b !important; }
+/* Force title classes inside widgets, modals and headers */
+html:not(.dark) .widget-title,
+html.light .widget-title,
+.light-mode .widget-title,
+html:not(.dark) [data-theme] h3,
+html.light [data-theme] h3,
+.light-mode [data-theme] h3 {
+  color: #090d16 !important;
+}
 
-/* Light theme wrapper — apply when theme !== dark */
-.light-mode h1, .light-mode h2, .light-mode h3,
-.light-mode h4, .light-mode h5, .light-mode h6 {
+/* Text color overrides for light mode */
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200,
+html.light .text-slate-100,
+html.light .text-slate-200,
+.light-mode .text-slate-100,
+.light-mode .text-slate-200 {
   color: #0f172a !important;
 }
-.light-mode .text-slate-200 { color: #1e293b !important; }
-.light-mode .text-slate-300 { color: #334155 !important; }
-.light-mode .text-slate-400 { color: #475569 !important; }
-.light-mode .text-slate-500 { color: #64748b !important; }
 
-/* ══ Explicit light theme via data attribute ══ */
-[data-theme="minimalism"] .text-slate-200,
-[data-theme="minimalism"] .text-slate-400,
-[data-theme="minimalism"] .text-slate-500 {
+html:not(.dark) .text-slate-300,
+html.light .text-slate-300,
+.light-mode .text-slate-300 {
   color: #1e293b !important;
+}
+
+html:not(.dark) .text-slate-400,
+html.light .text-slate-400,
+.light-mode .text-slate-400 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-slate-500,
+html.light .text-slate-500,
+.light-mode .text-slate-500 {
+  color: #475569 !important;
+}
+
+/* Light mode 3D Card Surface & Layering */
+html:not(.dark) .widget-3d,
+html.light .widget-3d,
+.light-mode .widget-3d {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.07),
+    0 10px 24px -3px rgba(0, 0, 0, 0.08),
+    0 20px 40px -4px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+html:not(.dark) .widget-3d:hover,
+html.light .widget-3d:hover,
+.light-mode .widget-3d:hover {
+  box-shadow:
+    0 10px 20px -2px rgba(0, 0, 0, 0.12),
+    0 25px 50px -5px rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+
+/* Light mode Header 3D */
+html:not(.dark) .header-3d,
+html.light .header-3d,
+.light-mode .header-3d {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.05),
+    0 12px 28px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Light mode Sidebar 3D */
+html:not(.dark) .sidebar-3d,
+html.light .sidebar-3d,
+.light-mode .sidebar-3d {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Light mode Glass 3D */
+html:not(.dark) .glass-3d,
+html.light .glass-3d,
+.light-mode .glass-3d {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

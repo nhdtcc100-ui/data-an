@@ -79,6 +79,22 @@ export const App: React.FC = () => {
   // Mobile: is the data/visuals drawer open as an overlay?
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
+  // ── Sync theme class to <html> and <body> elements ────────────────────────
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+      document.body.classList.add('dark');
+      document.body.classList.remove('light-mode');
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      document.body.classList.remove('dark');
+      document.body.classList.add('light-mode');
+    }
+  }, [theme]);
+
   // ── Open View Mode (clean URL: /view) ──────────────────────────────────────
   const handleOpenPublicView = () => {
     try {
