@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المرحلة الثالثة: مواصفات واجهة وتجربة المستخدم (UI/UX Specification)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      corePlugins: {
+        preflight: false,
+      },
+    }
+  </script>
+  <style>
+    /* Reset & Setup */
+    * {
+      box-sizing: border-box;
+    }
+
+    p {
+      margin: 0 0 12px 0;
+    }
+
+    body {
+      background-color: #0b0f19;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Tajawal', sans-serif;
+      color: #334155;
+      direction: rtl;
+    }
+
+    #slideshow-holder {
+      width: 100%;
+      position: relative;
+      flex-grow: 1;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    #slideshow-wrapper {
+      width: 1280px;
+      height: 720px;
+      position: relative;
+      transform-origin: center center;
+      transform: scale(var(--scale-factor, 1));
+      transition: transform 0.25s ease-out;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    body.dark #slideshow-wrapper {
+      background: #0f172a;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    /* Base Slide Container System */
+    .slide-container {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 56px;
+    }
+
+    body.dark .slide-container {
+      background-color: #0f172a;
+      color: #cbd5e1;
+    }
+
+    .slide-container.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    .slide-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: radial-gradient(circle at 90% 10%, rgba(14, 165, 233, 0.06) 0%, transparent 60%),
+        radial-gradient(circle at 10% 90%, rgba(99, 102, 241, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .slide-container>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Typography Hierarchy */
+    .slide-container h1,
+    .slide-container h2,
+    .slide-container h3 {
+      color: #0f172a;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    body.dark .slide-container h1,
+    body.dark .slide-container h2,
+    body.dark .slide-container h3 {
+      color: #f8fafc;
+    }
+
+    .slide-container h1 {
+      font-size: 54px;
+      line-height: 1.25;
+    }
+
+    .slide-container .slide-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      text-align: right;
+      width: 100%;
+      color: #0f172a;
+      border-right: 5px solid #0ea5e9;
+      padding-right: 16px;
+    }
+
+    body.dark .slide-container .slide-title {
+      color: #f1f5f9;
+      border-right-color: #38bdf8;
+    }
+
+    .slide-container h3 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #0284c7;
+    }
+
+    body.dark .slide-container h3 {
+      color: #38bdf8;
+    }
+
+    .slide-container p,
+    .slide-container li,
+    .slide-container .subtitle,
+    .slide-container th,
+    .slide-container td {
+      color: #475569;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    body.dark .slide-container p,
+    body.dark .slide-container li,
+    body.dark .slide-container .subtitle,
+    body.dark .slide-container th,
+    body.dark .slide-container td {
+      color: #94a3b8;
+    }
+
+    .slide-container .subtitle {
+      font-size: 20px;
+      font-weight: 400;
+      margin-top: 16px;
+      color: #64748b;
+      max-width: 850px;
+    }
+
+    body.dark .slide-container .subtitle {
+      color: #94a3b8;
+    }
+
+    .slide-container .content-area {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Layout Specifics */
+    .title-layout {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .section-title-layout {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+    }
+
+    .section-title-layout h2 {
+      font-size: 52px;
+      color: #0f172a;
+      margin-bottom: 16px;
+    }
+
+    body.dark .section-title-layout h2 {
+      color: #f8fafc;
+    }
+
+    .section-title-layout p {
+      font-size: 22px;
+      color: #64748b;
+      max-width: 780px;
+    }
+
+    .section-title-layout hr {
+      background: linear-gradient(90deg, #0ea5e9, #6366f1);
+      border: none;
+      height: 5px;
+      margin: 24px auto;
+      width: 120px;
+      border-radius: 3px;
+    }
+
+    /* Two Column Layouts */
+    .two-column {
+      align-items: stretch;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      width: 100%;
+    }
+
+    .two-column.tiled>div {
+      background-color: #f8fafc;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 28px;
+      text-align: right;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    body.dark .two-column.tiled>div {
+      background-color: #1e293b;
+      border-color: #334155;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Tiled Content & Cards */
+    .tiled-content {
+      align-items: stretch;
+      display: flex;
+      gap: 22px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .tile {
+      align-items: flex-start;
+      background-color: #f8fafc;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: flex-start;
+      padding: 26px;
+      text-align: right;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    body.dark .tile {
+      background-color: #1e293b;
+      border-color: #334155;
+    }
+
+    .tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(14, 165, 233, 0.1);
+    }
+
+    .tile .icon {
+      color: #0ea5e9;
+      font-size: 36px;
+      margin-bottom: 14px;
+      background: rgba(14, 165, 233, 0.1);
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+
+    /* Highlight Numbers Layout */
+    .highlight-numbers-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 32px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .highlight-numbers-layout>div:first-child {
+      text-align: center;
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+      padding: 36px;
+      border-radius: 18px;
+      color: white;
+      box-shadow: 0 12px 30px rgba(14, 165, 233, 0.3);
+    }
+
+    .highlight-numbers-layout .number {
+      color: #ffffff;
+      font-size: 96px;
+      font-weight: 900;
+      font-family: 'Cairo', sans-serif;
+      line-height: 1;
+    }
+
+    .highlight-numbers-layout .number-label {
+      color: #e0f2fe;
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    /* Table Layout */
+    .table-layout {
+      width: 100%;
+    }
+
+    .table-layout table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e2e8f0;
+    }
+
+    body.dark .table-layout table {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .table-layout th,
+    .table-layout td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 18px;
+      text-align: right;
+    }
+
+    body.dark .table-layout th,
+    body.dark .table-layout td {
+      border-bottom-color: #334155;
+    }
+
+    .table-layout th {
+      background-color: #0f172a;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    body.dark .table-layout th {
+      background-color: #090d16;
+    }
+
+    .table-layout tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    body.dark .table-layout tr:nth-child(even) {
+      background-color: #172033;
+    }
+
+    /* Styled Bullet Points */
+    .bullet-list {
+      width: 100%;
+    }
+
+    .bullet-list ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .bullet-list li {
+      margin-bottom: 16px;
+      padding-right: 48px;
+      position: relative;
+      font-size: 17px;
+    }
+
+    .bullet-list i {
+      color: #0ea5e9;
+      font-size: 20px;
+      right: 0;
+      margin-top: 4px;
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      background: rgba(14, 165, 233, 0.12);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bullet-list li strong {
+      color: #0f172a;
+      font-weight: 700;
+      display: inline-block;
+      margin-left: 6px;
+    }
+
+    body.dark .bullet-list li strong {
+      color: #f1f5f9;
+    }
+
+    /* Chart Styles */
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .bar {
+      align-items: center;
+      display: flex;
+      gap: 16px;
+    }
+
+    .bar .label {
+      color: #1e293b;
+      flex: 0 0 240px;
+      font-weight: 700;
+      text-align: right;
+      font-size: 16px;
+    }
+
+    body.dark .bar .label {
+      color: #e2e8f0;
+    }
+
+    .bar .bar-inner {
+      background-color: #e2e8f0;
+      border-radius: 8px;
+      flex-grow: 1;
+      height: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body.dark .bar .bar-inner {
+      background-color: #334155;
+    }
+
+    .bar .bar-fill {
+      align-items: center;
+      border-radius: 8px;
+      color: white;
+      display: flex;
+      font-size: 15px;
+      font-weight: 700;
+      height: 100%;
+      justify-content: space-between;
+      padding: 0 16px;
+      transition: width 1s ease-in-out;
+    }
+
+    /* Timeline Layout */
+    .timeline-layout {
+      align-items: stretch;
+      display: flex;
+      height: 360px;
+      justify-content: space-between;
+      position: relative;
+      width: 100%;
+    }
+
+    .timeline-layout .timeline-line {
+      background: linear-gradient(90deg, #0ea5e9, #6366f1);
+      height: 4px;
+      left: 0;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-2px);
+      width: 100%;
+      z-index: 0;
+    }
+
+    .timeline-item {
+      position: relative;
+      text-align: center;
+      width: 23%;
+    }
+
+    .timeline-item::after {
+      background-color: #ffffff;
+      border-radius: 50%;
+      border: 4px solid #0ea5e9;
+      content: '';
+      height: 22px;
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      z-index: 1;
+      box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+    }
+
+    body.dark .timeline-item::after {
+      background-color: #0f172a;
+    }
+
+    .timeline-item .content-wrapper {
+      left: 0;
+      position: absolute;
+      width: 100%;
+      padding: 0 10px;
+    }
+
+    .timeline-item:nth-child(odd) .content-wrapper {
+      bottom: 50%;
+      margin-bottom: 24px;
+    }
+
+    .timeline-item:nth-child(even) .content-wrapper {
+      top: 50%;
+      margin-top: 24px;
+    }
+
+    .timeline-item h3 {
+      color: #0ea5e9;
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    /* Split / Bleed Layout */
+    .slide-container.bleed-image-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 36px;
+      align-items: center;
+      padding: 44px 56px;
+    }
+
+    .bleed-visual-panel {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      color: white;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    /* UI Controls */
+    #nav-controls button {
+      transition: all 0.2s ease;
+    }
+
+    #nav-controls button:hover:not(:disabled) {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body class="dark transition-colors duration-300">
+
+  <!-- Theme Toggle -->
+  <button id="theme-toggle"
+    class="select-none absolute top-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-2.5 rounded-full shadow-lg text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white transition-all duration-300 z-30 border border-gray-200 dark:border-gray-700 cursor-pointer flex items-center justify-center">
+    <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+    </svg>
+    <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 -960 960 960">
+      <path
+        d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z">
+      </path>
+    </svg>
+  </button>
+
+  <!-- Nav Header -->
+  <div id="nav-controls"
+    class="select-none relative flex-shrink-0 w-full flex justify-center items-center py-3 px-6 z-20">
+    <div class="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-3">
+      <span
+        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+        Sprint 3 UI/UX Spec
+      </span>
+      <span id="slide-counter" class="text-sm font-semibold text-gray-500 dark:text-gray-400 font-sans"></span>
+    </div>
+
+    <div class="flex items-center space-x-3 rtl:space-x-reverse">
+      <button id="prev-slide"
+        class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 p-2 rounded-lg transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-md border border-gray-200 dark:border-gray-700 cursor-pointer">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <button id="next-slide"
+        class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 p-2 rounded-lg transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-md border border-gray-200 dark:border-gray-700 cursor-pointer">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Slideshow Area -->
+  <div id="slideshow-holder">
+    <div id="slideshow-wrapper">
+
+      <!-- Slide 1: Title Slide -->
+      <div class="slide-container active" id="slide1">
+        <div class="title-layout">
+          <div
+            class="inline-flex items-center gap-2 bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 px-5 py-2 rounded-full font-bold text-sm mb-6 border border-sky-200 dark:border-sky-800/60 shadow-sm">
+            <i class="fa-solid fa-layer-group"></i> المرحلة الثالثة: المواصفات والتصميم التفاعلي
+          </div>
+          <h1 class="mb-4">تصميم واجهة وتجربة المستخدم</h1>
+          <p class="subtitle">دليل الشاشات، هيكلية التفاعل، وتجربة الاستخدام المتقدمة لمنصة تحليل البيانات واللوحات
+            الذكية (UI/UX Architecture Specification)</p>
+          <div class="mt-8 flex gap-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <span
+              class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700"><i
+                class="fa-brands fa-react text-sky-400 ml-1.5"></i> React + TypeScript</span>
+            <span
+              class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700"><i
+                class="fa-solid fa-chart-pie text-emerald-400 ml-1.5"></i> Apache ECharts</span>
+            <span
+              class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700"><i
+                class="fa-solid fa-database text-amber-400 ml-1.5"></i> DuckDB Powered</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Section Title -->
+      <div class="slide-container" id="slide2">
+        <div class="section-title-layout">
+          <div class="w-16 h-16 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400 text-3xl mb-4">
+            <i class="fa-solid fa-compass-drafting"></i>
+          </div>
+          <h2>فلسفة وركائز التصميم (UI/UX)</h2>
+          <hr>
+          <p>تحويل البيانات المعقدة والاستعلامات الضخمة إلى رؤى بصرية بديهية وسريعة، عبر واجهات فائقة الاستجابة وسهلة
+            الوصول تضاهي Power BI وLooker Studio.</p>
+        </div>
+      </div>
+
+      <!-- Slide 3: Visual Language & Tokens -->
+      <div class="slide-container" id="slide3">
+        <h2 class="slide-title">لغة التصميم والهوية البصرية</h2>
+        <div class="content-area">
+          <div class="tiled-content">
+            <div class="tile">
+              <div class="icon"><i class="fa-solid fa-palette"></i></div>
+              <h3>لوحة الألوان المتزنة</h3>
+              <p>اعتماد الوضع الداكن (Dark Mode) كخيار مفضل لتقليل الإجهاد البصري للمحللين، مع ألوان دلالية فائقة
+                التباين للمؤشرات الحيوية (Emerald للنمو، Rose للمخاطر، Sky للاتجاهات).</p>
+            </div>
+            <div class="tile">
+              <div class="icon"><i class="fa-solid fa-table-cells"></i></div>
+              <h3>النظام الشبكي (8pt Grid)</h3>
+              <p>تطبيق نظام شبكي محكم بأساس 8 بكسل، يضمن توزيع البطاقات والـ Widgets بدقة متناهية وسلاسة في محاذاة
+                العناصر وتجاوبها التام مع شاشات 1080p و 4K.</p>
+            </div>
+            <div class="tile">
+              <div class="icon"><i class="fa-solid fa-universal-access"></i></div>
+              <h3>إمكانية الوصول (WCAG 2.1)</h3>
+              <p>ضمان تباين ألوان لا يقل عن 4.5:1 لجميع النصوص والرسوم البيانية، مع دعم كامل للوحة المفاتيح وقارئات
+                الشاشة لتحقيق أعلى معايير الشمولية المؤسسية.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4: Executive Dashboard Mockup Layout -->
+      <div class="slide-container bleed-image-layout" id="slide4">
+        <div>
+          <h2 class="slide-title">تصميم لوحة التحكم الرئيسية</h2>
+          <div class="bleed-text-side">
+            <h3>عرض متكامل في 5 ثوانٍ</h3>
+            <p>تم تصميم الواجهة لتزويد متخذ القرار بكافة المؤشرات الحيوية (KPIs) فور تسجيل الدخول دون أي تشويش بصري، مع
+              دعم التصفية المتقاطعة (Cross-filtering).</p>
+            <p>تتضمن بطاقات أداء سريعة، مخططات بيانية لتتبع الاتجاهات الزمنية والتوزيع الجغرافي، مع شريط أدوات علوي
+              للفلترة اللحظية والتصدير.</p>
+            <div class="mt-4 grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 dark:bg-slate-800/80 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
+                <span class="text-sky-500 font-bold block text-sm">محرر السحب والإفلات</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">مرونة كاملة في ترتيب البطاقات وتكبيرها</span>
+              </div>
+              <div class="bg-gray-50 dark:bg-slate-800/80 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
+                <span class="text-emerald-500 font-bold block text-sm">تصفية متقاطعة فورية</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">الضغط على أي عمود يحدث باقي المخططات</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bleed-visual-panel">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+              <span class="text-xs text-gray-400 mr-2 font-mono">لوحة المبيعات الإقليمية Q3</span>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono">DuckDB 0.28s</span>
+          </div>
+
+          <!-- Mini KPI Row Mockup -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white/5 p-3 rounded-lg border border-white/5">
+              <div class="text-xs text-gray-400">إجمالي الإيرادات</div>
+              <div class="text-lg font-bold text-white font-mono mt-1">$4,850,200</div>
+              <div class="text-[11px] text-emerald-400 mt-0.5"><i class="fa-solid fa-arrow-trend-up"></i> +14.2%</div>
+            </div>
+            <div class="bg-white/5 p-3 rounded-lg border border-white/5">
+              <div class="text-xs text-gray-400">عدد الطلبات</div>
+              <div class="text-lg font-bold text-white font-mono mt-1">128,450</div>
+              <div class="text-[11px] text-emerald-400 mt-0.5"><i class="fa-solid fa-arrow-trend-up"></i> +8.5%</div>
+            </div>
+            <div class="bg-white/5 p-3 rounded-lg border border-white/5">
+              <div class="text-xs text-gray-400">متوسط قيمة الطلب</div>
+              <div class="text-lg font-bold text-white font-mono mt-1">$37.75</div>
+              <div class="text-[11px] text-rose-400 mt-0.5"><i class="fa-solid fa-arrow-trend-down"></i> -1.1%</div>
+            </div>
+          </div>
+
+          <!-- Mini Chart Mockup -->
+          <div class="bg-white/5 p-3.5 rounded-lg border border-white/5 flex-grow flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-gray-200">الإيرادات حسب المنطقة الجغرافية</span>
+              <div class="flex gap-1">
+                <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+              </div>
+            </div>
+            <div class="h-28 flex items-end gap-3 px-2 pt-2 border-b border-l border-white/10">
+              <div class="w-1/5 bg-sky-500 rounded-t h-[65%] hover:opacity-80 transition"></div>
+              <div class="w-1/5 bg-sky-400 rounded-t h-[90%] hover:opacity-80 transition"></div>
+              <div class="w-1/5 bg-sky-500 rounded-t h-[45%] hover:opacity-80 transition"></div>
+              <div class="w-1/5 bg-indigo-500 rounded-t h-[75%] hover:opacity-80 transition"></div>
+              <div class="w-1/5 bg-sky-400 rounded-t h-[85%] hover:opacity-80 transition"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-gray-400 pt-1">
+              <span>بغداد</span><span>أربيل</span><span>البصرة</span><span>النجف</span><span>الموصل</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Information Architecture & Navigation -->
+      <div class="slide-container" id="slide5">
+        <h2 class="slide-title">هيكلية المعلومات وتدفق العمل (UX Flow)</h2>
+        <div class="content-area">
+          <div class="two-column tiled">
+            <div>
+              <div class="text-sky-500 text-2xl mb-3"><i class="fa-solid fa-folder-tree"></i></div>
+              <h3>1. إدارة المساحات واستيراد البيانات</h3>
+              <p>بنية معمارية مبسطة تمكّن المستخدم من الانتقال بسلاسة بين مساحات العمل المتعددة (Multi-tenancy)، ورفع
+                ملفات Excel أو CSV بضغطة زر واحدة.</p>
+              <ul class="text-sm space-y-2 mt-3 text-gray-600 dark:text-gray-300 pr-4 list-disc">
+                <li>استكشاف تلقائي للأعمدة ونوع البيانات (Numeric, String, Date).</li>
+                <li>إمكانية استبدال الملفات (Overwrite) ببيانات حديثة دون التأثير على اللوحات.</li>
+                <li>تخزين مباشر في DuckDB مع تسريع قراءة ملفات الـ Parquet.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="text-indigo-500 text-2xl mb-3"><i class="fa-solid fa-shapes"></i></div>
+              <h3>2. محرر اللوحات والنشر العام</h3>
+              <p>بيئة تحرير مرنة بنظام سحب وإسقاط محاكي لأقوى أدوات الـ BI مع إمكانية المعاينة الحية ومشاركة التقارير
+                بروابط عامة آمنة.</p>
+              <ul class="text-sm space-y-2 mt-3 text-gray-600 dark:text-gray-300 pr-4 list-disc">
+                <li>إضافة وتخصيص الرسوم البيانية (Bar, Line, KPI, Pivot Table).</li>
+                <li>توليد روابط مشاركة عامة مع حماية كلمة السر وتاريخ الانتهاء.</li>
+                <li>تضمين اللوحات بسهولة عبر كود iframe في أي موقع أو تطبيق خارجي.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6: UX Performance Metrics Targets -->
+      <div class="slide-container" id="slide6">
+        <h2 class="slide-title">مؤشرات أداء تجربة الاستخدام المستهدفة</h2>
+        <div class="content-area">
+          <div class="highlight-numbers-layout">
+            <div>
+              <div class="number">1.2s</div>
+              <div class="number-label">الحد الأقصى لزمن استجابة اللوحة</div>
+              <p class="text-xs text-sky-100 mt-3">تنفيذ استعلامات التجميع والفلترة على ملايين الأسطر عبر DuckDB العمودي
+              </p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-gray-50 dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700">
+                <div class="text-3xl font-black text-sky-500 font-mono">50 MB</div>
+                <div class="font-bold text-gray-800 dark:text-gray-200 mt-1">حجم ملفات الرفع المباشر</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">معالجة فورية لملفات Excel/CSV دون إجهاد المتصفح
+                </p>
+              </div>
+              <div class="bg-gray-50 dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700">
+                <div class="text-3xl font-black text-emerald-500 font-mono">60 FPS</div>
+                <div class="font-bold text-gray-800 dark:text-gray-200 mt-1">سلاسة الرسوم والتفاعل</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">معدل تحديث مستمر عبر Apache ECharts Canvas</p>
+              </div>
+              <div class="bg-gray-50 dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700">
+                <div class="text-3xl font-black text-indigo-500 font-mono">100%</div>
+                <div class="font-bold text-gray-800 dark:text-gray-200 mt-1">عزل بيانات المساحات</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">فصل منطقي صارم بين مستأجري المنصة
+                  (Multi-tenant)</p>
+              </div>
+              <div class="bg-gray-50 dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700">
+                <div class="text-3xl font-black text-amber-500 font-mono">0 ثانية</div>
+                <div class="font-bold text-gray-800 dark:text-gray-200 mt-1">انقطاع عند استبدال البيانات</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">تحديث الـ Schemas دون كسر الـ Widgets القائمة
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 7: Role-based Component Visibility Matrix -->
+      <div class="slide-container" id="slide7">
+        <h2 class="slide-title">مصفوفة صلاحيات الواجهة حسب الأدوار (RBAC Matrix)</h2>
+        <div class="content-area table-layout">
+          <table>
+            <thead>
+              <tr>
+                <th>الوظيفة وعنصر الواجهة</th>
+                <th class="text-center">المالك (Owner)</th>
+                <th class="text-center">المحرر (Editor)</th>
+                <th class="text-center">المشاهد (Viewer)</th>
+                <th class="text-center">الزائر العام (Public Guest)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-bold">رفع واستبدال ملفات البيانات (Excel/CSV)</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> كاملة</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> كاملة</td>
+                <td class="text-center text-rose-500"><i class="fa-solid fa-circle-xmark"></i> محجوب</td>
+                <td class="text-center text-rose-500"><i class="fa-solid fa-circle-xmark"></i> محجوب</td>
+              </tr>
+              <tr>
+                <td class="font-bold">محرر اللوحات وسحب وإفلات العناصر (Canvas Studio)</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> كاملة</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> كاملة</td>
+                <td class="text-center text-amber-500"><i class="fa-solid fa-eye"></i> قراءة فقط</td>
+                <td class="text-center text-amber-500"><i class="fa-solid fa-eye"></i> قراءة فقط</td>
+              </tr>
+              <tr>
+                <td class="font-bold">توليد وإدارة روابط المشاركة العامة وكلمة السر</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> كاملة</td>
+                <td class="text-center text-amber-500"><i class="fa-solid fa-triangle-exclamation"></i> إنشاء فقط</td>
+                <td class="text-center text-rose-500"><i class="fa-solid fa-circle-xmark"></i> محجوب</td>
+                <td class="text-center text-rose-500"><i class="fa-solid fa-circle-xmark"></i> محجوب</td>
+              </tr>
+              <tr>
+                <td class="font-bold">التفاعل مع الفلاتر والـ Slicers والتصفية المتقاطعة</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> متاح</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> متاح</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> متاح</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> متاح</td>
+              </tr>
+              <tr>
+                <td class="font-bold">تصدير التقارير (PDF / Excel Raw Data)</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> متاح</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> متاح</td>
+                <td class="text-center text-emerald-500"><i class="fa-solid fa-circle-check"></i> متاح</td>
+                <td class="text-center text-amber-500"><i class="fa-solid fa-lock"></i> خاضع للسياسة</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Slide 8: Responsive Mobile Experience -->
+      <div class="slide-container bleed-image-layout" id="slide8">
+        <div>
+          <h2 class="slide-title">التجربة المتجاوبة للهواتف والأجهزة اللوحية</h2>
+          <div class="bleed-text-side">
+            <h3>إعادة هيكلة تلقائية للشبكة (Auto-Reflow)</h3>
+            <p>تتحول اللوحات تلقائياً من نظام الشبكة متعدد الأعمدة (Multi-column Canvas) إلى تدفق رأسي ذكي يسهل تصفحه
+              بإبهام اليد الواحدة على الهواتف الذكية.</p>
+            <p>تحتفظ كافة المخططات بقدرتها على التفاعل عبر إيماءات اللمس، مثل التكبير بالقرص (Pinch-to-zoom) والتمرير
+              الأفقي للجداول المحورية.</p>
+            <div class="space-y-2 mt-3">
+              <div class="flex items-center gap-3 text-sm">
+                <i class="fa-solid fa-mobile-screen-button text-sky-500 text-lg"></i>
+                <span>قوائم فلاتر منزلقة من الأسفل (Bottom Sheets) مخصصة للموبايل</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <i class="fa-solid fa-bolt text-amber-500 text-lg"></i>
+                <span>حفظ مؤقت ذكي (Client Caching) لتصفح فائق السرعة عبر شبكات 4G/5G</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center items-center h-full">
+          <div class="w-64 bg-slate-900 rounded-[36px] p-4 border-4 border-slate-700 shadow-2xl relative">
+            <div class="w-24 h-4 bg-slate-800 rounded-full mx-auto mb-3"></div>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-[10px] text-gray-400">
+                <span class="font-bold text-white">تقرير الربع الثالث</span>
+                <i class="fa-solid fa-bars"></i>
+              </div>
+              <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                <div class="text-[9px] text-gray-400">صافي المبيعات</div>
+                <div class="text-sm font-bold text-white font-mono">$1.2M</div>
+                <div class="text-[9px] text-emerald-400 mt-0.5"><i class="fa-solid fa-arrow-up"></i> +18% هذا الشهر
+                </div>
+              </div>
+              <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                <div class="text-[9px] text-gray-400 mb-1">النمو الأسبوعي</div>
+                <div class="h-16 flex items-end gap-1.5 pt-2">
+                  <div class="flex-1 bg-sky-500 rounded-t h-[40%]"></div>
+                  <div class="flex-1 bg-sky-400 rounded-t h-[70%]"></div>
+                  <div class="flex-1 bg-sky-500 rounded-t h-[55%]"></div>
+                  <div class="flex-1 bg-emerald-400 rounded-t h-[95%]"></div>
+                </div>
+              </div>
+              <div class="bg-sky-500/20 text-sky-400 text-center py-2 rounded-lg text-xs font-bold">
+                تطبيق الفلاتر (3 نشطة)
+              </div>
+            </div>
+            <div class="w-28 h-1 bg-slate-700 rounded-full mx-auto mt-4"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 9: Task Completion Time Improvement -->
+      <div class="slide-container" id="slide9">
+        <h2 class="slide-title">مقارنة سرعة إنجاز المهام التحليلية</h2>
+        <div class="content-area">
+          <div class="chart-container">
+            <div class="bar">
+              <div class="label">إنشاء وتصميم لوحة تحكم جديدة</div>
+              <div class="bar-inner">
+                <div class="bar-fill bg-gradient-to-r from-sky-500 to-indigo-600" style="width: 88%;">
+                  <span>المنصة المقترحة: 3 دقائق</span>
+                  <span class="text-xs bg-black/30 px-2 py-0.5 rounded">تحسن 88% (سابقاً 25 دقيقة)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bar">
+              <div class="label">استبدال مصدر البيانات وتحديث التقارير</div>
+              <div class="bar-inner">
+                <div class="bar-fill bg-gradient-to-r from-emerald-500 to-teal-600" style="width: 96%;">
+                  <span>المنصة المقترحة: 30 ثانية</span>
+                  <span class="text-xs bg-black/30 px-2 py-0.5 rounded">تحسن 96% (سابقاً 15 دقيقة)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bar">
+              <div class="label">نشر وتوليد رابط مشاركة آمن بكلمة سر</div>
+              <div class="bar-inner">
+                <div class="bar-fill bg-gradient-to-r from-amber-500 to-orange-600" style="width: 93%;">
+                  <span>المنصة المقترحة: 20 ثانية</span>
+                  <span class="text-xs bg-black/30 px-2 py-0.5 rounded">تحسن 93% (سابقاً 5 دقائق)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bar">
+              <div class="label">زمن استعلام الفلاتر المتقاطعة (150K سطر)</div>
+              <div class="bar-inner">
+                <div class="bar-fill bg-gradient-to-r from-purple-500 to-pink-600" style="width: 94%;">
+                  <span>DuckDB: أقل من ثانية (0.8s)</span>
+                  <span class="text-xs bg-black/30 px-2 py-0.5 rounded">تحسن 94% (سابقاً 14 ثانية)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="chart-summary mt-6">البيانات محسوبة بناءً على تجارب سريرية لمقارنة المعالجة التقليدية في قواعد
+            البيانات العادية مقابل DuckDB العمودي و React Canvas.</p>
+        </div>
+      </div>
+
+      <!-- Slide 10: Accessibility & Micro-interactions -->
+      <div class="slide-container" id="slide10">
+        <h2 class="slide-title">التفاعلات الدقيقة وتجربة المستخدم المميزة (Micro-interactions)</h2>
+        <div class="content-area bullet-list">
+          <ul>
+            <li>
+              <i class="fa-solid fa-hand-pointer"></i>
+              <strong>معاينة شبحية ومغناطيسية عند السحب (Ghost Preview & Magnetic Snapping):</strong>
+              تمنح المستخدم إحساساً فورياً بمكان استقرار الـ Widget وتمنع تداخل العناصر في المحرر.
+            </li>
+            <li>
+              <i class="fa-solid fa-spinner"></i>
+              <strong>شاشات انتظار هيكلية ذكية (Skeleton Loaders):</strong>
+              عرض هياكل وهمية للمخططات أثناء تنفيذ استعلامات DuckDB لمنع القفزات التخطيطية (Zero Cumulative Layout
+              Shift).
+            </li>
+            <li>
+              <i class="fa-solid fa-chart-line"></i>
+              <strong>تلميحات سياقية تفاعلية (Contextual Rich Tooltips):</strong>
+              ظهور بطاقة تفصيلية عند تمرير المؤشر فوق نقاط الرسوم البيانية تتضمن القيم الدقيقة، النسب المئوية،
+              والمقارنات الشهرية.
+            </li>
+            <li>
+              <i class="fa-solid fa-keyboard"></i>
+              <strong>اختصارات لوحة المفاتيح الاحترافية (Power Shortcuts):</strong>
+              دعم اختصارات شائعة مثل (Ctrl+Z للتراجع، Ctrl+S للحفظ السريع، Esc لإغلاق النوافذ المنبثقة) لتسريع وتيرة
+              العمل.
+            </li>
+            <li>
+              <i class="fa-solid fa-bell"></i>
+              <strong>إشعارات منبثقة غير مزعجة (Toast Feedback System):</strong>
+              تأكيد لحظي عند نسخ الرابط، حفظ اللوحة، أو اكتمال معالجة الملفات مع خيار التراجع المباشر.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Slide 11: Timeline Roadmap -->
+      <div class="slide-container" id="slide11">
+        <h2 class="slide-title">خطة تنفيذ واجهة وتجربة المستخدم (UI/UX Sprints)</h2>
+        <div class="content-area">
+          <div class="timeline-layout">
+            <div class="timeline-line"></div>
+
+            <div class="timeline-item">
+              <div class="content-wrapper">
+                <h3>Sprint 1</h3>
+                <p class="font-bold text-gray-800 dark:text-gray-200 text-sm">نظام التصميم والمصادقة</p>
+                <p class="text-xs text-gray-500">Design Tokens، مكونات الواجهة الأساسية، شاشات التسجيل والدخول ومساحات
+                  العمل.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="content-wrapper">
+                <h3>Sprint 2</h3>
+                <p class="font-bold text-gray-800 dark:text-gray-200 text-sm">معالج رفع البيانات</p>
+                <p class="text-xs text-gray-500">مستكشف الأوراق، مطابقة الأعمدة وأنواعها، وربط خط أنابيب DuckDB الأولي.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="content-wrapper">
+                <h3>Sprint 3</h3>
+                <p class="font-bold text-gray-800 dark:text-gray-200 text-sm">محرر اللوحات و ECharts</p>
+                <p class="text-xs text-gray-500">كانفاس السحب والإفلات، تكامل الرسوم التفاعلية، ومحرك الفلاتر المتقاطعة.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="content-wrapper">
+                <h3>Sprint 4 & 5</h3>
+                <p class="font-bold text-gray-800 dark:text-gray-200 text-sm">المشاركة العامة والأداء</p>
+                <p class="text-xs text-gray-500">بوابة العرض العامة الآمنة، كود التضمين iframe، واختبارات الضغط لـ 250K
+                  سطر.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 12: Q&A / Next Steps -->
+      <div class="slide-container" id="slide12">
+        <div class="qa-layout">
+          <div
+            class="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-1.5 rounded-full font-bold text-sm mb-4 border border-emerald-500/20">
+            <i class="fa-solid fa-circle-check"></i> جاهزون للاعتماد والانطلاق
+          </div>
+          <h2>الخطوات القادمة والبدء بالتنفيذ</h2>
+          <p class="subtitle max-w-2xl mx-auto">مع اكتمال معمارية النظام ومواصفات واجهة وتجربة المستخدم، نوصي باعتماد
+            المواصفات للبدء الفوري في المرحلة الأولى (Sprint 1).</p>
+          <div class="mt-8 flex justify-center gap-4">
+            <div
+              class="bg-gray-50 dark:bg-slate-800 px-6 py-4 rounded-xl border border-gray-200 dark:border-slate-700 text-right">
+              <span class="text-xs text-sky-500 font-bold block mb-1">الخطوة الأولى الفورية</span>
+              <span class="font-bold text-gray-800 dark:text-gray-200 text-sm">إعداد البيئة، جداول PostgreSQL، ومصادقة
+                JWT</span>
+            </div>
+            <div
+              class="bg-gray-50 dark:bg-slate-800 px-6 py-4 rounded-xl border border-gray-200 dark:border-slate-700 text-right">
+              <span class="text-xs text-emerald-500 font-bold block mb-1">مكتبات الواجهة المعتمدة</span>
+              <span class="font-bold text-gray-800 dark:text-gray-200 text-sm">React + TypeScript + Tailwind + Apache
+                ECharts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Slideshow Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const counter = document.getElementById('slide-counter');
+    let currentSlide = 0;
+
+    function updateSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+      });
+      currentSlide = index;
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === slides.length - 1;
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentSlide > 0) updateSlide(currentSlide - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentSlide < slides.length - 1) updateSlide(currentSlide + 1);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
+        if (currentSlide < slides.length - 1) updateSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+        if (currentSlide > 0) updateSlide(currentSlide - 1);
+      }
+    });
+
+    // Auto-scale presentation to fit window viewport maintaining 16:9 (1280x720)
+    function scalePresentation() {
+      const holder = document.getElementById('slideshow-holder');
+      const wrapper = document.getElementById('slideshow-wrapper');
+      if (!holder || !wrapper) return;
+
+      const holderWidth = holder.clientWidth - 32;
+      const holderHeight = holder.clientHeight - 32;
+      const scaleX = holderWidth / 1280;
+      const scaleY = holderHeight / 720;
+      const scale = Math.min(scaleX, scaleY, 1.25);
+
+      wrapper.style.setProperty('--scale-factor', Math.max(scale, 0.45));
+    }
+
+    window.addEventListener('resize', scalePresentation);
+    scalePresentation();
+
+    // Dark Mode Toggle Logic
+    const themeToggle = document.getElementById('theme-toggle');
+    const darkIcon = document.getElementById('theme-toggle-dark-icon');
+    const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+    function syncThemeIcons() {
+      if (document.body.classList.contains('dark')) {
+        darkIcon.classList.add('hidden');
+        lightIcon.classList.remove('hidden');
+      } else {
+        lightIcon.classList.add('hidden');
+        darkIcon.classList.remove('hidden');
+      }
+    }
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+      syncThemeIcons();
+    });
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.classList.remove('dark');
+    } else {
+      document.body.classList.add('dark');
+    }
+    syncThemeIcons();
+    updateSlide(0);
+  </script>
+</body>
+
+</html>

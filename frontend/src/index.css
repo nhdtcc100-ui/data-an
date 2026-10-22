@@ -1,0 +1,608 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-cairo: 'Cairo', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-slate-750: #293548;
+  --color-slate-850: #172033;
+  --color-slate-950: #090d16;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cairo', sans-serif;
+}
+
+/* Custom Sleek Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modern Glass & Glow utilities */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Mobile safe-area padding (iPhone notch / home bar) */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent double-tap zoom on mobile buttons */
+button, a {
+  touch-action: manipulation;
+}
+
+/* Slide-up animation for mobile drawer */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.animate-slideUp {
+  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Mobile canvas: hide scrollbar but keep scrollability */
+@media (max-width: 767px) {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+}
+
+/* Prevent layout overflow on very small screens */
+@media (max-width: 480px) {
+  .truncate-xs {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Next-Gen Mobile UI & Motion Themes Animations (Charts & Tables)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes neonGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(0, 243, 255, 0.16), 0 0 35px rgba(255, 0, 127, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(0, 243, 255, 0.32), 0 0 45px rgba(255, 0, 127, 0.18);
+  }
+}
+
+@keyframes goldSheenPulse {
+  0%, 100% {
+    border-color: rgba(212, 175, 55, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.08);
+  }
+  50% {
+    border-color: rgba(245, 158, 11, 0.6);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(212, 175, 55, 0.2);
+  }
+}
+
+@keyframes holoScanline {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+@keyframes cosmicDrift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Theme Classes */
+.theme-cyber-neon {
+  animation: neonGlowPulse 4s ease-in-out infinite;
+}
+
+.theme-minimal-luxury {
+  animation: goldSheenPulse 5s ease-in-out infinite;
+}
+
+.theme-matrix-holo {
+  background-image: linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 100% 4px;
+}
+
+.theme-orbit-cosmic {
+  background-size: 200% 200%;
+  animation: cosmicDrift 10s ease infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   10 أنماط تصميم واجهات المستخدم (UI Design Styles) للرسوم والجداول
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   10 أنماط UI Design Styles - الحالة الطبيعية (base)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. السكيومورفزم (Skeuomorphism) */
+.theme-skeuomorphism {
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 2px solid #334155 !important;
+  border-top-color: #475569 !important;
+  border-bottom-color: #020617 !important;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.75),
+    inset 0 1px 2px rgba(255, 255, 255, 0.22),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.6) !important;
+  transition: box-shadow 0.35s ease, transform 0.25s ease !important;
+}
+.theme-skeuomorphism:hover {
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.85),
+    0 0 28px rgba(217, 119, 6, 0.28),
+    inset 0 1px 3px rgba(255, 255, 255, 0.28),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.7) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 2. النيومورفزم (Neumorphism - Soft UI) */
+.theme-neumorphism {
+  background: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 10px 10px 22px #060b14, -10px -10px 22px #182542 !important;
+  transition: box-shadow 0.35s ease, transform 0.25s ease !important;
+}
+.theme-neumorphism:hover {
+  box-shadow:
+    14px 14px 30px #040810,
+    -14px -14px 30px #1e3050,
+    0 0 20px rgba(96, 165, 250, 0.18) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 3. الجلاس مورفزم (Glassmorphism) */
+.theme-glassmorphism {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(15, 23, 42, 0.62) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45) !important;
+  transition: box-shadow 0.35s ease, transform 0.25s ease !important;
+}
+.theme-glassmorphism:hover {
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(56, 189, 248, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-3px) !important;
+}
+
+/* 4. الكلاي مورفزم (Claymorphism) */
+.theme-claymorphism {
+  background: #1e1b4b !important;
+  border: 1.5px solid rgba(167, 139, 250, 0.3) !important;
+  box-shadow:
+    14px 14px 28px rgba(0, 0, 0, 0.55),
+    inset -8px -8px 16px rgba(0, 0, 0, 0.45),
+    inset 8px 8px 16px rgba(255, 255, 255, 0.18) !important;
+  transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.theme-claymorphism:hover {
+  box-shadow:
+    20px 20px 40px rgba(0, 0, 0, 0.7),
+    0 0 35px rgba(236, 72, 153, 0.35),
+    inset -10px -10px 20px rgba(0, 0, 0, 0.5),
+    inset 10px 10px 20px rgba(255, 255, 255, 0.22) !important;
+  transform: translateY(-4px) scale(1.01) !important;
+}
+
+/* 5. المينيماليزم البارز (Minimalism) */
+.theme-minimalism {
+  background: #080d1a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease !important;
+}
+.theme-minimalism:hover {
+  border-color: #38bdf8 !important;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(56, 189, 248, 0.15) !important;
+}
+
+/* 6. الماكسيماليزم (Maximalism) */
+.theme-maximalism {
+  background: #0a0515 !important;
+  border: 2px solid #ec4899 !important;
+  box-shadow:
+    0 0 25px rgba(236, 72, 153, 0.4),
+    inset 0 0 15px rgba(6, 182, 212, 0.18) !important;
+  transition: box-shadow 0.3s ease, transform 0.25s ease !important;
+}
+.theme-maximalism:hover {
+  box-shadow:
+    0 0 40px rgba(236, 72, 153, 0.65),
+    0 0 25px rgba(0, 229, 255, 0.35),
+    inset 0 0 25px rgba(6, 182, 212, 0.28) !important;
+  transform: translateY(-3px) !important;
+}
+
+/* 7. البروتاليزم (Brutalism) */
+.theme-brutalism {
+  background: #09090b !important;
+  border: 3px solid #38bdf8 !important;
+  border-radius: 4px !important;
+  box-shadow: 6px 6px 0px #38bdf8 !important;
+  transition: box-shadow 0.15s ease, transform 0.15s ease !important;
+}
+.theme-brutalism:hover {
+  box-shadow: 10px 10px 0px #38bdf8, 4px 4px 0px #facc15 !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+/* 8. الزجاج السائل (Liquid Glass) */
+.theme-liquid-glass {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(59, 130, 246, 0.08), rgba(15, 23, 42, 0.85)) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(56, 189, 248, 0.38) !important;
+  box-shadow: 0 16px 40px rgba(6, 182, 212, 0.22) !important;
+  transition: box-shadow 0.4s ease, transform 0.3s ease !important;
+}
+.theme-liquid-glass:hover {
+  box-shadow:
+    0 24px 60px rgba(6, 182, 212, 0.38),
+    0 0 40px rgba(59, 130, 246, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* 9. البينتو جرايد (Bento Grid) */
+.theme-bento-grid {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1.5px solid rgba(71, 85, 105, 0.6) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38) !important;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.25s ease !important;
+}
+.theme-bento-grid:hover {
+  border-color: rgba(2, 132, 199, 0.5) !important;
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(2, 132, 199, 0.22) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 10. السباتيشل ثلاثي الأبعاد (Spatial UI) */
+.theme-spatial-ui {
+  background: rgba(30, 27, 75, 0.38) !important;
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
+  border: 1.5px solid rgba(167, 139, 250, 0.35) !important;
+  box-shadow:
+    0 25px 60px -15px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(129, 140, 248, 0.28) !important;
+  transition: box-shadow 0.4s ease, transform 0.3s ease !important;
+}
+.theme-spatial-ui:hover {
+  box-shadow:
+    0 35px 80px -15px rgba(0, 0, 0, 0.9),
+    0 0 50px rgba(129, 140, 248, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-5px) !important;
+}
+
+/* ── تأثيرات Neon المكملة ── */
+.theme-cyber-neon:hover {
+  box-shadow:
+    0 0 40px rgba(0, 243, 255, 0.45),
+    0 0 20px rgba(255, 0, 127, 0.25) !important;
+  transform: translateY(-2px) !important;
+}
+.theme-minimal-luxury:hover {
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(212, 175, 55, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+.theme-orbit-cosmic:hover {
+  box-shadow:
+    0 0 50px rgba(139, 92, 246, 0.42),
+    0 20px 60px rgba(0, 0, 0, 0.7) !important;
+  transform: translateY(-3px) !important;
+}
+.theme-glass-capsule:hover {
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    0 0 28px rgba(129, 140, 248, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-3px) !important;
+}
+.theme-liquid-floating:hover {
+  box-shadow:
+    0 24px 55px rgba(6, 182, 212, 0.3),
+    0 0 35px rgba(59, 130, 246, 0.2) !important;
+  transform: translateY(-3px) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   🌞 Light Theme — Full Text & Heading Color Overrides
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* When NOT in dark mode, force all slate-light classes to dark equivalents */
+:root:not(.dark) h1,
+:root:not(.dark) h2,
+:root:not(.dark) h3,
+:root:not(.dark) h4,
+:root:not(.dark) h5,
+:root:not(.dark) h6 {
+  color: #0f172a;
+}
+
+/* Override light-specific text classes */
+body:not(.dark) .text-slate-200 { color: #1e293b !important; }
+body:not(.dark) .text-slate-300 { color: #334155 !important; }
+body:not(.dark) .text-slate-400 { color: #475569 !important; }
+body:not(.dark) .text-slate-500 { color: #64748b !important; }
+
+/* Light theme wrapper — apply when theme !== dark */
+.light-mode h1, .light-mode h2, .light-mode h3,
+.light-mode h4, .light-mode h5, .light-mode h6 {
+  color: #0f172a !important;
+}
+.light-mode .text-slate-200 { color: #1e293b !important; }
+.light-mode .text-slate-300 { color: #334155 !important; }
+.light-mode .text-slate-400 { color: #475569 !important; }
+.light-mode .text-slate-500 { color: #64748b !important; }
+
+/* ══ Explicit light theme via data attribute ══ */
+[data-theme="minimalism"] .text-slate-200,
+[data-theme="minimalism"] .text-slate-400,
+[data-theme="minimalism"] .text-slate-500 {
+  color: #1e293b !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   🏔️  Global 3D Depth & Shadow Design System
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Elevation tokens — use like utility classes */
+.shadow-3d-xs {
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.25),
+    0 2px 4px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.shadow-3d-sm {
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.30),
+    0 4px 12px rgba(0,0,0,0.20),
+    0 8px 24px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.shadow-3d {
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.35),
+    0 8px 20px rgba(0,0,0,0.25),
+    0 16px 40px rgba(0,0,0,0.18),
+    0 32px 64px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+  transform: perspective(1200px) translateZ(0);
+}
+.shadow-3d-lg {
+  box-shadow:
+    0 8px 16px rgba(0,0,0,0.40),
+    0 16px 36px rgba(0,0,0,0.30),
+    0 32px 64px rgba(0,0,0,0.22),
+    0 48px 96px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+  transform: perspective(1200px) translateZ(4px);
+}
+.shadow-3d-xl {
+  box-shadow:
+    0 12px 24px rgba(0,0,0,0.45),
+    0 24px 48px rgba(0,0,0,0.35),
+    0 48px 96px rgba(0,0,0,0.25),
+    0 72px 128px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.30);
+  transform: perspective(1200px) translateZ(8px);
+}
+
+/* Floating card — premium 3D card feel */
+.card-3d {
+  transform: perspective(1000px) rotateX(0deg) translateZ(0);
+  box-shadow:
+    0 6px 16px rgba(0,0,0,0.38),
+    0 16px 40px rgba(0,0,0,0.26),
+    0 32px 72px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -2px 0 rgba(0,0,0,0.25);
+  transition: transform 0.35s cubic-bezier(0.23,1,0.32,1),
+              box-shadow 0.35s cubic-bezier(0.23,1,0.32,1);
+}
+.card-3d:hover {
+  transform: perspective(1000px) rotateX(1.5deg) translateY(-4px) translateZ(8px);
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.45),
+    0 28px 60px rgba(0,0,0,0.32),
+    0 48px 100px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -2px 0 rgba(0,0,0,0.30);
+}
+
+/* Raised button feel */
+.btn-3d {
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.35),
+    0 4px 8px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -2px 0 rgba(0,0,0,0.25);
+  transform: translateY(0);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-3d:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.40),
+    0 8px 16px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.16);
+}
+.btn-3d:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(0,0,0,0.10);
+}
+
+/* Premium glass panel with 3D depth */
+.glass-3d {
+  background: rgba(15, 23, 42, 0.80);
+  backdrop-filter: blur(24px) saturate(200%) brightness(1.05);
+  -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(1.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-top-color: rgba(255,255,255,0.20);
+  border-bottom-color: rgba(0,0,0,0.30);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.40),
+    0 20px 50px rgba(0,0,0,0.30),
+    0 40px 80px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.25);
+}
+
+/* Spatial header bar — 3D header with depth */
+.header-3d {
+  background: linear-gradient(180deg,
+    rgba(15,23,42,0.98) 0%,
+    rgba(9,14,27,0.97) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04),
+    0 4px 16px rgba(0,0,0,0.50),
+    0 8px 32px rgba(0,0,0,0.30),
+    0 16px 48px rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Widget card — spatial card with layered depth */
+.widget-3d {
+  position: relative;
+  transform: perspective(800px) translateZ(0);
+  transition: transform 0.3s cubic-bezier(0.23,1,0.32,1),
+              box-shadow 0.3s cubic-bezier(0.23,1,0.32,1);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.38),
+    0 12px 32px rgba(0,0,0,0.24),
+    0 24px 56px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.widget-3d::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.04) 0%,
+    transparent 40%,
+    rgba(0,0,0,0.08) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.widget-3d:hover {
+  transform: perspective(800px) translateY(-3px) translateZ(6px);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.45),
+    0 20px 48px rgba(0,0,0,0.30),
+    0 40px 80px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+/* Sidebar 3D panel */
+.sidebar-3d {
+  box-shadow:
+    4px 0 16px rgba(0,0,0,0.40),
+    8px 0 32px rgba(0,0,0,0.25),
+    16px 0 48px rgba(0,0,0,0.12),
+    inset -1px 0 0 rgba(255,255,255,0.04);
+}
+
+/* Glow accent shadows for brand color */
+.glow-sky {
+  box-shadow:
+    0 4px 16px rgba(14,165,233,0.30),
+    0 8px 32px rgba(14,165,233,0.18),
+    0 0 0 1px rgba(14,165,233,0.25);
+}
+.glow-indigo {
+  box-shadow:
+    0 4px 16px rgba(99,102,241,0.30),
+    0 8px 32px rgba(99,102,241,0.18),
+    0 0 0 1px rgba(99,102,241,0.25);
+}
+.glow-emerald {
+  box-shadow:
+    0 4px 16px rgba(16,185,129,0.30),
+    0 8px 32px rgba(16,185,129,0.18),
+    0 0 0 1px rgba(16,185,129,0.25);
+}
+
+/* 3D logo/icon badge */
+.badge-3d {
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.40),
+    0 4px 12px rgba(0,0,0,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.35);
+  transform: perspective(400px) translateZ(0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.badge-3d:hover {
+  transform: perspective(400px) translateZ(4px) scale(1.06);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.50),
+    0 8px 24px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+}
+
+/* Ground shadow — subtle beneath floating elements */
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+.float-animate {
+  animation: floatUp 4s ease-in-out infinite;
+}
+
+/* Smooth elevation transitions */
+* {
+  --shadow-color: 222 47% 11%;
+}
+

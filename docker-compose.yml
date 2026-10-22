@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # 1. قاعدة البيانات الرئيسية (PostgreSQL 16)
+  postgres:
+    image: postgres:16-alpine
+    container_name: bi_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-bi_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SecureMasterPassword2026!}
+      POSTGRES_DB: ${DB_NAME:-enterprise_bi_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bi_admin} -d ${DB_NAME:-enterprise_bi_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bi_network
+
+  # 2. مستودع تخزين الملفات والبيانات الخام (MinIO / S3 Storage)
+  minio:
+    image: minio/minio:RELEASE.2024-03-05T04-48-44Z
+    container_name: bi_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minio_bi_admin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-MinioSecretPassword2026!}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - bi_network
+
+  # 3. خادم الواجهة الخلفية ومحرك التحليلات (NestJS + DuckDB OLAP)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bi_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${DB_USER:-bi_admin}:${DB_PASSWORD:-SecureMasterPassword2026!}@postgres:5432/${DB_NAME:-enterprise_bi_db}
+      JWT_SECRET: ${JWT_SECRET:-super_secret_enterprise_jwt_key_2026_modern_bi_platform_key!}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-super_secret_refresh_key_2026_enterprise_platform!}
+      S3_ENDPOINT: minio
+      S3_PORT: 9000
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-minio_bi_admin}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-MinioSecretPassword2026!}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-bi-data-storage}
+      STORAGE_BASE_PATH: /app/storage
+    ports:
+      - "3000:3000"
+    volumes:
+      - storage_data:/app/storage
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bi_network
+
+  # 4. الواجهة الأمامية وخادم Nginx (React + Vite + ECharts)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bi_frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    networks:
+      - bi_network
+
+networks:
+  bi_network:
+    driver: bridge
+
+volumes:
+  pg_data:
+    driver: local
+  minio_data:
+    driver: local
+  storage_data:
+    driver: local
