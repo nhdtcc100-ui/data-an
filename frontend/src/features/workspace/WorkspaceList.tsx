@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DeleteConfirmModal } from '../../components/ui/DeleteConfirmModal';
 import {
   FolderKanban,
   Plus,
@@ -259,6 +260,7 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
   const [editTitle, setEditTitle] = useState('');
   const [sheetModalProj, setSheetModalProj] = useState<{ id: string; title: string; url: string } | null>(null);
   const [sheetModalUrl, setSheetModalUrl] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
   const handleSaveSheetUrl = () => {
     if (sheetModalProj) {
@@ -277,12 +279,13 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
   };
 
   const handleDelete = (projectId: string, title: string) => {
-    if (projects.length <= 1) {
-      alert('لا يمكن حذف المشروع الأخير.');
-      return;
-    }
-    if (window.confirm(`هل تريد حذف مشروع "${title}"؟ سيُحذف نهائياً.`)) {
-      deleteProject(projectId);
+    setDeleteTarget({ id: projectId, title });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteTarget) {
+      await deleteProject(deleteTarget.id);
+      setDeleteTarget(null);
     }
   };
 
@@ -304,6 +307,13 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
 
   return (
     <>
+      {deleteTarget && (
+        <DeleteConfirmModal
+          projectTitle={deleteTarget.title}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
       {showNewModal && (
         <NewProjectModal
           onClose={() => setShowNewModal(false)}
@@ -551,15 +561,13 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                         {/* Delete */}
-                        {projects.length > 1 && (
-                          <button
-                            onClick={() => handleDelete(proj.id, proj.title)}
-                            title="حذف المشروع"
-                            className="p-1.5 rounded-lg hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition cursor-pointer opacity-0 group-hover:opacity-100"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handleDelete(proj.id, proj.title)}
+                          title="حذف المشروع نهائياً"
+                          className="p-1.5 rounded-lg hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition cursor-pointer opacity-0 group-hover:opacity-100"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                         {/* Open */}
                         <button
                           onClick={() => handleOpenProject(proj.id)}

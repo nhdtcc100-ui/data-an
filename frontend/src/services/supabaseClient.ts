@@ -1,13 +1,19 @@
-﻿// ============================================================
-// Supabase Client - Local self-hosted instance
-// URL: http://localhost:8000
+// ============================================================
+// Supabase Client - configurable via VITE_SUPABASE_URL env var
+// Local default: http://localhost:8000
+// Production: set VITE_SUPABASE_URL to Cloudflare Tunnel URL
 // ============================================================
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'http://localhost:8000';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkyNjY0NzY1LCJleHAiOjE5NTAzNDQ3NjV9.7HBWC-YC_7L400M5lDIEEVod0BKyUNRKGyveE6_Zdzw';
+const SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL || 'http://localhost:8000';
+
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkyNjY0NzY1LCJleHAiOjE5NTAzNDQ3NjV9.7HBWC-YC_7L400M5lDIEEVod0BKyUNRKGyveE6_Zdzw';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
 export const DEFAULT_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001';
 

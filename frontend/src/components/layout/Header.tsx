@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DeleteConfirmModal } from '../ui/DeleteConfirmModal';
 import { useDashboardStore } from '../../features/dashboard-builder/DashboardStore';
 import { PROJECT_COLOR_ACCENTS } from '../../types/project';
 import {
@@ -78,6 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isProjectSwitcherOpen, setIsProjectSwitcherOpen] = React.useState(false);
   const [isGSheetModalOpen, setIsGSheetModalOpen] = React.useState(false);
   const [modalSheetUrl, setModalSheetUrl] = React.useState(activeProject?.googleSheetUrl || '');
+  const [headerDeleteTarget, setHeaderDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
   const [modalError, setModalError] = React.useState<string | null>(null);
   const fileImportInputRef = React.useRef<HTMLInputElement>(null);
   const switcherRef = React.useRef<HTMLDivElement>(null);
@@ -218,6 +220,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
+    <>
     <header className="flex flex-col select-none z-30 shrink-0 header-3d">
       {/* ── Top Bar 1 — always visible ── */}
       <div className="h-13 px-4 sm:px-6 flex items-center justify-between">
@@ -308,20 +311,17 @@ export const Header: React.FC<HeaderProps> = ({
                             {proj.dashboard.widgets.length} عناصر • {proj.dataSourceType === 'google_sheets' ? '🟢 Google Sheets' : '📑 ملف'}
                           </div>
                         </div>
-                        {isActive ? (
-                          <Check className={`w-4 h-4 shrink-0 ${accent.text}`} />
-                        ) : (
-                          projects.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); if (window.confirm(`حذف مشروع "${proj.title}"؟`)) deleteProject(proj.id); }}
-                              className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-rose-500/20 text-slate-600 hover:text-rose-400 transition opacity-0 group-hover:opacity-100"
-                              title="حذف المشروع"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          )
-                        )}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {isActive && <Check className={`w-4 h-4 ${accent.text}`} />}
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setHeaderDeleteTarget({ id: proj.id, title: proj.title }); }}
+                            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-rose-500/20 text-slate-600 hover:text-rose-400 transition opacity-0 group-hover:opacity-100"
+                            title="حذف المشروع"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -725,5 +725,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       )}
     </header>
+    {headerDeleteTarget && (
+      <DeleteConfirmModal
+        projectTitle={headerDeleteTarget.title}
+        onConfirm={async () => {
+          await deleteProject(headerDeleteTarget.id);
+          setHeaderDeleteTarget(null);
+        }}
+        onCancel={() => setHeaderDeleteTarget(null)}
+      />
+    )}
+    </>
   );
 };

@@ -10,13 +10,13 @@ import {
 } from '../../services/sampleDatasets';
 import { syncDataSourceToSupabase } from '../../services/supabaseDataService';
 import { saveAllProjectsToDb, saveProjectToDb, loadProjectsFromDb, deleteProjectFromDb } from '../../services/projectsDbService';
+import { markProjectAsDeleted, getDeletedProjectIds, unmarkProjectAsDeleted } from '../../services/deletedProjectsTracker';
 import {
   type DrillPathEntry,
   isWidgetLinkedToTarget,
   isWidgetListeningToSource
 } from '../../services/dataEngine';
 import type { MotionThemeId } from '../../services/motionThemes';
-import { DEFAULT_GOOGLE_SHEET_URL } from '../../services/googleSheetsService';
 
 // ─── Default Project ID ───────────────────────────────────────────────────────
 const DEFAULT_PROJECT_ID = 'proj-offers-2026';
@@ -229,8 +229,8 @@ interface DashboardState {
   createProject: (options: CreateProjectOptions) => string;
   /** Duplicate an existing project with all its data and widgets */
   duplicateProject: (projectId: string) => string;
-  /** Delete a project (last project is protected) */
-  deleteProject: (projectId: string) => void;
+  /** Delete a project permanently from DB and state (no project is excluded) */
+  deleteProject: (projectId: string) => Promise<boolean>;
   /** Update project metadata only */
   updateProjectMeta: (projectId: string, meta: Partial<Pick<Project, 'title' | 'description' | 'category' | 'icon' | 'colorAccent'>>) => void;
   /** Sync live Google Sheet URL to a specific project */
@@ -473,41 +473,6 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
   return widgets;
 }
 
-// ─── Helper: build default Project from current dashboard state ───────────────
-function buildDefaultProject(dashboard: Dashboard, dataSource: DataSource): Project {
-  return {
-    id: DEFAULT_PROJECT_ID,
-    title: dashboard.title,
-    description: dashboard.description,
-    category: 'sales',
-    icon: '💼',
-    colorAccent: 'sky',
-    createdAt: dashboard.createdAt,
-    updatedAt: dashboard.updatedAt,
-    dataSourceType: 'google_sheets',
-    googleSheetUrl: DEFAULT_GOOGLE_SHEET_URL,
-    databaseConfig: {
-      connected: true,
-      provider: 'supabase_postgres',
-      projectId: DEFAULT_PROJECT_ID,
-      databaseName: 'enterprise_bi_db',
-      tableName: 'analytics_sales_records',
-      schema: 'public',
-      status: 'connected',
-      lastSyncedAt: dashboard.updatedAt,
-      rowCount: dataSource.rawRows?.length || 252,
-      dbHost: 'localhost',
-      dbPort: 5432
-    },
-    dataSource,
-    dashboard,
-    activeFilters: {},
-    widgetFilters: {},
-    drillDownStates: {},
-    theme: 'dark',
-    isPublic: true
-  };
-}
 
 
 // ─── Mojibake Sanitation System ──────────────────────────────────────────────
@@ -1602,6 +1567,7 @@ export const useDashboardStore = create<DashboardState>()(
 
   createProject: (options) => {
     const newId = `proj-${Date.now()}`;
+    unmarkProjectAsDeleted(newId);
     const now = new Date().toISOString();
     const newDashId = `dash-${newId}`;
 
@@ -1799,6 +1765,7 @@ export const useDashboardStore = create<DashboardState>()(
     const source = state.projects.find((p) => p.id === projectId);
     if (!source) return '';
     const newId = `proj-${Date.now()}`;
+    unmarkProjectAsDeleted(newId);
     const now = new Date().toISOString();
     const newDashId = `dash-${newId}`;
 
@@ -1835,33 +1802,74 @@ export const useDashboardStore = create<DashboardState>()(
     return newId;
   },
 
-  deleteProject: (projectId) =>
-    set((state) => {
-      if (state.projects.length <= 1) return state; // Protect last project
-      const remaining = state.projects.filter((p) => p.id !== projectId);
+  deleteProject: async (projectId: string) => {
+    if (!projectId) return false;
 
-      // Delete from PostgreSQL in background
-      deleteProjectFromDb(projectId).catch(() => {});
+    // ── 1. Immediately mark in persistent deleted tracker so it can NEVER resurrect ──
+    markProjectAsDeleted(projectId);
 
-      if (state.currentProjectId !== projectId) {
-        return { projects: remaining };
-      }
-      // Was active project  -  switch to first remaining
-      const next = remaining[0];
-      saveAllProjectsToDb(remaining, next.id).catch(() => {});
-      return {
+    // ── 2. Update local state immediately ──────────────────────────────────────────
+    const prev = useDashboardStore.getState();
+    const remaining = prev.projects.filter((p) => p.id !== projectId);
+    const wasActive = prev.currentProjectId === projectId;
+
+    if (remaining.length === 0) {
+      set({
+        projects: [],
+        currentProjectId: '',
+        currentDashboard: {
+          id: '',
+          workspaceId: '',
+          title: '',
+          description: '',
+          widgets: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isPublic: false
+        },
+        currentDataSource: { ...prev.currentDataSource, rawRows: [], columns: [], fileName: '' },
+        activeFilters: {},
+        widgetFilters: {},
+        drillDownStates: {},
+        selectedWidgetId: null,
+        lastSavedAt: new Date().toISOString()
+      });
+    } else {
+      const next = wasActive ? remaining[0] : (remaining.find((p) => p.id === prev.currentProjectId) || remaining[0]);
+      set({
         projects: remaining,
         currentProjectId: next.id,
         currentDashboard: next.dashboard,
         currentDataSource: next.dataSource,
-        activeFilters: next.activeFilters,
-        widgetFilters: next.widgetFilters,
-        drillDownStates: next.drillDownStates,
-        theme: next.theme,
+        activeFilters: next.activeFilters || {},
+        widgetFilters: next.widgetFilters || {},
+        drillDownStates: next.drillDownStates || {},
+        theme: next.theme || prev.theme,
         selectedWidgetId: null,
         lastSavedAt: new Date().toISOString()
-      };
-    }),
+      });
+    }
+
+    // ── 3. Delete permanently from Supabase PostgreSQL ─────────────────────────────
+    try {
+      const res = await deleteProjectFromDb(projectId);
+      if (!res.success) {
+        console.warn('[deleteProject] DB deletion reported failure:', res.error);
+      }
+    } catch (err) {
+      console.warn('[deleteProject] DB deletion exception:', err);
+    }
+
+    // ── 4. Sync active project marker to DB if remaining projects exist ────────────
+    if (remaining.length > 0) {
+      const nextActiveId = useDashboardStore.getState().currentProjectId;
+      saveAllProjectsToDb(remaining, nextActiveId).catch(() => {});
+    }
+
+    return true;
+  },
+
+
 
   updateProjectMeta: (projectId, meta) =>
     set((state) => {
@@ -1917,51 +1925,52 @@ export const useDashboardStore = create<DashboardState>()(
       onRehydrateStorage: () => (state) => {
         if (!state) return;
 
-        // Auto-sanitize rehydrated state from localStorage
+        const deletedIds = getDeletedProjectIds();
+
+        // Auto-sanitize rehydrated state and purge any deleted projects
         if (state.projects) {
-          state.projects = sanitizeMojibakeDeep(state.projects);
+          state.projects = sanitizeMojibakeDeep(state.projects).filter(
+            (p) => !deletedIds.has(p.id)
+          );
         }
         if (state.currentDashboard) {
           state.currentDashboard = sanitizeMojibakeDeep(state.currentDashboard);
         }
 
-        // ─── Step 1: Bootstrap from localStorage if projects array is empty ───
-        if (!state.projects || state.projects.length === 0) {
-          const defaultProject = buildDefaultProject(state.currentDashboard, state.currentDataSource);
-          state.projects = [defaultProject];
-          state.currentProjectId = DEFAULT_PROJECT_ID;
+        // If the active project was deleted, reset to first remaining
+        if (state.currentProjectId && deletedIds.has(state.currentProjectId)) {
+          state.currentProjectId = state.projects?.[0]?.id || '';
         }
 
-        // ─── Step 2: Load from PostgreSQL and merge (DB is source of truth) ───
+        // Load from PostgreSQL (PostgreSQL is the source of truth)
         loadProjectsFromDb().then((result) => {
-          if (result.success && result.projects && result.projects.length > 0) {
-            const dbProjects = sanitizeMojibakeDeep(result.projects);
+          const freshDeletedIds = getDeletedProjectIds();
+
+          if (result.success && result.projects) {
+            // Permanently prune any projects from DB that are tracked as deleted
+            for (const p of result.projects) {
+              if (freshDeletedIds.has(p.id)) {
+                deleteProjectFromDb(p.id).catch(() => {});
+              }
+            }
+
+            const validDbProjects = sanitizeMojibakeDeep(result.projects).filter(
+              (p) => !freshDeletedIds.has(p.id)
+            );
+
             const currentState = useDashboardStore.getState();
 
-            // Prefer keeping currentProjectId from local state if it exists in either list
-            const localActiveId = currentState.currentProjectId;
-            const currentActiveExists =
-              currentState.projects.some((p) => p.id === localActiveId) ||
-              dbProjects.some((p) => p.id === localActiveId);
+            if (validDbProjects.length > 0) {
+              const localActiveId = currentState.currentProjectId;
+              const activeExists = validDbProjects.some((p) => p.id === localActiveId);
+              const activeId = activeExists
+                ? localActiveId
+                : (result.activeProjectId && validDbProjects.some((p) => p.id === result.activeProjectId) ? result.activeProjectId : validDbProjects[0].id);
 
-            const activeId = currentActiveExists
-              ? localActiveId
-              : (result.activeProjectId || dbProjects[0].id);
+              const activeProject = validDbProjects.find((p) => p.id === activeId) || validDbProjects[0];
 
-            const dbIds = new Set(dbProjects.map((p) => p.id));
-            const localOnly = (currentState.projects || []).filter((p) => !dbIds.has(p.id));
-
-            // Merge: DB projects + local-only projects
-            const mergedProjects = [
-              ...dbProjects,
-              ...localOnly
-            ];
-
-            const activeProject = mergedProjects.find((p) => p.id === activeId) || mergedProjects[0];
-
-            if (activeProject) {
               useDashboardStore.setState({
-                projects: mergedProjects,
+                projects: validDbProjects,
                 currentProjectId: activeProject.id,
                 currentDashboard: activeProject.dashboard,
                 currentDataSource: activeProject.dataSource,
@@ -1972,21 +1981,21 @@ export const useDashboardStore = create<DashboardState>()(
                 selectedWidgetId: null,
                 lastSavedAt: new Date().toISOString()
               });
-            }
-
-            // Sync any local-only projects to DB so PostgreSQL has them too
-            if (localOnly.length > 0) {
-              saveAllProjectsToDb(mergedProjects, activeProject?.id || activeId).catch(() => {});
-            }
-          } else if (result.success && (!result.projects || result.projects.length === 0)) {
-            // DB was empty, save local projects to DB
-            const currentState = useDashboardStore.getState();
-            if (currentState.projects && currentState.projects.length > 0) {
-              saveAllProjectsToDb(currentState.projects, currentState.currentProjectId).catch(() => {});
+            } else {
+              // DB has 0 valid projects (all deleted)
+              // Keep only local projects that have not been marked deleted
+              const nonDeleted = (currentState.projects || []).filter(
+                (p) => !freshDeletedIds.has(p.id)
+              );
+              useDashboardStore.setState({
+                projects: nonDeleted,
+                currentProjectId: nonDeleted[0]?.id || '',
+                selectedWidgetId: null
+              });
             }
           }
         }).catch((err) => {
-          console.warn('[DashboardStore] Could not load projects from DB (offline mode):', err?.message);
+          console.warn('[DashboardStore] Could not load projects from DB:', err?.message);
         });
       }
       }
