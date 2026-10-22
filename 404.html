@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <title>منصة تحليل البيانات ولوحات التحكم الذكية | DuckDB OLAP & ECharts</title>
+    <script>
+      (function() {
+        var path = window.location.pathname;
+        var search = window.location.search;
+        var hash = window.location.hash;
+        
+        // Handle subpath routing on GitHub Pages (e.g. /data-an/view)
+        var repoMatch = path.match(/^(\/[^\/]+)/);
+        var possibleRepo = repoMatch ? repoMatch[1] : '';
+        var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        var base = isLocal ? '' : (possibleRepo === '/data-an' ? '/data-an' : '');
+        var rest = path.slice(base.length);
+        
+        if (rest === '/view' || rest === '/view.html' || rest === '/view/') {
+          window.location.replace(base + '/?view=public' + (search ? '&' + search.slice(1) : '') + hash);
+          return;
+        }
+        
+        window.location.replace(base + '/' + (search ? search : '?view=public') + hash);
+      })();
+    </script>
+  </head>
+  <body style="background:#090d16; color:#f8fafc; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+    <p>جارٍ توجيهك إلى التقرير...</p>
+  </body>
+</html>
