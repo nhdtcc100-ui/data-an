@@ -240,14 +240,18 @@ export function buildShareUrl(
   activeFilters?: Record<string, any>
 ): string {
   const origin = window.location.origin;
-  const pathname = window.location.pathname.replace(/\/+$/, '') || '';
-  const basePath = `${origin}${pathname}`;
+  // Strip trailing slashes, /view, /view.html, /index.html to ensure clean root URL on GitHub Pages
+  const cleanPath = window.location.pathname
+    .replace(/\/view(\.html)?\/?$/i, '')
+    .replace(/\/index\.html$/i, '')
+    .replace(/\/+$/, '');
+  const basePath = `${origin}${cleanPath}`;
 
   // Create ultra-compact representation of the customized dashboard including drill-down state & dataset
   const compact = compactDashboard(dashboard, theme, drillDownStates, widgetFilters, activeFilters, dataSource);
   const encoded = encodeSnapshot(compact);
 
-  return `${basePath}?view=public&r=${encoded}`;
+  return `${basePath}/?view=public&r=${encoded}`;
 }
 
 /**

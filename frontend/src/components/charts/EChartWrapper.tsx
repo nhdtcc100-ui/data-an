@@ -47,7 +47,7 @@ export const EChartWrapper: React.FC<EChartWrapperProps> = ({
       const initOpts = clientWidth > 0 && clientHeight > 0
         ? undefined
         : { width: clientWidth || 300, height: clientHeight || 260 };
-      chartInstance.current = echarts.init(chartRef.current, theme, initOpts);
+      chartInstance.current = echarts.init(chartRef.current, theme === 'dark' ? 'dark' : null, initOpts);
     }
 
     const handleResize = () => {

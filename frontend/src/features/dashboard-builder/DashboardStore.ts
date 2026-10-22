@@ -577,11 +577,13 @@ const MOJIBAKE_REPLACEMENTS: [RegExp, string][] = [
 
 export function sanitizeMojibakeString(val: string): string {
   if (!val || typeof val !== 'string') return val;
+  if (!val.includes('Ø') && !val.includes('Ù') && !val.includes('Ã') && !val.includes('Å')) {
+    return val;
+  }
   let res = val;
   for (const [pattern, replacement] of MOJIBAKE_REPLACEMENTS) {
-    if (pattern.test(res)) {
-      res = res.replace(pattern, replacement);
-    }
+    pattern.lastIndex = 0;
+    res = res.replace(pattern, replacement);
   }
   return res;
 }

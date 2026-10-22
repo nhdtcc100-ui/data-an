@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Widget } from '../../types/dashboard';
-import { useDashboardStore } from '../../features/dashboard-builder/DashboardStore';
+import { useDashboardStore, sanitizeMojibakeString } from '../../features/dashboard-builder/DashboardStore';
 import { EChartWrapper } from '../charts/EChartWrapper';
 import { KpiWidget } from '../charts/KpiWidget';
 import { SlicerWidget } from '../filters/SlicerWidget';
@@ -242,8 +242,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     ? getDrillLeafRows(filteredRows, currentDrillPath)
     : filteredRows;
 
-  const textColor = isDark ? '#94a3b8' : '#475569';
-  const splitLineColor = isDark ? '#1e293b' : '#e2e8f0';
+  const textColor = isDark ? '#94a3b8' : '#090d16';
+  const splitLineColor = isDark ? '#1e293b' : '#cbd5e1';
 
   // Helper for number formatting
   const formatNumber = (val: number) => {
@@ -1096,13 +1096,13 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             className={`font-bold truncate ${
               isLightCard ? 'text-slate-950 font-black' : 'text-slate-200'
             }`}
-            title={widget.title}
+            title={sanitizeMojibakeString(widget.title)}
             style={{
               fontSize: widget.config.titleFontSize ? `${widget.config.titleFontSize}px` : '12px',
               color: widget.config.titleColor || undefined
             }}
           >
-            {widget.title}
+            {sanitizeMojibakeString(widget.title)}
           </h3>
           {drillDownEnabled && drillLevels.length > 0 && widget.type !== 'table' && (
             <span
@@ -1474,8 +1474,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm sm:text-base font-bold text-white truncate max-w-[200px] sm:max-w-md" title={widget.title}>
-                    {widget.title}
+                  <h2 className="text-sm sm:text-base font-bold text-white truncate max-w-[200px] sm:max-w-md" title={sanitizeMojibakeString(widget.title)}>
+                    {sanitizeMojibakeString(widget.title)}
                   </h2>
                   <span className="hidden xs:inline-block text-[10px] px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30 font-semibold shrink-0">
                     {widget.type === 'donut' || widget.type === 'pie' ? 'مخطط دائري' : widget.type === 'bar' ? 'مخطط شريطي' : widget.type === 'table' ? 'جدول بيانات' : widget.type === 'slicer' ? 'فلتر تصفية' : widget.type.toUpperCase()}

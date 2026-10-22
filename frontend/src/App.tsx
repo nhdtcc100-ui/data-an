@@ -95,11 +95,11 @@ export const App: React.FC = () => {
     }
   }, [theme]);
 
-  // ── Open View Mode (clean URL: /view) ──────────────────────────────────────
+  // ── Open View Mode (clean URL: /?view=public) ──────────────────────────────
   const handleOpenPublicView = () => {
     try {
-      const base = window.location.origin + window.location.pathname.replace(/\/view(\.html)?$/, '').replace(/\/+$/, '');
-      const cleanUrl = `${base}/view`;
+      const base = window.location.origin + window.location.pathname.replace(/\/view(\.html)?$/, '').replace(/\/index\.html$/, '').replace(/\/+$/, '');
+      const cleanUrl = `${base}/?view=public`;
       window.history.pushState({}, '', cleanUrl);
     } catch {
       try {
