@@ -1268,11 +1268,8 @@ export function generateInteractiveHtml(
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>عرض للقراءة فقط</span>
         </span>
-        <span class="badge badge-live" style="background:rgba(16, 185, 129, 0.15); color:#10b981; border:1px solid rgba(16, 185, 129, 0.35);">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          <span>بيانات مدمجة كـ JSON (${allRows.length.toLocaleString()} سجل)</span>
-        </span>
-        <span class="badge badge-live">تفاعلي أوفلاين بالكامل</span>
+        <span class="badge badge-live">تفاعلي بالكامل</span>
+        <span class="badge badge-engine">DuckDB Engine</span>
       </div>
     </div>
 
@@ -1289,10 +1286,6 @@ export function generateInteractiveHtml(
         </button>
       </div>
       <div class="bar-2-actions">
-        <button class="btn btn-action" onclick="exportEmbeddedJson()" title="استخراج وتنزيل نسخة من البيانات المدمجة كملف JSON مستقل">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          <span>تصدير البيانات JSON</span>
-        </button>
         <button class="btn btn-action" onclick="window.print()" title="طباعة أو تصدير PDF">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
           <span>طباعة / PDF</span>
@@ -1373,30 +1366,6 @@ ${embeddedPackageJsonSafe}
     const chartInstances = {};
     let modalChartInstance = null;
 
-    // Export embedded JSON data directly from the offline page
-    function exportEmbeddedJson() {
-      const exportPayload = {
-        format: 'lens-bi-exported-dataset',
-        version: '2026.2',
-        exportedAt: new Date().toISOString(),
-        reportTitle: DASHBOARD.title || 'تقرير تحليلي تفاعلي',
-        sourceFileName: EMBEDDED_PACKAGE.sourceFileName || 'embedded_dataset.json',
-        totalRecords: RAW_ROWS.length,
-        totalColumns: COLUMNS.length,
-        columns: COLUMNS,
-        records: RAW_ROWS
-      };
-      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const safeName = (DASHBOARD.title || 'dataset').replace(/[^a-zA-Z0-9_\\u0600-\\u06FF]+/g, '_');
-      a.download = safeName + '_data.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
 
     // Filter Logic
     function filterRows(rows, filters) {
@@ -1822,9 +1791,10 @@ ${embeddedPackageJsonSafe}
 
       const agg = aggregateGroupData(chartRows, activeCol, yCol, w.config.aggregation, w.config.sortOrder, w.config.topN);
       const palette = PALETTES[w.config.colorTheme || 'sky'] || PALETTES.sky;
-      const isDark = THEME === 'dark';
-      const textColor = isDark ? '#94a3b8' : '#475569';
-      const splitLine = isDark ? '#1e293b' : '#e2e8f0';
+      // Charts always use dark palette regardless of page theme to preserve vibrant colors
+      const isDark = true;
+      const textColor = '#94a3b8';
+      const splitLine = '#1e293b';
 
       const base = {
         backgroundColor: 'transparent',
@@ -1925,7 +1895,7 @@ ${embeddedPackageJsonSafe}
         if (chart && !chart.isDisposed()) {
           try { chart.dispose(); } catch(e) {}
         }
-        chart = echarts.init(dom, THEME);
+        chart = echarts.init(dom, 'dark'); // Always dark so charts keep vibrant colors
         chartInstances[w.id] = chart;
         chart.on('click', (params) => {
           const clickedName = params.name || params.value;
@@ -2063,7 +2033,7 @@ ${embeddedPackageJsonSafe}
       title.textContent = w.title;
       modal.classList.add('open');
       if (modalChartInstance) modalChartInstance.dispose();
-      modalChartInstance = echarts.init(dom, THEME);
+      modalChartInstance = echarts.init(dom, 'dark'); // Always dark so charts keep vibrant colors
       const filtered = filterRows(RAW_ROWS, activeFilters);
       modalChartInstance.setOption(getChartOption(w, filtered));
     }

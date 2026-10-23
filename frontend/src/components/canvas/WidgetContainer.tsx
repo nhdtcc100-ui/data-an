@@ -256,8 +256,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     ? getDrillLeafRows(filteredRows, currentDrillPath)
     : filteredRows;
 
-  const textColor = isDark ? '#94a3b8' : '#090d16';
-  const splitLineColor = isDark ? '#1e293b' : '#cbd5e1';
+  // Charts always use dark palette to preserve vibrant colors regardless of page theme
+  const chartIsDark = true;
+  const textColor = '#94a3b8';
+  const splitLineColor = '#1e293b';
 
   // Helper for number formatting
   const formatNumber = (val: number) => {
@@ -276,6 +278,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   };
 
   const getChartOption = (): echarts.EChartsOption => {
+    const isDark = chartIsDark; // Charts always dark regardless of page theme
     const showLegend = widget.config.showLegend !== false;
     const legendPos = widget.config.legendPosition || 'bottom';
     const legendConfig = showLegend
@@ -1046,7 +1049,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         return (
           <EChartWrapper
             options={applyMotionThemeToECharts(getChartOption(), motionTheme || currentDashboard?.motionTheme || 'glass-capsule')}
-            theme={theme}
+            theme="dark"
             onEvents={{ click: onChartClick }}
           />
         );
