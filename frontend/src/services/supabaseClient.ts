@@ -41,8 +41,16 @@ function getInitialUrl(): string {
   return import.meta.env.VITE_SUPABASE_URL || 'http://127.0.0.1:8000';
 }
 
+const CLIENT_OPTIONS = {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false
+  }
+};
+
 let activeUrl = getInitialUrl();
-let activeClient: SupabaseClient = createClient(activeUrl, SUPABASE_ANON_KEY);
+let activeClient: SupabaseClient = createClient(activeUrl, SUPABASE_ANON_KEY, CLIENT_OPTIONS);
 
 export function getActiveSupabaseUrl(): string {
   return activeUrl;
@@ -54,7 +62,7 @@ export function setSupabaseUrl(newUrl: string): SupabaseClient {
   try {
     localStorage.setItem(STORAGE_KEY, clean);
   } catch { /* ignore */ }
-  activeClient = createClient(clean, SUPABASE_ANON_KEY);
+  activeClient = createClient(clean, SUPABASE_ANON_KEY, CLIENT_OPTIONS);
   return activeClient;
 }
 

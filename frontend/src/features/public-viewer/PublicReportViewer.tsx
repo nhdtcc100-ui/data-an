@@ -298,7 +298,7 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       )}
 
       {/* ── Top Bar 1: Brand & Title ─────────────────────────────────────────── */}
-      <header className={`h-14 no-print ${theme === 'light' ? 'bg-[#f0f8ff] border-b border-[#bae6fd] text-slate-900 shadow-sm' : 'bg-slate-900/95 border-b border-slate-800/90 text-slate-100'} px-4 sm:px-6 flex items-center justify-between z-20 backdrop-blur-md shrink-0`}>
+      <header className={`h-14 no-print ${theme === 'light' ? 'bg-[#e2e8f0] border-b border-[#cbd5e1] text-slate-900 shadow-xs' : 'bg-slate-900/95 border-b border-slate-800/90 text-slate-100'} px-4 sm:px-6 flex items-center justify-between z-20 backdrop-blur-md shrink-0`}>
         {/* Mobile View: Project Title alone takes the top bar */}
         <div className="flex sm:hidden items-center justify-between w-full min-w-0">
           <h1 className="text-sm font-extrabold truncate tracking-wide flex-1 text-center" title={currentDashboard.title}>
@@ -356,7 +356,7 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       </header>
 
       {/* ── Top Bar 2: Filters & Actions ─────────────────────────────────────── */}
-      <div className={`min-h-11 no-print ${theme === 'light' ? 'bg-[#dbeefef2] border-b border-[#bae6fd] text-slate-900' : 'bg-slate-950/90 border-b border-slate-800/90'} px-4 sm:px-6 py-1.5 flex flex-wrap items-center justify-between gap-2 z-10 backdrop-blur-sm shrink-0`}>
+      <div className={`min-h-11 no-print ${theme === 'light' ? 'bg-[#f1f5f9] border-b border-[#cbd5e1] text-slate-900' : 'bg-slate-950/90 border-b border-slate-800/90'} px-4 sm:px-6 py-1.5 flex flex-wrap items-center justify-between gap-2 z-10 backdrop-blur-sm shrink-0`}>
         <div className="flex items-center gap-2 min-w-0">
           {filterCount > 0 ? (
             <div className="flex items-center gap-2">
@@ -448,7 +448,7 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       {/* ── Canvas (Widgets only, no edit controls) ─────────────────────────── */}
       <main
         className={`flex-1 overflow-y-auto p-4 sm:p-5 custom-scrollbar transition-colors duration-300 ${
-          theme === 'dark' ? 'bg-slate-950' : 'bg-[#f0f8ff]'
+          theme === 'dark' ? 'bg-slate-950' : 'bg-[#f1f5f9]'
         }`}
       >
         {/* Dedicated Landscape Print Paper Header (visible ONLY during print / PDF) */}
@@ -496,7 +496,7 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       </main>
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className={`h-8 no-print ${theme === 'light' ? 'bg-[#e0f2fe] border-t border-[#bae6fd] text-slate-700' : 'bg-slate-900/80 border-t border-slate-800/80 text-slate-500'} px-4 sm:px-5 flex items-center justify-between text-[10.5px] font-mono shrink-0`}>
+      <footer className={`h-8 no-print ${theme === 'light' ? 'bg-[#e2e8f0] border-t border-[#cbd5e1] text-slate-700' : 'bg-slate-900/80 border-t border-slate-800/80 text-slate-500'} px-4 sm:px-5 flex items-center justify-between text-[10.5px] font-mono shrink-0`}>
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
           <span>مؤمّن • وضع العرض والمشاهدة فقط</span>
