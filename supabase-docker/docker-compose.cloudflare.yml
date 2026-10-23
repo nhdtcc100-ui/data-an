@@ -1,0 +1,17 @@
+# ============================================================
+# Cloudflare Tunnel - Supabase Gateway
+# ============================================================
+
+services:
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: supabase-cloudflared
+    restart: unless-stopped
+    command: tunnel --url http://kong:8000
+    depends_on:
+      - kong
+    networks:
+      - default
+    labels:
+      - "com.supabase.service=cloudflared-tunnel"

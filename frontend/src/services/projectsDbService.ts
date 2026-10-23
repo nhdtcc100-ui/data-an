@@ -1,7 +1,7 @@
 // ==============================================================================
 // projectsDbService.ts - Project DB persistence service (PostgreSQL / Supabase)
 // ==============================================================================
-import { supabase } from './supabaseClient';
+import { supabase, initSupabaseFromConfig } from './supabaseClient';
 import type { Project } from '../types/project';
 import { getDeletedProjectIds } from './deletedProjectsTracker';
 
@@ -97,6 +97,7 @@ export interface LoadResult {
 export async function saveAllProjectsToDb(projects: Project[], activeProjectId: string): Promise<SaveResult> {
   try {
     if (!projects || projects.length === 0) return { success: true };
+    await initSupabaseFromConfig();
 
     // STRICT GUARD: Filter out any projects that were marked deleted to prevent resurrection
     const deletedIds = getDeletedProjectIds();
@@ -151,6 +152,7 @@ export async function saveProjectToDb(project: Project, isActive: boolean): Prom
  */
 export async function loadProjectsFromDb(): Promise<LoadResult> {
   try {
+    await initSupabaseFromConfig();
     const { data, error } = await supabase
       .from('projects')
       .select('*')
@@ -188,6 +190,7 @@ export async function loadProjectsFromDb(): Promise<LoadResult> {
 export async function loadProjectByIdFromDb(projectId: string): Promise<{ success: boolean; project?: Project; error?: string }> {
   try {
     if (!projectId) return { success: false, error: 'Project ID is required' };
+    await initSupabaseFromConfig();
 
     const deletedIds = getDeletedProjectIds();
     if (deletedIds.has(projectId)) {

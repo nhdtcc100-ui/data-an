@@ -1,5 +1,6 @@
 import type { Dashboard } from '../types/dashboard';
 import type { DataSource } from '../types/dataSource';
+import { getActiveSupabaseUrl } from './supabaseClient';
 
 export interface CompactDashboardPayload {
   v: 2;
@@ -253,7 +254,14 @@ export function buildShareUrl(
   const encoded = encodeSnapshot(compact);
 
   if (projectId) {
-    return `${basePath}/?view=public&project=${encodeURIComponent(projectId)}&r=${encoded}`;
+    let tunnelParam = '';
+    try {
+      const activeUrl = getActiveSupabaseUrl();
+      if (activeUrl && activeUrl.startsWith('https://')) {
+        tunnelParam = `&tunnel=${encodeURIComponent(activeUrl)}`;
+      }
+    } catch { /* ignore */ }
+    return `${basePath}/?view=public&project=${encodeURIComponent(projectId)}${tunnelParam}&r=${encoded}`;
   }
 
   // Fallback portable snapshot URL

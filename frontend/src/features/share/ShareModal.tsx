@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useDashboardStore } from '../dashboard-builder/DashboardStore';
 import { buildShareUrl, downloadDeploymentConfig, downloadFullReportPackage } from '../../services/snapshotService';
 import { downloadInteractiveHtml } from '../../services/htmlExportService';
+import { getActiveSupabaseUrl } from '../../services/supabaseClient';
 import {
   X,
   Share2,
@@ -151,6 +152,41 @@ export const ShareModal: React.FC = () => {
                   المستلم لهذا الرابط يدخل في وضع <span className="text-white font-semibold">"عرض القراءة فقط"</span>. لن يتمكن من فتح وضع التعديل، أو تحريك المخططات، أو تغيير الثيم، ويقتصر تفاعله على تصفية البيانات، النقر المتقاطع، وتصدير PDF.
                 </div>
               </div>
+
+              {/* Live Database Tunnel Status */}
+              {(() => {
+                const activeDb = getActiveSupabaseUrl();
+                const isTunnel = activeDb.startsWith('https://');
+                return (
+                  <div className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs ${
+                    isTunnel ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300' : 'bg-slate-950 border-slate-800 text-slate-300'
+                  }`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`p-1.5 rounded-lg ${isTunnel ? 'bg-emerald-500/20 text-emerald-400' : 'bg-sky-500/20 text-sky-400'}`}>
+                        <Database className="w-4 h-4 shrink-0" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-100">
+                            {isTunnel ? 'قاعدة بيانات Supabase السحابية (نفق حي)' : 'قاعدة بيانات Supabase (محلي Docker)'}
+                          </span>
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                        </div>
+                        <p className="text-[11px] text-slate-400 font-mono truncate" dir="ltr">
+                          {activeDb}
+                        </p>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${
+                      isTunnel
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }`}>
+                      {isTunnel ? 'متصل بالإنترنت' : 'محلي'}
+                    </span>
+                  </div>
+                );
+              })()}
 
               {/* Public Link Box */}
               <div>

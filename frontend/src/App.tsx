@@ -14,6 +14,7 @@ import { DatabaseControlModal } from './features/database/DatabaseControlModal';
 import { decodeSnapshot, expandDashboard, buildShareUrl } from './services/snapshotService';
 import { fetchGoogleSheetData } from './services/googleSheetsService';
 import { saveAllProjectsToDb, loadProjectByIdFromDb } from './services/projectsDbService';
+import { initSupabaseFromConfig } from './services/supabaseClient';
 import { getDeletedProjectIds } from './services/deletedProjectsTracker';
 import { MultiSourceModal } from './features/data-model/MultiSourceModal';
 import { LiveSyncBanner } from './features/data-model/LiveSyncBanner';
@@ -85,6 +86,11 @@ export const App: React.FC = () => {
   const [mobileTab, setMobileTab] = useState<MobileTab>('dashboard');
   // Mobile: is the data/visuals drawer open as an overlay?
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  // ── Initialize Supabase from runtime config / tunnel ───────────────────────
+  useEffect(() => {
+    initSupabaseFromConfig().catch(() => {});
+  }, []);
 
   // ── Sync theme class to <html> and <body> elements ────────────────────────
   useEffect(() => {
