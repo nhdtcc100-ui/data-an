@@ -11,7 +11,7 @@ import { WorkspaceList } from './features/workspace/WorkspaceList';
 import { PublicReportViewer } from './features/public-viewer/PublicReportViewer';
 import { DataSourcesManager } from './features/database/DataSourcesManager';
 import { DatabaseControlModal } from './features/database/DatabaseControlModal';
-import { decodeSnapshot, expandDashboard, buildShareUrl } from './services/snapshotService';
+import { decodeSnapshot, expandDashboard } from './services/snapshotService';
 import { fetchGoogleSheetData } from './services/googleSheetsService';
 import { saveAllProjectsToDb, loadProjectByIdFromDb } from './services/projectsDbService';
 import { initSupabaseFromConfig } from './services/supabaseClient';
@@ -30,19 +30,30 @@ import {
 } from 'lucide-react';
 
 // ─── Public view detection ────────────────────────────────────────────────────
+// الصفحة الرئيسية (/) هي دائماً وضع العرض بدون أي params
 function detectPublicViewMode(): boolean {
   try {
     const pathname = window.location.pathname.toLowerCase();
+    const sp = new URLSearchParams(window.location.search);
+    const hp = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+
+    // Explicitly request edit mode via ?edit=1
+    if (sp.get('edit') === '1' || hp.get('edit') === '1') return false;
+
+    // Pathname-based view triggers
     if (pathname.endsWith('/view') || pathname.endsWith('/view.html') || pathname.includes('/public')) {
       return true;
     }
-    const sp = new URLSearchParams(window.location.search);
-    const hp = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    // Query/hash-based view triggers
     if (sp.get('view') === 'public' || hp.get('view') === 'public') return true;
     if (sp.get('project') || hp.get('project') || sp.get('projectId') || hp.get('projectId') || sp.get('p') || hp.get('p')) return true;
     if (sp.get('r') || hp.get('r')) return true;
     if (sp.get('snap') || hp.get('snap') || sp.get('snapshot') || hp.get('snapshot')) return true;
     if (sp.get('shared') === '1' || hp.get('shared') === '1') return true;
+
+    // ── Root URL with no params → default to view mode (last project) ──
+    const hasNoParams = !window.location.search && !window.location.hash;
+    if (hasNoParams) return true;
   } catch { /* ignore */ }
   return false;
 }
@@ -108,42 +119,23 @@ export const App: React.FC = () => {
     }
   }, [theme]);
 
-  // ── Open View Mode (clean resilient URL: /?view=public&project=...&r=...) ──────
+  // ── Open View Mode — الرجوع للصفحة الرئيسية النظيفة (/) ───────────────────
   const handleOpenPublicView = () => {
     try {
-      const state = useDashboardStore.getState();
-      const shareUrl = buildShareUrl(
-        state.currentDashboard,
-        state.currentDataSource,
-        state.theme,
-        state.drillDownStates,
-        state.widgetFilters,
-        state.activeFilters,
-        state.currentProjectId
-      );
-      window.history.pushState({}, '', shareUrl);
-    } catch {
-      try {
-        window.history.pushState({}, '', '?view=public');
-      } catch { /* ignore */ }
-    }
+      // Clean URL: just go back to root without any params
+      window.history.pushState({}, '', '/');
+    } catch { /* ignore */ }
     setEditMode(false);
     setCurrentView('public');
   };
 
-  // ── Admin unlock to return to edit dashboard (PIN 4444) ────────────────────
+  // ── Admin unlock to return to edit dashboard ────────────────────────────────
   const handleAdminUnlock = () => {
     setEditMode(true);
     setCurrentView('dashboard');
     try {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('view');
-      url.searchParams.delete('r');
-      url.searchParams.delete('snap');
-      url.searchParams.delete('snapshot');
-      url.searchParams.delete('shared');
-      const cleanPath = url.pathname.replace(/\/view(\.html)?$/, '') || '/';
-      window.history.pushState({}, '', cleanPath);
+      // Navigate to /?edit=1 to indicate edit mode while keeping URL clean
+      window.history.pushState({}, '', '/?edit=1');
     } catch { /* ignore */ }
   };
 

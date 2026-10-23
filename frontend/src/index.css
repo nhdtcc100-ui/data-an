@@ -787,15 +787,15 @@ body.light-mode {
   color: #0f172a !important;
 }
 
-/* Neutral Gray Top Bar */
+/* Neutral Gray Top Bar — غامق نحو الأسود */
 html.light header,
 body.light-mode header,
 html.light .header-3d,
 body.light-mode .header-3d {
-  background: #e2e8f0 !important;
-  border-bottom: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
-  color: #0f172a !important;
+  background: #0f172a !important;
+  border-bottom: 1.5px solid #1e293b !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45) !important;
+  color: #f1f5f9 !important;
 }
 
 /* Secondary Topbar / Actions Toolbar */
@@ -803,10 +803,10 @@ html.light .glass-3d,
 body.light-mode .glass-3d,
 html.light .sub-topbar,
 body.light-mode .sub-topbar {
-  background: #f1f5f9 !important;
-  border-bottom: 1px solid #cbd5e1 !important;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
-  color: #0f172a !important;
+  background: #1e293b !important;
+  border-bottom: 1px solid #334155 !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.30) !important;
+  color: #f1f5f9 !important;
 }
 
 /* Canvas Background */
@@ -824,14 +824,14 @@ body.light-mode footer {
   color: #475569 !important;
 }
 
-/* Header Text & Controls in Neutral Gray */
+/* Header Text & Controls in Dark Top Bar */
 html.light header h1,
 body.light-mode header h1 {
-  color: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 html.light header .text-slate-100,
 body.light-mode header .text-slate-100 {
-  color: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 html.light header .text-slate-300,
 html.light header .text-slate-400,
@@ -839,19 +839,19 @@ html.light header .text-slate-500,
 body.light-mode header .text-slate-300,
 body.light-mode header .text-slate-400,
 body.light-mode header .text-slate-500 {
-  color: #475569 !important;
+  color: #94a3b8 !important;
 }
 html.light header button.bg-slate-800,
 body.light-mode header button.bg-slate-800 {
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
 }
 html.light header button.bg-slate-800:hover,
 body.light-mode header button.bg-slate-800:hover {
-  background: #f1f5f9 !important;
-  color: #0f172a !important;
+  background: #334155 !important;
+  color: #ffffff !important;
 }
 
 /* Secondary Topbar Text & Controls */
@@ -859,11 +859,11 @@ html.light .sub-topbar .text-slate-100,
 html.light .sub-topbar .text-slate-200,
 body.light-mode .sub-topbar .text-slate-100,
 body.light-mode .sub-topbar .text-slate-200 {
-  color: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 html.light .sub-topbar .text-slate-400,
 body.light-mode .sub-topbar .text-slate-400 {
-  color: #475569 !important;
+  color: #94a3b8 !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
