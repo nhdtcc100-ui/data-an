@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useDashboardStore } from '../dashboard-builder/DashboardStore';
 import { PROJECT_COLOR_ACCENTS, PROJECT_CATEGORIES, type CreateProjectOptions } from '../../types/project';
+import { formatDateAr } from '../../services/dateUtils';
 
 interface WorkspaceListProps {
   onSelectDashboard: () => void;
@@ -515,9 +516,9 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
 
                     {/* Footer: time + actions */}
                     <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
-                        <Clock className="w-3 h-3" />
-                        <span>{new Date(proj.updatedAt).toLocaleDateString('ar-SA')}</span>
+                      <div className="flex items-center gap-1 text-[10px] text-slate-400 font-sans" title={formatDateAr(proj.updatedAt, true)}>
+                        <Clock className="w-3 h-3 text-slate-500" />
+                        <span>{formatDateAr(proj.updatedAt, true)}</span>
                       </div>
 
                       <div className="flex items-center gap-1.5">

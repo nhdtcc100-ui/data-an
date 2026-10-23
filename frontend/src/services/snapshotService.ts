@@ -237,7 +237,8 @@ export function buildShareUrl(
   theme: 'dark' | 'light',
   drillDownStates?: Record<string, { path: { column: string; value: string }[]; levelIndex: number }>,
   widgetFilters?: Record<string, Record<string, any>>,
-  activeFilters?: Record<string, any>
+  activeFilters?: Record<string, any>,
+  projectId?: string
 ): string {
   const origin = window.location.origin;
   // Strip trailing slashes, /view, /view.html, /index.html to ensure clean root URL on GitHub Pages
@@ -247,7 +248,12 @@ export function buildShareUrl(
     .replace(/\/+$/, '');
   const basePath = `${origin}${cleanPath}`;
 
-  // Create ultra-compact representation of the customized dashboard including drill-down state & dataset
+  // Preferred modern BI mode: direct project URL by unique ID
+  if (projectId) {
+    return `${basePath}/?view=public&project=${encodeURIComponent(projectId)}`;
+  }
+
+  // Fallback portable snapshot URL
   const compact = compactDashboard(dashboard, theme, drillDownStates, widgetFilters, activeFilters, dataSource);
   const encoded = encodeSnapshot(compact);
 

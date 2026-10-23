@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { WidgetType, AggregationType, Widget } from '../../types/dashboard';
-import { useDashboardStore } from './DashboardStore';
+import { useDashboardStore, sanitizeMojibakeString } from './DashboardStore';
 import {
   BarChart3,
   BarChart2,
@@ -318,7 +318,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 <label className="block text-slate-400 mb-1 font-semibold">عنوان العنصر (Title)</label>
                 <input
                   type="text"
-                  value={selectedWidget.title}
+                  value={sanitizeMojibakeString(selectedWidget.title)}
                   onChange={(e) => updateWidgetTitle(selectedWidget.id, e.target.value)}
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
                 />

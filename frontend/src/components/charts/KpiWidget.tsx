@@ -1,6 +1,7 @@
 import React from 'react';
 import type { WidgetConfig } from '../../types/dashboard';
 import { ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
+import { sanitizeMojibakeString } from '../../features/dashboard-builder/DashboardStore';
 
 interface KpiWidgetProps {
   title: string;
@@ -40,7 +41,7 @@ export const KpiWidget: React.FC<KpiWidgetProps> = ({
     <div className="flex flex-col justify-between h-full p-4 select-none">
       <div className="flex items-start justify-between">
         <span className="text-xs font-semibold text-slate-400 leading-tight">
-          {title}
+          {sanitizeMojibakeString(title)}
         </span>
         <div className={`p-1.5 rounded-lg ${isPositive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
           <TrendingUp className="w-3.5 h-3.5" />

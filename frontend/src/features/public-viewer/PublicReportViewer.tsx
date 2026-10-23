@@ -25,10 +25,16 @@ const ADMIN_PIN = '4444';
 interface PublicReportViewerProps {
   isOwner?: boolean;
   onBackToApp?: () => void;
+  notFound?: boolean;
+  notFoundMessage?: string;
+  isLoading?: boolean;
 }
 
 export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
-  onBackToApp
+  onBackToApp,
+  notFound = false,
+  notFoundMessage,
+  isLoading = false
 }) => {
   const {
     currentDashboard,
@@ -126,6 +132,40 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
     if (Array.isArray(val)) return val.length > 0;
     return val !== null && val !== undefined && val !== '';
   }).length;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none" dir="rtl">
+        <div className="w-12 h-12 rounded-full border-4 border-sky-500/20 border-t-sky-400 animate-spin mb-4" />
+        <h3 className="text-sm font-bold text-slate-200">جاري تحميل بيانات التقرير من قاعدة البيانات...</h3>
+        <p className="text-xs text-slate-500 mt-1">يتم جلب الرسوم البيانية والجداول الخاصة بهذا المشروع مباشرة</p>
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none" dir="rtl">
+        <div className="w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-6 shadow-xl shadow-rose-500/10">
+          <AlertCircle className="w-10 h-10" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-black text-white mb-2">
+          عذراً، هذا التقرير غير متوفر أو تم حذفه
+        </h2>
+        <p className="text-sm text-slate-400 max-w-md mb-8 leading-relaxed">
+          {notFoundMessage || 'لم يتم العثور على بيانات هذا المشروع في قاعدة البيانات. قد يكون المنشئ قام بحذف المشروع نهائياً أو أن رابط المشاركة غير صحيح.'}
+        </p>
+        {onBackToApp && (
+          <button
+            onClick={onBackToApp}
+            className="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-sky-500/20 cursor-pointer inline-flex items-center gap-2"
+          >
+            <span>العودة إلى منصة التحليلات</span>
+          </button>
+        )}
+      </div>
+    );
+  }
 
   const getColSpanClass = (w?: number) => {
     switch (w) {

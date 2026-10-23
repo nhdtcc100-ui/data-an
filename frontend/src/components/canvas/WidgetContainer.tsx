@@ -500,7 +500,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         tooltip: { trigger: 'item', formatter: '{b}: <b>{c}</b>' },
         series: [
           {
-            name: widget.title,
+            name: sanitizeMojibakeString(widget.title),
             type: 'funnel',
             left: '10%',
             top: 20,
@@ -1303,7 +1303,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-100">نقل وترتيب موضع العنصر</h4>
-                  <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{widget.title}</p>
+                  <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{sanitizeMojibakeString(widget.title)}</p>
                 </div>
               </div>
               <button

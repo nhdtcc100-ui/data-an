@@ -13,7 +13,8 @@ import { DataSourcesManager } from './features/database/DataSourcesManager';
 import { DatabaseControlModal } from './features/database/DatabaseControlModal';
 import { decodeSnapshot, expandDashboard } from './services/snapshotService';
 import { fetchGoogleSheetData, DEFAULT_GOOGLE_SHEET_URL } from './services/googleSheetsService';
-import { saveAllProjectsToDb } from './services/projectsDbService';
+import { saveAllProjectsToDb, loadProjectByIdFromDb } from './services/projectsDbService';
+import { getDeletedProjectIds } from './services/deletedProjectsTracker';
 import { MultiSourceModal } from './features/data-model/MultiSourceModal';
 import { LiveSyncBanner } from './features/data-model/LiveSyncBanner';
 import { liveWatcherService } from './services/localFileWatcherService';
@@ -37,6 +38,7 @@ function detectPublicViewMode(): boolean {
     const sp = new URLSearchParams(window.location.search);
     const hp = new URLSearchParams(window.location.hash.replace(/^#/, ''));
     if (sp.get('view') === 'public' || hp.get('view') === 'public') return true;
+    if (sp.get('project') || hp.get('project') || sp.get('projectId') || hp.get('projectId') || sp.get('p') || hp.get('p')) return true;
     if (sp.get('r') || hp.get('r')) return true;
     if (sp.get('snap') || hp.get('snap') || sp.get('snapshot') || hp.get('snapshot')) return true;
     if (sp.get('shared') === '1' || hp.get('shared') === '1') return true;
@@ -70,6 +72,11 @@ export const App: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isDbManagerOpen, setIsDbManagerOpen] = useState(false);
   const [isMultiSourceOpen, setIsMultiSourceOpen] = useState(false);
+
+  // Dedicated project share loading & error states
+  const [sharedProjectLoading, setSharedProjectLoading] = useState(false);
+  const [sharedProjectNotFound, setSharedProjectNotFound] = useState(false);
+  const [sharedProjectError, setSharedProjectError] = useState('');
 
   // ── Auto-save debounce timer ref ───────────────────────────────────────────
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -131,6 +138,59 @@ export const App: React.FC = () => {
     try {
       const sp = new URLSearchParams(window.location.search);
       const hp = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+
+      // 1. Dedicated Project View Mode (by Project ID)
+      const projParam = sp.get('project') || hp.get('project') || sp.get('projectId') || hp.get('projectId') || sp.get('p') || hp.get('p');
+      if (projParam) {
+        const deletedIds = getDeletedProjectIds();
+        if (deletedIds.has(projParam)) {
+          setSharedProjectNotFound(true);
+          setSharedProjectError('تم حذف هذا المشروع نهائياً من قاعدة البيانات ولا يمكن عرضه.');
+          return;
+        }
+
+        const state = useDashboardStore.getState();
+        const existing = (state.projects || []).find((p) => p.id === projParam);
+        if (existing) {
+          useDashboardStore.setState({
+            currentProjectId: existing.id,
+            currentDashboard: existing.dashboard,
+            currentDataSource: existing.dataSource,
+            activeFilters: existing.activeFilters || {},
+            widgetFilters: existing.widgetFilters || {},
+            drillDownStates: existing.drillDownStates || {},
+            theme: existing.theme || 'dark'
+          });
+          return;
+        }
+
+        // Fetch from Supabase DB
+        setSharedProjectLoading(true);
+        loadProjectByIdFromDb(projParam).then((res) => {
+          setSharedProjectLoading(false);
+          if (res.success && res.project) {
+            const p = res.project;
+            useDashboardStore.setState({
+              currentProjectId: p.id,
+              currentDashboard: p.dashboard,
+              currentDataSource: p.dataSource,
+              activeFilters: p.activeFilters || {},
+              widgetFilters: p.widgetFilters || {},
+              drillDownStates: p.drillDownStates || {},
+              theme: p.theme || 'dark'
+            });
+          } else {
+            setSharedProjectNotFound(true);
+            setSharedProjectError(res.error || 'عذراً، هذا المشروع غير متوفر أو تم حذفه من قاعدة البيانات.');
+          }
+        }).catch((err) => {
+          setSharedProjectLoading(false);
+          setSharedProjectNotFound(true);
+          setSharedProjectError(err?.message || 'تعذر الاتصال بقاعدة البيانات.');
+        });
+        return;
+      }
+
       const rParam = sp.get('r') || hp.get('r');
       if (rParam) {
         const decoded = decodeSnapshot(rParam);
@@ -266,8 +326,13 @@ export const App: React.FC = () => {
       const { projects: allProjects, currentProjectId: activeId, currentDashboard: dash, currentDataSource: ds, activeFilters, widgetFilters, drillDownStates, theme: t } = state;
       if (!allProjects || allProjects.length === 0) return;
 
+      const deletedIds = getDeletedProjectIds();
+      if (deletedIds.has(activeId)) return;
+      const validProjects = allProjects.filter((p) => p && p.id && !deletedIds.has(p.id));
+      if (validProjects.length === 0) return;
+
       // Save current live state into projects list
-      const updatedProjects = allProjects.map((p) => {
+      const updatedProjects = validProjects.map((p) => {
         if (p.id === activeId) {
           return { ...p, dashboard: dash, dataSource: ds, activeFilters, widgetFilters, drillDownStates, theme: t, updatedAt: new Date().toISOString() };
         }
@@ -289,7 +354,13 @@ export const App: React.FC = () => {
       const state = useDashboardStore.getState();
       const { projects: allProjects, currentProjectId: activeId, currentDashboard: dash, currentDataSource: ds, activeFilters, widgetFilters, drillDownStates, theme: t } = state;
       if (!allProjects || allProjects.length === 0) return;
-      const updatedProjects = allProjects.map((p) => {
+
+      const deletedIds = getDeletedProjectIds();
+      if (deletedIds.has(activeId)) return;
+      const validProjects = allProjects.filter((p) => p && p.id && !deletedIds.has(p.id));
+      if (validProjects.length === 0) return;
+
+      const updatedProjects = validProjects.map((p) => {
         if (p.id === activeId) {
           return { ...p, dashboard: dash, dataSource: ds, activeFilters, widgetFilters, drillDownStates, theme: t, updatedAt: new Date().toISOString() };
         }
@@ -370,6 +441,9 @@ export const App: React.FC = () => {
         <PublicReportViewer
           isOwner={!isPublicView}
           onBackToApp={handleAdminUnlock}
+          notFound={sharedProjectNotFound}
+          notFoundMessage={sharedProjectError}
+          isLoading={sharedProjectLoading}
         />
       </div>
     );

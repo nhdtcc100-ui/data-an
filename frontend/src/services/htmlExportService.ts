@@ -1,5 +1,6 @@
 import type { Dashboard } from '../types/dashboard';
 import type { DataSource } from '../types/dataSource';
+import { formatDateAr } from './dateUtils';
 
 /**
  * Generates a self-contained, standalone interactive HTML document
@@ -829,7 +830,7 @@ export function generateInteractiveHtml(
   <!-- Footer -->
   <footer>
     <div>LENS BI Platform • ملف HTML تفاعلي محمول يعمل بدون خادم وبدون إنترنت</div>
-    <div>تم الإنشاء: ${new Date().toLocaleDateString('ar-IQ')}</div>
+    <div>تم الإنشاء: ${formatDateAr(new Date(), true)}</div>
   </footer>
 
   <!-- Embedded Dashboard & Data Engine -->

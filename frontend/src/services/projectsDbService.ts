@@ -3,6 +3,7 @@
 // ==============================================================================
 import { supabase } from './supabaseClient';
 import type { Project } from '../types/project';
+import { getDeletedProjectIds } from './deletedProjectsTracker';
 
 const MAX_ROWS = 500;
 
@@ -91,12 +92,19 @@ export interface LoadResult {
 }
 
 /**
- * Save all projects to PostgreSQL
+ * Save all projects to PostgreSQL (excluding any permanently deleted projects)
  */
 export async function saveAllProjectsToDb(projects: Project[], activeProjectId: string): Promise<SaveResult> {
   try {
     if (!projects || projects.length === 0) return { success: true };
-    const rows = projects.map((p) => toDbRow(p, p.id === activeProjectId));
+
+    // STRICT GUARD: Filter out any projects that were marked deleted to prevent resurrection
+    const deletedIds = getDeletedProjectIds();
+    const validProjects = projects.filter((p) => p && p.id && !deletedIds.has(p.id));
+
+    if (validProjects.length === 0) return { success: true };
+
+    const rows = validProjects.map((p) => toDbRow(p, p.id === activeProjectId));
     const { error } = await supabase.from('projects').upsert(rows, { onConflict: 'id' });
     if (error) {
       console.warn('[projectsDb] upsert error:', error.message);
@@ -113,6 +121,15 @@ export async function saveAllProjectsToDb(projects: Project[], activeProjectId: 
  */
 export async function saveProjectToDb(project: Project, isActive: boolean): Promise<SaveResult> {
   try {
+    if (!project || !project.id) return { success: false, error: 'Invalid project' };
+
+    // STRICT GUARD: Never save a project that is in deleted tracker
+    const deletedIds = getDeletedProjectIds();
+    if (deletedIds.has(project.id)) {
+      console.warn('[projectsDb] Blocked save for deleted project:', project.id);
+      return { success: true };
+    }
+
     if (isActive) {
       // Mark others as inactive
       await supabase.from('projects').update({ is_active: false }).neq('id', project.id);
@@ -166,15 +183,71 @@ export async function loadProjectsFromDb(): Promise<LoadResult> {
 }
 
 /**
- * Delete a project from PostgreSQL
+ * Load a single project by ID (used for dedicated public share links)
+ */
+export async function loadProjectByIdFromDb(projectId: string): Promise<{ success: boolean; project?: Project; error?: string }> {
+  try {
+    if (!projectId) return { success: false, error: 'Project ID is required' };
+
+    const deletedIds = getDeletedProjectIds();
+    if (deletedIds.has(projectId)) {
+      return { success: false, error: 'المشروع تم حذفه من قاعدة البيانات' };
+    }
+
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .maybeSingle();
+
+    if (error) {
+      console.warn('[projectsDb] loadProjectById error:', error.message);
+      return { success: false, error: error.message };
+    }
+
+    if (!data) {
+      return { success: false, error: 'المشروع غير موجود أو تم حذفه' };
+    }
+
+    const project = fromDbRow(data);
+    return { success: true, project };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Load error' };
+  }
+}
+
+/**
+ * Delete a project from PostgreSQL with cascading cleanup
  */
 export async function deleteProjectFromDb(projectId: string): Promise<SaveResult> {
   try {
+    if (!projectId) return { success: true };
+
+    // 1. Delete from projects table
     const { error } = await supabase.from('projects').delete().eq('id', projectId);
     if (error) {
       console.warn('[projectsDb] delete error:', error.message);
       return { success: false, error: error.message };
     }
+
+    // 2. Cascade cleanup in project_files table (best effort)
+    try {
+      await supabase.from('project_files').delete().eq('project_id', projectId);
+    } catch {
+      // project_files cleanup is best-effort
+    }
+
+    // 3. Cascade cleanup in storage objects (files in project folder)
+    try {
+      const { data: files } = await supabase.storage.from('project-files').list(projectId);
+      if (files && files.length > 0) {
+        const filePaths = files.map((f) => `${projectId}/${f.name}`);
+        await supabase.storage.from('project-files').remove(filePaths);
+      }
+    } catch {
+      // storage bucket cleanup is best-effort
+    }
+
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err?.message || 'Delete error' };

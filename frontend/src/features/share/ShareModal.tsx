@@ -29,7 +29,8 @@ export const ShareModal: React.FC = () => {
     theme,
     drillDownStates,
     widgetFilters,
-    activeFilters
+    activeFilters,
+    currentProjectId
   } = useDashboardStore();
 
   const [copiedLink, setCopiedLink] = useState(false);
@@ -39,8 +40,7 @@ export const ShareModal: React.FC = () => {
   const [hasExpiry, setHasExpiry] = useState(false);
   const [activeTab, setActiveTab] = useState<'link' | 'embed' | 'hosting'>('link');
 
-  // Generate the real portable share URL with customized report payload
-  // Includes the current drill-down hierarchy so the recipient sees the same view
+  // Generate the real portable share URL with customized report payload or direct project ID
   const shareUrl = useMemo(() => {
     return buildShareUrl(
       currentDashboard,
@@ -48,9 +48,10 @@ export const ShareModal: React.FC = () => {
       theme,
       drillDownStates,
       widgetFilters,
-      activeFilters
+      activeFilters,
+      currentProjectId
     );
-  }, [currentDashboard, currentDataSource, theme, drillDownStates, widgetFilters, activeFilters]);
+  }, [currentDashboard, currentDataSource, theme, drillDownStates, widgetFilters, activeFilters, currentProjectId]);
 
   const embedCode = useMemo(() => {
     return `<iframe src="${shareUrl}" width="100%" height="750" frameborder="0" allowfullscreen style="border-radius:12px; border:1px solid #334155;"></iframe>`;

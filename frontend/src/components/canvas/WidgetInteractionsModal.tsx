@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { Widget, WidgetType } from '../../types/dashboard';
-import { useDashboardStore } from '../../features/dashboard-builder/DashboardStore';
+import { useDashboardStore, sanitizeMojibakeString } from '../../features/dashboard-builder/DashboardStore';
 import {
   Link2,
   Unlink,
@@ -162,7 +162,7 @@ export const WidgetInteractionsModal: React.FC<WidgetInteractionsModalProps> = (
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5 truncate max-w-md">
-                العنصر المحدد: <span className="text-sky-300 font-medium font-sans">{widget.title}</span>
+                العنصر المحدد: <span className="text-sky-300 font-medium font-sans">{sanitizeMojibakeString(widget.title)}</span>
               </p>
             </div>
           </div>
