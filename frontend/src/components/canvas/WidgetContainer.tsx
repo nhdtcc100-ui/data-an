@@ -85,7 +85,6 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     widgetFilters,
     setFilter,
     isEditMode,
-    theme,
     drillDownStates,
     drillDown,
     drillUp,
@@ -97,25 +96,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   const activeMotionTheme = getMotionTheme(motionTheme || currentDashboard?.motionTheme || 'glass-capsule');
 
-  // ثيمات حركية ذات خلفيات كروت داكنة أو سوداء (Dark / 3D themes)
-  const DARK_MOTION_THEMES = [
-    'skeuomorphism',
-    'neumorphism',
-    'glassmorphism',
-    'claymorphism',
-    'minimalism',
-    'maximalism',
-    'brutalism',
-    'liquid-glass',
-    'bento-grid',
-    'spatial-ui',
-    'cyber-neon',
-    'matrix-holo'
-  ];
-
-  const activeThemeId = activeMotionTheme.id;
-  const isDark = theme === 'dark';
-  const isDarkThemeCard = isDark || DARK_MOTION_THEMES.includes(activeThemeId);
+  // Charts & table cards always maintain their original dark styling regardless of page theme
+  const isDarkThemeCard = true;
 
 
   const [isFullscreen, setIsFullscreen] = useState(false);

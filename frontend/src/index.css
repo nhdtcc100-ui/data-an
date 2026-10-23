@@ -473,28 +473,6 @@ html.light .text-slate-500,
   color: #64748b !important;
 }
 
-/* Neutral Gray 3D Card Surface & Layering */
-html:not(.dark) .widget-3d,
-html.light .widget-3d,
-.light-mode .widget-3d {
-  background: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  box-shadow:
-    0 4px 16px -1px rgba(15, 23, 42, 0.06),
-    0 8px 24px -2px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(203, 213, 225, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
-}
-html:not(.dark) .widget-3d:hover,
-html.light .widget-3d:hover,
-.light-mode .widget-3d:hover {
-  border-color: #94a3b8 !important;
-  box-shadow:
-    0 10px 28px -2px rgba(15, 23, 42, 0.10),
-    0 16px 36px -4px rgba(0, 0, 0, 0.06),
-    0 0 0 1.5px #94a3b8,
-    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
-}
 
 /* Neutral Gray Header 3D */
 html:not(.dark) .header-3d,
@@ -838,112 +816,107 @@ body.light-mode main {
   color: #0f172a !important;
 }
 
-/* Widget Cards in Neutral Gray Theme */
-html.light .widget-3d,
-body.light-mode .widget-3d,
-html.light .widget-card,
-body.light-mode .widget-card {
-  background: #ffffff !important;
-  border: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(203, 213, 225, 0.8) !important;
-  color: #0f172a !important;
-}
-
-html.light .widget-header,
-body.light-mode .widget-header {
-  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
-  border-bottom: 1.5px solid #cbd5e1 !important;
-  color: #0f172a !important;
-}
-
-/* Headings and Titles with Crisp Contrast */
-html.light h1, html.light h2, html.light h3, html.light h4, html.light .widget-title,
-body.light-mode h1, body.light-mode h2, body.light-mode h3, body.light-mode h4, body.light-mode .widget-title {
-  color: #0f172a !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-}
-
-/* Body text on light background */
-html.light p, html.light span, html.light div, html.light label,
-body.light-mode p, body.light-mode span, body.light-mode div, body.light-mode label {
-  color: inherit;
-}
-
-html.light .text-slate-100,
-html.light .text-slate-200,
-html.light .text-slate-300,
-body.light-mode .text-slate-100,
-body.light-mode .text-slate-200,
-body.light-mode .text-slate-300 {
-  color: #0f172a !important;
-}
-
-html.light .text-slate-400,
-html.light .text-slate-500,
-body.light-mode .text-slate-400,
-body.light-mode .text-slate-500 {
+/* Footer in Neutral Gray Theme */
+html.light footer,
+body.light-mode footer {
+  background: #e2e8f0 !important;
+  border-top: 1px solid #cbd5e1 !important;
   color: #475569 !important;
 }
 
-/* Professional Multi-Layered Drop Shadows for Icons, SVGs & Logos */
-html.light svg,
-body.light-mode svg,
-html.light .lucide,
-body.light-mode .lucide {
-  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.12));
+/* Header Text & Controls in Neutral Gray */
+html.light header h1,
+body.light-mode header h1 {
+  color: #0f172a !important;
 }
-
-/* Badges with Neutral Slate Surface */
-html.light .badge-3d,
-body.light-mode .badge-3d {
-  background: #e2e8f0 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #1e293b !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
-  text-shadow: none !important;
+html.light header .text-slate-100,
+body.light-mode header .text-slate-100 {
+  color: #0f172a !important;
 }
-
-/* Buttons in Neutral Gray */
-html.light button.bg-slate-800,
-body.light-mode button.bg-slate-800,
-html.light button.bg-slate-900,
-body.light-mode button.bg-slate-900 {
+html.light header .text-slate-300,
+html.light header .text-slate-400,
+html.light header .text-slate-500,
+body.light-mode header .text-slate-300,
+body.light-mode header .text-slate-400,
+body.light-mode header .text-slate-500 {
+  color: #475569 !important;
+}
+html.light header button.bg-slate-800,
+body.light-mode header button.bg-slate-800 {
   background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
 }
-
-html.light button.bg-slate-800:hover,
-body.light-mode button.bg-slate-800:hover {
-  background: #e2e8f0 !important;
+html.light header button.bg-slate-800:hover,
+body.light-mode header button.bg-slate-800:hover {
+  background: #f1f5f9 !important;
   color: #0f172a !important;
 }
 
-/* Interactive Data Tables in Neutral Gray */
+/* Secondary Topbar Text & Controls */
+html.light .sub-topbar .text-slate-100,
+html.light .sub-topbar .text-slate-200,
+body.light-mode .sub-topbar .text-slate-100,
+body.light-mode .sub-topbar .text-slate-200 {
+  color: #0f172a !important;
+}
+html.light .sub-topbar .text-slate-400,
+body.light-mode .sub-topbar .text-slate-400 {
+  color: #475569 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ⭐ CHARTS & TABLES PRESERVE DARK THEME CONTRACT:
+   الثيم الرصاصي لا يغير الجارتات والجداول؛ تبقى بنفس ألوانها وخلفياتها الداكنة الأصلية
+   ══════════════════════════════════════════════════════════════════════════ */
+html.light .widget-3d,
+body.light-mode .widget-3d,
+html.light .widget-card,
+body.light-mode .widget-card {
+  background: #0f172a !important;
+  border: 1.5px solid #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+  color: #ffffff !important;
+}
+
+html.light .widget-header,
+body.light-mode .widget-header {
+  background: #1e293b80 !important;
+  border-bottom: 1.5px solid #1e293b !important;
+  color: #ffffff !important;
+}
+
+html.light .widget-title,
+body.light-mode .widget-title {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Data Tables retain their crisp dark colors */
 html.light table,
 body.light-mode table {
-  background: #ffffff !important;
-  color: #0f172a !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
 }
 
 html.light th,
 body.light-mode th {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-  border-bottom: 2px solid #cbd5e1 !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #334155 !important;
   font-weight: 800 !important;
 }
 
 html.light td,
 body.light-mode td {
-  border-bottom: 1px solid #e2e8f0 !important;
-  color: #0f172a !important;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.6) !important;
+  color: #f8fafc !important;
 }
 
 html.light tr:hover td,
 body.light-mode tr:hover td {
-  background-color: #f1f5f9 !important;
+  background-color: rgba(30, 41, 59, 0.5) !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1180,19 +1153,18 @@ body.light-mode [class*="bg-slate-950"][class*="rounded-2xl"] * {
   color: #ffffff !important;
 }
 
-/* ── 7. الكروت البيضاء العادية في الثيم الأبيض (Light Cards Baseline) ── */
-/* عند عدم اختيار نمط 3D داكن، تظل الكروت بيضاء وواضحة مع تباين عالي */
+/* ── 7. الكروت تحتفظ بلونها الداكن (Dark Cards Contract) ── */
 html.light .widget-3d:not([class*="theme-"]) {
-  background: #ffffff;
-  border-color: #e2e8f0;
+  background: #0f172a;
+  border-color: #1e293b;
 }
 html.light .widget-3d:not([class*="theme-"]) > div:first-child {
-  background: #f8fafc;
-  border-bottom-color: #e2e8f0;
-  color: #0f172a;
+  background: #1e293b80;
+  border-bottom-color: #1e293b;
+  color: #ffffff;
 }
 html.light .widget-3d:not([class*="theme-"]) > div:first-child h3 {
-  color: #0f172a;
+  color: #ffffff;
 }
 
 @media print {

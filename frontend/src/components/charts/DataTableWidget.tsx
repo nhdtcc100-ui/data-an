@@ -293,21 +293,8 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
   // ─── Styling derived from config & Motion Theme ────────────────────────────
   const activeMotionTheme = getMotionTheme(motionTheme);
   const tTheme = activeMotionTheme.tableTheme;
-  const DARK_MOTION_THEMES = [
-    'skeuomorphism',
-    'neumorphism',
-    'glassmorphism',
-    'claymorphism',
-    'minimalism',
-    'maximalism',
-    'brutalism',
-    'liquid-glass',
-    'bento-grid',
-    'spatial-ui',
-    'cyber-neon',
-    'matrix-holo'
-  ];
-  const isDarkCard = isDark || DARK_MOTION_THEMES.includes(activeMotionTheme.id);
+  // Data tables always maintain their original dark styling regardless of page theme
+  const isDarkCard = true;
 
   const density = config?.tableDensity || 'comfortable';
   const cellPadding = density === 'compact' ? 'p-1' : density === 'spacious' ? 'p-3 sm:p-4' : 'p-1.5 sm:p-2';
@@ -437,7 +424,7 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
             </tr>
           </thead>
 
-          <tbody className={isDark ? 'text-slate-200' : 'text-slate-950 font-medium'}>
+          <tbody className="text-slate-200">
             {paginatedRows.map((row, idx) => {
               const rowIndex = (validPage - 1) * pageSize + idx + 1;
               const isEvenRow = idx % 2 === 0;

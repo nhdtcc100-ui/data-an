@@ -41,16 +41,24 @@ function getInitialUrl(): string {
   return import.meta.env.VITE_SUPABASE_URL || 'http://127.0.0.1:8000';
 }
 
-const CLIENT_OPTIONS = {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-    detectSessionInUrl: false
-  }
-};
+function createSupabaseClientOptions() {
+  return {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storageKey: `sb-lens-bi-anon-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      storage: {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {}
+      }
+    }
+  };
+}
 
 let activeUrl = getInitialUrl();
-let activeClient: SupabaseClient = createClient(activeUrl, SUPABASE_ANON_KEY, CLIENT_OPTIONS);
+let activeClient: SupabaseClient = createClient(activeUrl, SUPABASE_ANON_KEY, createSupabaseClientOptions());
 
 export function getActiveSupabaseUrl(): string {
   return activeUrl;
@@ -58,11 +66,14 @@ export function getActiveSupabaseUrl(): string {
 
 export function setSupabaseUrl(newUrl: string): SupabaseClient {
   const clean = newUrl.trim().replace(/\/+$/, '');
+  if (clean === activeUrl && activeClient) {
+    return activeClient;
+  }
   activeUrl = clean;
   try {
     localStorage.setItem(STORAGE_KEY, clean);
   } catch { /* ignore */ }
-  activeClient = createClient(clean, SUPABASE_ANON_KEY, CLIENT_OPTIONS);
+  activeClient = createClient(clean, SUPABASE_ANON_KEY, createSupabaseClientOptions());
   return activeClient;
 }
 
