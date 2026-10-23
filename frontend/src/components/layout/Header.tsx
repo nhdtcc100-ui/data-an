@@ -26,10 +26,12 @@ import {
   Database,
   GitMerge,
   Link2,
+  Share2,
   X
 } from 'lucide-react';
 import { downloadInteractiveHtml } from '../../services/htmlExportService';
-import { fetchGoogleSheetData, DEFAULT_GOOGLE_SHEET_URL } from '../../services/googleSheetsService';
+import { fetchGoogleSheetData } from '../../services/googleSheetsService';
+import { buildShareUrl } from '../../services/snapshotService';
 import { MotionThemeBar } from '../../features/dashboard-builder/MotionThemeBar';
 
 interface HeaderProps {
@@ -80,6 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isGSheetModalOpen, setIsGSheetModalOpen] = React.useState(false);
   const [modalSheetUrl, setModalSheetUrl] = React.useState(activeProject?.googleSheetUrl || '');
   const [headerDeleteTarget, setHeaderDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
+  const [copiedShareLink, setCopiedShareLink] = React.useState(false);
   const [modalError, setModalError] = React.useState<string | null>(null);
   const fileImportInputRef = React.useRef<HTMLInputElement>(null);
   const switcherRef = React.useRef<HTMLDivElement>(null);
@@ -128,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
 
     // If active project has no Google Sheet URL yet (or placeholder), prompt specifically for THIS project's link!
     if (!targetUrl || targetUrl === 'https://docs.google.com/spreadsheets/d/default') {
-      setModalSheetUrl(activeProj?.id === 'proj-offers-2026' ? DEFAULT_GOOGLE_SHEET_URL : '');
+      setModalSheetUrl(activeProj?.googleSheetUrl || '');
       setModalError(null);
       setIsGSheetModalOpen(true);
       return;
@@ -224,8 +227,25 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="flex flex-col select-none z-30 shrink-0 header-3d">
       {/* ── Top Bar 1 — always visible ── */}
       <div className="h-13 px-4 sm:px-6 flex items-center justify-between">
-        {/* Right side (RTL): Brand + Workspace + Save Status */}
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+        {/* Mobile View: Project Title alone occupies the top bar */}
+        <div className="flex sm:hidden items-center justify-between w-full min-w-0">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="text-lg leading-none shrink-0">{activeProject?.icon || '📊'}</span>
+            <h1 className="text-sm font-extrabold text-slate-100 truncate tracking-wide flex-1 text-right" title={activeProject?.title || currentDashboard.title}>
+              {activeProject?.title || currentDashboard.title}
+            </h1>
+          </div>
+          <button
+            onClick={onOpenWorkspaceView}
+            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 shrink-0 ml-1"
+            title="معرض المشاريع"
+          >
+            <FolderKanban className="w-4 h-4 text-sky-400" />
+          </button>
+        </div>
+
+        {/* Desktop View (sm and above): Brand + Workspace + Save Status */}
+        <div className="hidden sm:flex items-center gap-3 sm:gap-4 min-w-0">
           <div
             onClick={onOpenWorkspaceView}
             className="flex items-center gap-2 cursor-pointer group"
@@ -432,6 +452,40 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center pl-2.5 ml-1 border-l border-slate-800/90 shrink-0">
             <MotionThemeBar />
           </div>
+
+          {/* Direct Resilient Project Share Link Button */}
+          <button
+            onClick={() => {
+              try {
+                const state = useDashboardStore.getState();
+                const shareUrl = buildShareUrl(
+                  state.currentDashboard,
+                  state.currentDataSource,
+                  state.theme,
+                  state.drillDownStates,
+                  state.widgetFilters,
+                  state.activeFilters,
+                  state.currentProjectId
+                );
+                navigator.clipboard.writeText(shareUrl);
+                setCopiedShareLink(true);
+                setTimeout(() => setCopiedShareLink(false), 2500);
+              } catch {
+                navigator.clipboard.writeText(window.location.href);
+                setCopiedShareLink(true);
+                setTimeout(() => setCopiedShareLink(false), 2500);
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition cursor-pointer shadow-sm ${
+              copiedShareLink
+                ? 'bg-emerald-500 text-white border-emerald-400 shadow-emerald-500/25'
+                : 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-300 shadow-amber-500/10'
+            }`}
+            title="نسخ رابط المشاركة العام المباشر لهذا المشروع متضمناً كافة البيانات والرسوم البيانية"
+          >
+            <Share2 className="w-3.5 h-3.5 text-amber-400" />
+            <span>{copiedShareLink ? 'تم نسخ الرابط!' : 'مشاركة الرابط'}</span>
+          </button>
 
           {/* View Mode (وضع العرض) Button */}
           {onOpenPublicView && (

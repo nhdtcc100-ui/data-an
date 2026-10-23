@@ -18,6 +18,7 @@ import {
   KeyRound
 } from 'lucide-react';
 import { downloadInteractiveHtml } from '../../services/htmlExportService';
+import { buildShareUrl } from '../../services/snapshotService';
 import { MotionThemeBar } from '../dashboard-builder/MotionThemeBar';
 
 const ADMIN_PIN = '4444';
@@ -44,7 +45,8 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
     drillDownStates,
     clearAllFilters,
     setEditMode,
-    theme
+    theme,
+    currentProjectId
   } = useDashboardStore();
 
   // Admin PIN modal state
@@ -112,20 +114,28 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
     }
   };
 
-  // Copy clean shareable link (/view)
+  // Copy complete resilient shareable link with project ID and snapshot payload
   const handleCopyShareLink = () => {
     try {
-      const base = window.location.origin + window.location.pathname.replace(/\/view(\.html)?$/, '').replace(/\/+$/, '');
-      const cleanUrl = `${base}/view`;
-      navigator.clipboard.writeText(cleanUrl);
+      const shareUrl = buildShareUrl(
+        currentDashboard,
+        currentDataSource,
+        theme,
+        drillDownStates,
+        widgetFilters,
+        activeFilters,
+        currentProjectId
+      );
+      navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
     } catch {
-      navigator.clipboard.writeText(window.location.origin + '/view');
+      navigator.clipboard.writeText(window.location.href);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
     }
   };
+
 
   const filterCount = Object.keys(activeFilters).filter((key) => {
     const val = activeFilters[key];
@@ -288,14 +298,29 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       )}
 
       {/* ── Top Bar 1: Brand & Title ─────────────────────────────────────────── */}
-      <header className="h-14 bg-slate-900/95 border-b border-slate-800/90 px-4 sm:px-6 flex items-center justify-between z-20 backdrop-blur-md shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
+      <header className={`h-14 no-print ${theme === 'light' ? 'bg-[#faf5ee] border-b border-[#fde68a] text-stone-900 shadow-sm' : 'bg-slate-900/95 border-b border-slate-800/90 text-slate-100'} px-4 sm:px-6 flex items-center justify-between z-20 backdrop-blur-md shrink-0`}>
+        {/* Mobile View: Project Title alone takes the top bar */}
+        <div className="flex sm:hidden items-center justify-between w-full min-w-0">
+          <h1 className="text-sm font-extrabold truncate tracking-wide flex-1 text-center" title={currentDashboard.title}>
+            {currentDashboard.title}
+          </h1>
+          <button
+            onClick={() => setShowPinModal(true)}
+            className="p-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-500 border border-amber-500/30 text-xs shrink-0 ml-1"
+            title="دخول الأدمن برمز PIN"
+          >
+            <Lock className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Desktop View (sm and above) */}
+        <div className="hidden sm:flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/25 shrink-0">
             <BarChart2 className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-xs sm:text-sm font-extrabold text-slate-100 truncate max-w-[200px] sm:max-w-md" title={currentDashboard.title}>
+              <h1 className="text-xs sm:text-sm font-extrabold truncate max-w-[200px] sm:max-w-md" title={currentDashboard.title}>
                 {currentDashboard.title}
               </h1>
               <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 border border-sky-500/20 font-medium">
@@ -331,7 +356,7 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       </header>
 
       {/* ── Top Bar 2: Filters & Actions ─────────────────────────────────────── */}
-      <div className="min-h-11 bg-slate-950/90 border-b border-slate-800/90 px-4 sm:px-6 py-1.5 flex flex-wrap items-center justify-between gap-2 z-10 backdrop-blur-sm shrink-0">
+      <div className={`min-h-11 no-print ${theme === 'light' ? 'bg-[#fdfbf7] border-b border-[#ebdcc6] text-stone-900' : 'bg-slate-950/90 border-b border-slate-800/90'} px-4 sm:px-6 py-1.5 flex flex-wrap items-center justify-between gap-2 z-10 backdrop-blur-sm shrink-0`}>
         <div className="flex items-center gap-2 min-w-0">
           {filterCount > 0 ? (
             <div className="flex items-center gap-2">
@@ -413,9 +438,21 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       {/* ── Canvas (Widgets only, no edit controls) ─────────────────────────── */}
       <main
         className={`flex-1 overflow-y-auto p-4 sm:p-5 custom-scrollbar transition-colors duration-300 ${
-          theme === 'dark' ? 'bg-slate-950' : 'bg-slate-100'
+          theme === 'dark' ? 'bg-slate-950' : 'bg-[#faf5ee]'
         }`}
       >
+        {/* Dedicated Landscape Print Paper Header (visible ONLY during print / PDF) */}
+        <div className="print-paper-header">
+          <div className="print-title-area">
+            <h1>{currentDashboard?.title || 'تقرير تحليلي تنفيذي'}</h1>
+            <p>{currentDataSource?.fileName ? `مصدر البيانات: ${currentDataSource.fileName}` : 'بيانات مساحة العمل المباشرة'}</p>
+          </div>
+          <div className="print-meta-area">
+            <div>تاريخ الاستخراج: <b>{new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</b></div>
+            <div>إجمالي السجلات: <b>{(currentDataSource?.rawRows?.length || 0).toLocaleString()} سجل</b></div>
+          </div>
+        </div>
+
         <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#1e293b08_1px,transparent_1px),linear-gradient(to_bottom,#1e293b08_1px,transparent_1px)] bg-[size:24px_24px]" />
 
         <div className="grid grid-cols-12 gap-4 max-w-[1600px] mx-auto relative z-10">
@@ -440,10 +477,16 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
             <p className="text-sm font-semibold text-slate-400">لا توجد عناصر في هذا التقرير</p>
           </div>
         )}
+
+        {/* Dedicated Print Paper Footer (visible ONLY during print / PDF) */}
+        <div className="print-paper-footer">
+          <span>تم إنشاء واستخراج التقرير رسمياً</span>
+          <span>نسخة معتمدة • صفحة غير قابلة للتجزئة</span>
+        </div>
       </main>
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className="h-8 bg-slate-900/80 border-t border-slate-800/80 px-4 sm:px-5 flex items-center justify-between text-[10.5px] text-slate-500 font-mono shrink-0">
+      <footer className="h-8 no-print bg-slate-900/80 border-t border-slate-800/80 px-4 sm:px-5 flex items-center justify-between text-[10.5px] text-slate-500 font-mono shrink-0">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
           <span>مؤمّن • وضع العرض والمشاهدة فقط</span>

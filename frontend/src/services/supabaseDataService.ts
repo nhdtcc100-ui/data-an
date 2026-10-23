@@ -77,7 +77,7 @@ export interface SyncResult {
  */
 export async function syncDataSourceToSupabase(
   ds: DataSource,
-  options?: { sourceName?: string }
+  options?: { sourceName?: string; projectId?: string }
 ): Promise<SyncResult> {
   try {
     const rawSourceName = options?.sourceName || ds?.fileName || 'مصدر بيانات جديد';
@@ -100,6 +100,7 @@ export async function syncDataSourceToSupabase(
         file_size_bytes: fileSize,
         row_count: rows.length,
         schema_metadata: {
+          projectId: options?.projectId || ds?.id || null,
           columns: columnsMeta,
           fileName: ds?.fileName || null,
           sheetsCount: ds?.sheets?.length || 1

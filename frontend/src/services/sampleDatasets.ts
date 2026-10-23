@@ -4,43 +4,28 @@ import initialSheetRows from './googleSheetInitialData.json';
 // ==============================================================================
 // 1. عروض شركات التقنية (Google Sheet Live Dataset)
 // ==============================================================================
-export const GOOGLE_SHEET_RECORDS = (initialSheetRows as Record<string, any>[]).map((r) => ({
-  ...r,
-  'الوصف': r['الوصف'] || r['اسم المنتج والوصف'] || '',
-  'السعر المفرد': r['السعر المفرد'] !== undefined ? r['السعر المفرد'] : (r['سعر المفرد'] !== undefined ? r['سعر المفرد'] : 0)
-}));
+export const GOOGLE_SHEET_RECORDS = initialSheetRows as Record<string, any>[];
 
 export const GOOGLE_SHEET_COLUMNS: Column[] = [
-  { id: 'c1', columnName: 'اسم الشركة', dataType: 'string', sampleValues: ['شركة السراج المضيء', 'Camera World Co.', 'AL BASHAR .CO'] },
-  { id: 'c2', columnName: 'الموقع', dataType: 'string', sampleValues: ['بغداد، شارع الصناعة', 'أربيل', 'بغداد'] },
-  { id: 'c3', columnName: 'الهاتف / الاتصال', dataType: 'string', sampleValues: ['7745558033'] },
-  { id: 'c4', columnName: 'كود المنتج / الموديل', dataType: 'string', sampleValues: ['Option 1 - Optical Turnstile', 'DS-2CD1143G2-LIU'] },
-  { id: 'c5', columnName: 'اسم المنتج والوصف', dataType: 'string', sampleValues: ['منظومة دخول وخروج الأشخاص زجاجية', 'كاميرا مراقبة شبكية'] },
-  { id: 'c5b', columnName: 'الوصف', dataType: 'string', sampleValues: ['منظومة دخول وخروج الأشخاص زجاجية', 'كاميرا مراقبة شبكية'] },
-  { id: 'c6', columnName: 'اسم المنتج', dataType: 'string', sampleValues: ['منظومة دخول وخروج', 'كاميرا شبكية'] },
-  { id: 'c7', columnName: 'الكمية', dataType: 'numeric', sampleValues: [1, 2, 4] },
-  { id: 'c8', columnName: 'سعر المفرد', dataType: 'numeric', sampleValues: [3905000, 1850000, 45] },
-  { id: 'c8b', columnName: 'السعر المفرد', dataType: 'numeric', sampleValues: [3905000, 1850000, 45] },
-  { id: 'c9', columnName: 'الخصم', dataType: 'numeric', sampleValues: [0, 5, 10] },
-  { id: 'c10', columnName: 'السعر الإجمالي', dataType: 'numeric', sampleValues: [3905000, 1850000, 90] },
-  { id: 'c11', columnName: 'مدة العرض', dataType: 'string', sampleValues: ['شهر 1', '4 يوم.', 'بدون'] },
-  { id: 'c12', columnName: 'العرض', dataType: 'string', sampleValues: ['التجهيز فوري', 'بدون'] },
-  { id: 'c13', columnName: 'الضمان', dataType: 'string', sampleValues: ['سنة 1 شامل التنصيب', '12 شهر'] },
-  { id: 'c14', columnName: 'القسم', dataType: 'string', sampleValues: ['قسم البوابات الأمنية والتحكم بالدخول', 'قسم الكامرات', 'قسم أقفال الأبواب الإلكترونية والذكية الفاخرة'] },
-  { id: 'c15', columnName: 'الحالة', dataType: 'string', sampleValues: ['متوفر', 'حسب الطلب'] }
+  { id: 'c1', columnName: 'التاريخ', dataType: 'date', sampleValues: ['2025-03-01', '2025-03-10'] },
+  { id: 'c2', columnName: 'مركز الكلفة', dataType: 'string', sampleValues: ['احمد يونس - ناقل', 'امجد محمد - ناقل'] },
+  { id: 'c3', columnName: 'اسم الزبون', dataType: 'string', sampleValues: ['ابو رسول / محمد عبد رشيد', 'اسواق عبدالله', 'اسواق ليث'] },
+  { id: 'c4', columnName: 'اسم المجموعة', dataType: 'string', sampleValues: ['مشروبات غازية 1.75لتر * 6', 'مشروبات غازية 250مل * 24'] },
+  { id: 'c5', columnName: 'اسم المادة', dataType: 'string', sampleValues: ['بلاستك بيبسي 1.75 لتر * 6', 'علب بيبسي 185 مل * 30'] },
+  { id: 'c6', columnName: 'Count of الكمية', dataType: 'numeric', sampleValues: [2, 6, 12, 1] }
 ];
 
 export const TECH_COMPANIES_DATA_SOURCE: DataSource = {
-  id: 'ds-tech-companies',
+  id: 'ds-google-sheet-live',
   workspaceId: 'ws-main',
-  fileName: 'عروض شركات التقنية والموردين.xlsx',
-  fileSizeBytes: 287577,
+  fileName: 'Google_Sheet_Live (Google Sheets Live).csv',
+  fileSizeBytes: 1426499,
   uploadedAt: new Date().toISOString(),
-  activeSheetId: 'sheet-tech-1',
+  activeSheetId: 'sheet-main-1',
   sheets: [
     {
-      id: 'sheet-tech-1',
-      name: 'عروض_الشركات',
+      id: 'sheet-main-1',
+      name: 'Google_Sheet_Live',
       rowCount: GOOGLE_SHEET_RECORDS.length,
       columns: GOOGLE_SHEET_COLUMNS,
       rawRows: GOOGLE_SHEET_RECORDS
@@ -416,11 +401,11 @@ export const PRESET_DATASETS: PresetDatasetItem[] = [
     dataSource: HR_DATA_SOURCE
   },
   {
-    id: 'preset-tech',
-    title: 'عروض ومواصفات شركات التقنية',
-    subtitle: 'بيانات الأسعار، الكاميرات، البوابات، الموردين وفترات الضمان (Google Sheet)',
-    icon: '💻',
-    tag: 'بيانات الموردين',
+    id: 'preset-products',
+    title: 'سجلات مبيعات المنتجات والمحاسبة',
+    subtitle: 'بيانات المواد، المجموعات، مراكز الكلفة والزبائن المتزامنة مع Google Sheets',
+    icon: '📊',
+    tag: 'بيانات مباشرة',
     rowCount: GOOGLE_SHEET_RECORDS.length,
     dataSource: TECH_COMPANIES_DATA_SOURCE
   }

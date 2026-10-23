@@ -11,8 +11,8 @@ import { WorkspaceList } from './features/workspace/WorkspaceList';
 import { PublicReportViewer } from './features/public-viewer/PublicReportViewer';
 import { DataSourcesManager } from './features/database/DataSourcesManager';
 import { DatabaseControlModal } from './features/database/DatabaseControlModal';
-import { decodeSnapshot, expandDashboard } from './services/snapshotService';
-import { fetchGoogleSheetData, DEFAULT_GOOGLE_SHEET_URL } from './services/googleSheetsService';
+import { decodeSnapshot, expandDashboard, buildShareUrl } from './services/snapshotService';
+import { fetchGoogleSheetData } from './services/googleSheetsService';
 import { saveAllProjectsToDb, loadProjectByIdFromDb } from './services/projectsDbService';
 import { getDeletedProjectIds } from './services/deletedProjectsTracker';
 import { MultiSourceModal } from './features/data-model/MultiSourceModal';
@@ -102,12 +102,20 @@ export const App: React.FC = () => {
     }
   }, [theme]);
 
-  // ── Open View Mode (clean URL: /?view=public) ──────────────────────────────
+  // ── Open View Mode (clean resilient URL: /?view=public&project=...&r=...) ──────
   const handleOpenPublicView = () => {
     try {
-      const base = window.location.origin + window.location.pathname.replace(/\/view(\.html)?$/, '').replace(/\/index\.html$/, '').replace(/\/+$/, '');
-      const cleanUrl = `${base}/?view=public`;
-      window.history.pushState({}, '', cleanUrl);
+      const state = useDashboardStore.getState();
+      const shareUrl = buildShareUrl(
+        state.currentDashboard,
+        state.currentDataSource,
+        state.theme,
+        state.drillDownStates,
+        state.widgetFilters,
+        state.activeFilters,
+        state.currentProjectId
+      );
+      window.history.pushState({}, '', shareUrl);
     } catch {
       try {
         window.history.pushState({}, '', '?view=public');
@@ -180,11 +188,44 @@ export const App: React.FC = () => {
               theme: p.theme || 'dark'
             });
           } else {
+            // Check if URL carries fallback &r snapshot before reporting error
+            const rFallback = sp.get('r') || hp.get('r');
+            if (rFallback) {
+              const decoded = decodeSnapshot(rFallback);
+              if (decoded?.w) {
+                const expanded = expandDashboard(decoded);
+                loadDashboardSnapshot({
+                  dashboard: expanded.dashboard,
+                  theme: expanded.theme,
+                  drillDownStates: expanded.drillDownStates,
+                  widgetFilters: expanded.widgetFilters,
+                  activeFilters: expanded.activeFilters,
+                  dataSource: expanded.dataSource
+                });
+                return;
+              }
+            }
             setSharedProjectNotFound(true);
             setSharedProjectError(res.error || 'عذراً، هذا المشروع غير متوفر أو تم حذفه من قاعدة البيانات.');
           }
         }).catch((err) => {
           setSharedProjectLoading(false);
+          const rFallback = sp.get('r') || hp.get('r');
+          if (rFallback) {
+            const decoded = decodeSnapshot(rFallback);
+            if (decoded?.w) {
+              const expanded = expandDashboard(decoded);
+              loadDashboardSnapshot({
+                dashboard: expanded.dashboard,
+                theme: expanded.theme,
+                drillDownStates: expanded.drillDownStates,
+                widgetFilters: expanded.widgetFilters,
+                activeFilters: expanded.activeFilters,
+                dataSource: expanded.dataSource
+              });
+              return;
+            }
+          }
           setSharedProjectNotFound(true);
           setSharedProjectError(err?.message || 'تعذر الاتصال بقاعدة البيانات.');
         });
@@ -298,7 +339,7 @@ export const App: React.FC = () => {
       // Only fetch live Google Sheet if the project specifically has its own Google Sheet URL configured and has no data rows yet
       const projectSheetUrl = activeProj?.googleSheetUrl && activeProj.googleSheetUrl !== 'https://docs.google.com/spreadsheets/d/default'
         ? activeProj.googleSheetUrl
-        : (activeProj?.id === 'proj-offers-2026' ? DEFAULT_GOOGLE_SHEET_URL : null);
+        : null;
 
       if (isGSheet && !hasRows && projectSheetUrl) {
         fetchGoogleSheetData(projectSheetUrl)

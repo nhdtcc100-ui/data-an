@@ -57,15 +57,15 @@ export function generateInteractiveHtml(
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
   <style>
     :root {
-      --bg: ${theme === 'dark' ? '#020617' : '#f8fafc'};
-      --surface: ${theme === 'dark' ? '#0f172a' : '#ffffff'};
-      --surface-border: ${theme === 'dark' ? '#1e293b' : '#e2e8f0'};
-      --surface-header: ${theme === 'dark' ? '#1e293b80' : '#f1f5f9'};
-      --text: ${theme === 'dark' ? '#f8fafc' : '#0f172a'};
-      --text-muted: ${theme === 'dark' ? '#94a3b8' : '#64748b'};
-      --accent: #0ea5e9;
-      --accent-hover: #38bdf8;
-      --primary-glow: rgba(14, 165, 233, 0.15);
+      --bg: ${theme === 'dark' ? '#020617' : '#faf5ee'};
+      --surface: ${theme === 'dark' ? '#0f172a' : '#fffdf9'};
+      --surface-border: ${theme === 'dark' ? '#1e293b' : '#fde68a'};
+      --surface-header: ${theme === 'dark' ? '#1e293b80' : '#fef3c7'};
+      --text: ${theme === 'dark' ? '#f8fafc' : '#1c1917'};
+      --text-muted: ${theme === 'dark' ? '#94a3b8' : '#57534e'};
+      --accent: ${theme === 'dark' ? '#0ea5e9' : '#d97706'};
+      --accent-hover: ${theme === 'dark' ? '#38bdf8' : '#b45309'};
+      --primary-glow: ${theme === 'dark' ? 'rgba(14, 165, 233, 0.15)' : 'rgba(245, 158, 11, 0.2)'};
     }
     * {
       box-sizing: border-box;
@@ -91,9 +91,9 @@ export function generateInteractiveHtml(
     }
     /* Bar 1: Branding, Report Title & Status Badges */
     .top-bar-1 {
-      background-color: ${theme === 'dark' ? '#0f172ae6' : '#ffffffe6'};
+      background-color: ${theme === 'dark' ? '#0f172ae6' : '#faf5eee6'};
       backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--surface-border);
+      border-bottom: 1.5px solid var(--surface-border);
       padding: 10px 24px;
       display: flex;
       align-items: center;
@@ -198,7 +198,7 @@ export function generateInteractiveHtml(
 
     /* Bar 2: Filters & Actions Toolbar */
     .top-bar-2 {
-      background-color: ${theme === 'dark' ? '#090d16f2' : '#f8fafcf2'};
+      background-color: ${theme === 'dark' ? '#090d16f2' : '#fdfbf7f2'};
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--surface-border);
       padding: 6px 24px;
@@ -279,31 +279,51 @@ export function generateInteractiveHtml(
       flex-shrink: 0;
     }
 
-    /* Mobile Responsive Header */
+    /* Mobile Responsive Header: Title takes the top bar alone on mobile */
     @media (max-width: 768px) {
       .top-bar-1 {
-        padding: 8px 14px;
+        padding: 10px 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        width: 100% !important;
+      }
+      .brand-section {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+      }
+      /* Hide platform logo, platform tag, subtitle, and badges on mobile top bar */
+      .logo-badge,
+      .platform-tag,
+      .title-box p,
+      .bar-1-status {
+        display: none !important;
+      }
+      .title-box {
+        width: 100% !important;
+        text-align: center !important;
+      }
+      .title-box-row {
+        justify-content: center !important;
+        width: 100% !important;
       }
       .title-box h1 {
-        font-size: 13px;
-        max-width: 200px;
-      }
-      .title-box p {
-        display: none;
-      }
-      .badge-engine {
-        display: none;
-      }
-      .badge-readonly {
-        font-size: 10px;
-        padding: 3px 8px;
-      }
-      .badge-live {
-        font-size: 10px;
-        padding: 3px 8px;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        max-width: 100% !important;
+        text-align: center !important;
+        white-space: normal !important;
+        line-height: 1.35 !important;
+        margin: 0 !important;
       }
       .top-bar-2 {
-        padding: 6px 12px;
+        padding: 6px 12px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
       }
       .filter-indicator-text {
         font-size: 10.5px;
@@ -314,6 +334,15 @@ export function generateInteractiveHtml(
       }
       .desktop-only {
         display: none;
+      }
+      /* Mobile card single column flow */
+      .grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      .col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
+      .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
+        grid-column: span 1 !important;
       }
     }
 
@@ -333,20 +362,21 @@ export function generateInteractiveHtml(
     /* Widget Cards */
     .widget-card {
       background-color: var(--surface);
-      border: 1px solid var(--surface-border);
+      border: 1.5px solid var(--surface-border);
       border-radius: 16px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: ${theme === 'dark' ? '0 4px 20px rgba(0, 0, 0, 0.4)' : '0 10px 25px -5px rgba(217, 119, 6, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(253, 230, 138, 0.6)'};
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .widget-card:hover {
-      border-color: ${theme === 'dark' ? '#334155' : '#cbd5e1'};
+      border-color: ${theme === 'dark' ? '#334155' : '#f59e0b'};
+      box-shadow: ${theme === 'dark' ? '0 8px 30px rgba(0, 0, 0, 0.6)' : '0 14px 30px -5px rgba(217, 119, 6, 0.14), 0 0 0 1.5px #f59e0b'};
     }
     .widget-header {
       padding: 10px 14px;
-      border-bottom: 1px solid var(--surface-border);
+      border-bottom: 1.5px solid var(--surface-border);
       background-color: var(--surface-header);
       display: flex;
       align-items: center;
@@ -359,6 +389,7 @@ export function generateInteractiveHtml(
       display: flex;
       align-items: center;
       gap: 6px;
+      text-shadow: ${theme === 'dark' ? '0 1px 3px rgba(0,0,0,0.6)' : '0 1px 2px rgba(180, 83, 9, 0.12), 0 1px 1px rgba(0, 0, 0, 0.05)'};
     }
     .widget-body {
       flex: 1;
@@ -755,6 +786,363 @@ export function generateInteractiveHtml(
       color: var(--text-muted);
       background: var(--surface);
     }
+
+    /* ─── Table Widget: Pagination, Sorting & Live Search ─── */
+    .table-widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .table-search-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: ${theme === 'dark' ? '#02061790' : '#ffffff'};
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 3px 8px;
+      color: var(--text-muted);
+      max-width: 220px;
+      flex: 1;
+    }
+    .table-search-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 11px;
+      font-family: inherit;
+      width: 100%;
+    }
+    .table-search-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+    .th-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    .th-content:hover {
+      color: #38bdf8;
+    }
+    .sort-icon {
+      font-size: 10px;
+      opacity: 0.55;
+    }
+    .table-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      border-top: 1px solid var(--surface-border);
+      background-color: var(--surface-header);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .pagination-info-side {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .pagination-count b {
+      color: var(--text);
+      font-weight: 700;
+    }
+    .pagination-size-selector {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+    }
+    .page-size-select {
+      background: ${theme === 'dark' ? '#0f172a' : '#ffffff'};
+      color: var(--text);
+      border: 1px solid var(--surface-border);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+    .pagination-nav-side {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .pg-btn {
+      min-width: 28px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--surface-border);
+      background: ${theme === 'dark' ? '#1e293b80' : '#ffffff'};
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+    }
+    .pg-btn:hover:not(:disabled) {
+      background: #0ea5e9;
+      color: #ffffff;
+      border-color: #0ea5e9;
+    }
+    .pg-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .pg-btn.active {
+      background: #0ea5e9;
+      color: #ffffff;
+      border-color: #0ea5e9;
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.4);
+    }
+    .pg-dots {
+      padding: 0 4px;
+      color: var(--text-muted);
+    }
+    .pg-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 2px 8px;
+    }
+
+    /* ─── PRINT RULES (الطباعة الورقية المنظمة بلاندسكيب وبدون أي قص للكروت وبدون بيانات المنصة) ─── */
+    @page {
+      size: landscape;
+      margin: 10mm 12mm 10mm 12mm;
+    }
+
+    .print-paper-header,
+    .print-paper-footer {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: landscape;
+        margin: 10mm 12mm 10mm 12mm;
+      }
+
+      /* 1. Global Reset for Paper */
+      html, body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        font-family: 'Cairo', sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* 2. HIDE ALL PLATFORM DATA & ONLINE CHROME (لا تظهر بيانات المنصة نهائياً) */
+      .header-wrapper,
+      .top-bar-1,
+      .top-bar-2,
+      .logo-badge,
+      .platform-tag,
+      .bar-1-status,
+      .bar-2-actions,
+      .filter-status-area,
+      footer,
+      #chart-modal,
+      .btn,
+      .drill-actions,
+      .slicer-tabs,
+      .drill-card-badge,
+      .table-search-box,
+      .table-pagination,
+      .table-pagination-nav,
+      .pagination-size-selector {
+        display: none !important;
+        visibility: hidden !important;
+      }
+
+      /* 3. SHOW CLEAN DEDICATED PAPER REPORT HEADER */
+      .print-paper-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        border-bottom: 2px solid #0f172a;
+        width: 100%;
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      .print-title-area h1 {
+        font-size: 18pt !important;
+        font-weight: 900 !important;
+        color: #0f172a !important;
+        line-height: 1.2;
+        margin: 0;
+      }
+      .print-title-area p {
+        font-size: 9.5pt !important;
+        color: #64748b !important;
+        margin-top: 3px;
+        font-weight: 600;
+      }
+      .print-meta-area {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 3px;
+        font-size: 9pt !important;
+        color: #475569 !important;
+      }
+      .print-meta-area b {
+        color: #0f172a !important;
+      }
+
+      /* 4. PAPER FOOTER */
+      .print-paper-footer {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 8px;
+        margin-top: 16px;
+        border-top: 1px solid #cbd5e1;
+        font-size: 8pt !important;
+        color: #64748b !important;
+        width: 100%;
+        page-break-before: avoid;
+        break-before: avoid;
+      }
+
+      /* 5. MAIN CONTAINER & 2-COLUMN LANDSCAPE GRID */
+      main {
+        padding: 0 !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        width: 100% !important;
+      }
+      .grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+        width: 100% !important;
+        page-break-inside: auto;
+      }
+
+      /* 6. CRITICAL: WIDGET CARD PAGE-BREAK PROTECTION (بدون أي قص للكارد بالورقة التالية) */
+      .widget-card {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid-page !important;
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        box-shadow: none !important;
+        margin-bottom: 0 !important;
+        overflow: visible !important;
+      }
+
+      /* Full width widgets in landscape: table and 12-col cards */
+      .widget-card.col-12,
+      .widget-card.is-table-card {
+        grid-column: span 2 !important;
+        width: 100% !important;
+      }
+      .widget-card.col-6,
+      .widget-card.col-4,
+      .widget-card.col-3,
+      .widget-card.col-8 {
+        grid-column: span 1 !important;
+      }
+
+      .widget-header {
+        background: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding: 8px 12px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      .widget-title {
+        font-size: 11pt !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+      }
+
+      .widget-body {
+        padding: 10px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      /* Charts sizing for crisp print */
+      .chart-container {
+        height: 240px !important;
+        min-height: 240px !important;
+        width: 100% !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      /* KPIs */
+      .kpi-container {
+        padding: 16px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      .kpi-value {
+        font-size: 26pt !important;
+        color: #0284c7 !important;
+      }
+      .kpi-meta {
+        font-size: 9pt !important;
+        color: #64748b !important;
+      }
+
+      /* Tables in print: show clean neatly styled rows without scrollbars */
+      .table-container {
+        max-height: none !important;
+        overflow: visible !important;
+        border-radius: 0 !important;
+      }
+      .table-container table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 8.5pt !important;
+      }
+      .table-container th {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border-bottom: 1.5px solid #94a3b8 !important;
+        padding: 5px 8px !important;
+        font-size: 8.5pt !important;
+      }
+      .table-container td {
+        border-bottom: 1px solid #e2e8f0 !important;
+        color: #1e293b !important;
+        padding: 4px 8px !important;
+        font-size: 8pt !important;
+        max-width: none !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+      }
+      .table-container tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -807,12 +1195,30 @@ export function generateInteractiveHtml(
     </div>
   </div>
 
+  <!-- Dedicated Paper Print Header (يظهر فقط في الطباعة الورقية وبدون أي بيانات للمنصة) -->
+  <div class="print-paper-header">
+    <div class="print-title-area">
+      <h1 class="print-report-title">${cleanTitle}</h1>
+      <p class="print-report-subtitle">تقرير تحليلي مفصل للبيانات</p>
+    </div>
+    <div class="print-meta-area">
+      <div class="print-meta-row"><span>تاريخ التقرير:</span> <b>${formatDateAr(new Date(), true)}</b></div>
+      <div class="print-meta-row"><span>إجمالي السجلات:</span> <b>${(dataSource.rawRows || []).length.toLocaleString()}</b></div>
+    </div>
+  </div>
+
   <!-- Canvas -->
   <main>
     <div class="grid" id="widgets-grid">
       <!-- Generated dynamically by script -->
     </div>
   </main>
+
+  <!-- Dedicated Paper Print Footer (يظهر فقط في الطباعة الورقية) -->
+  <div class="print-paper-footer">
+    <span>${cleanTitle}</span>
+    <span>وثيقة عمل تحليلية معتمدة</span>
+  </div>
 
   <!-- Modal for enlarged charts -->
   <div id="chart-modal" onclick="closeModal(event)">
@@ -1073,17 +1479,179 @@ export function generateInteractiveHtml(
       renderSlicerWidget(w, RAW_ROWS);
     }
 
+    // Table states for client-side pagination, search & sorting
+    const tableStates = {};
+
+    function initTableState(widgetId) {
+      if (!tableStates[widgetId]) {
+        tableStates[widgetId] = {
+          page: 1,
+          pageSize: 25,
+          searchQuery: '',
+          sortCol: null,
+          sortAsc: true
+        };
+      }
+      return tableStates[widgetId];
+    }
+
     function renderTableWidget(w, rows) {
+      const state = initTableState(w.id);
+      const cols = w.config.tableColumns || COLUMNS.slice(0, 7).map(c => c.columnName);
+
+      // 1. Filter rows by local search query if present
+      let processedRows = rows;
+      if (state.searchQuery && state.searchQuery.trim()) {
+        const q = state.searchQuery.trim().toLowerCase();
+        processedRows = processedRows.filter(r => {
+          return cols.some(c => {
+            const val = r[c];
+            return val !== undefined && val !== null && String(val).toLowerCase().includes(q);
+          });
+        });
+      }
+
+      // 2. Sort rows if sortCol is set
+      if (state.sortCol) {
+        const sc = state.sortCol;
+        const asc = state.sortAsc ? 1 : -1;
+        processedRows = [...processedRows].sort((a, b) => {
+          const valA = a[sc];
+          const valB = b[sc];
+          if (valA === valB) return 0;
+          if (valA === undefined || valA === null) return 1;
+          if (valB === undefined || valB === null) return -1;
+          if (typeof valA === 'number' && typeof valB === 'number') {
+            return (valA - valB) * asc;
+          }
+          return String(valA).localeCompare(String(valB), 'ar') * asc;
+        });
+      }
+
+      const totalRows = processedRows.length;
+      const pageSize = state.pageSize === 'all' ? (totalRows || 1) : parseInt(state.pageSize, 10) || 25;
+      const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+
+      // Ensure current page is within valid range
+      if (state.page > totalPages) state.page = totalPages;
+      if (state.page < 1) state.page = 1;
+
+      const startIdx = (state.page - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, totalRows);
+      const pageRows = processedRows.slice(startIdx, endIdx);
+
+      // Render table rows
       const tbody = document.getElementById('tbody-' + w.id);
-      if (!tbody) return;
-      const cols = w.config.tableColumns || COLUMNS.slice(0, 5).map(c => c.columnName);
-      tbody.innerHTML = rows.slice(0, 50).map(r => {
-        return '<tr>' + cols.map(c => {
-          const val = r[c] ?? '-';
-          const isNum = typeof val === 'number';
-          return '<td class="' + (isNum ? 'num-cell' : '') + '" title="' + String(val) + '">' + (isNum ? val.toLocaleString() : val) + '</td>';
-        }).join('') + '</tr>';
-      }).join('');
+      if (tbody) {
+        if (pageRows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="' + cols.length + '" style="text-align:center; padding:28px 12px; color:var(--text-muted); font-size:12px;">لا توجد سجلات مطابقة للبحث أو التصفية الحالية</td></tr>';
+        } else {
+          tbody.innerHTML = pageRows.map(r => {
+            return '<tr>' + cols.map(c => {
+              const val = r[c] ?? '-';
+              const isNum = typeof val === 'number';
+              const displayVal = isNum ? val.toLocaleString() : String(val);
+              return '<td class="' + (isNum ? 'num-cell' : '') + '" title="' + String(val).replace(/"/g, '&quot;') + '">' + displayVal + '</td>';
+            }).join('') + '</tr>';
+          }).join('');
+        }
+      }
+
+      // Update header sort indicators
+      cols.forEach(c => {
+        const thEl = document.getElementById('th-' + w.id + '-' + c.replace(/\s+/g, '_'));
+        if (thEl) {
+          const icon = thEl.querySelector('.sort-icon');
+          if (state.sortCol === c) {
+            thEl.style.color = '#38bdf8';
+            if (icon) icon.textContent = state.sortAsc ? ' ▲' : ' ▼';
+          } else {
+            thEl.style.color = '';
+            if (icon) icon.textContent = ' ⇅';
+          }
+        }
+      });
+
+      // Update pagination info text
+      const countEl = document.getElementById('table-count-' + w.id);
+      if (countEl) {
+        if (totalRows === 0) {
+          countEl.innerHTML = '<span>0 سجلات</span>';
+        } else {
+          countEl.innerHTML = 'عرض <b>' + (startIdx + 1).toLocaleString() + '</b> - <b>' + endIdx.toLocaleString() + '</b> من إجمالي <b>' + totalRows.toLocaleString() + '</b> سجل';
+        }
+      }
+
+      // Render pagination buttons
+      const navEl = document.getElementById('table-nav-' + w.id);
+      if (navEl) {
+        if (totalPages <= 1) {
+          navEl.innerHTML = '<span class="pg-badge">صفحة 1 من 1</span>';
+        } else {
+          let navHtml = '';
+          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', 1)" title="الصفحة الأولى">«</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', ' + (state.page - 1) + ')" title="السابق">‹ السابق</button>';
+
+          const windowSize = 2;
+          let startP = Math.max(1, state.page - windowSize);
+          let endP = Math.min(totalPages, state.page + windowSize);
+
+          if (startP > 1) {
+            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\'' + w.id + '\', 1)">1</button>';
+            if (startP > 2) navHtml += '<span class="pg-dots">...</span>';
+          }
+
+          for (let p = startP; p <= endP; p++) {
+            navHtml += '<button class="pg-btn pg-num ' + (p === state.page ? 'active' : '') + '" onclick="setTablePage(\'' + w.id + '\', ' + p + ')">' + p + '</button>';
+          }
+
+          if (endP < totalPages) {
+            if (endP < totalPages - 1) navHtml += '<span class="pg-dots">...</span>';
+            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\'' + w.id + '\', ' + totalPages + ')">' + totalPages + '</button>';
+          }
+
+          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', ' + (state.page + 1) + ')" title="التالي">التالي ›</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', ' + totalPages + ')" title="الصفحة الأخيرة">»</button>';
+
+          navEl.innerHTML = navHtml;
+        }
+      }
+    }
+
+    function setTablePage(widgetId, page) {
+      const state = initTableState(widgetId);
+      state.page = page;
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
+    }
+
+    function changeTablePageSize(widgetId, size) {
+      const state = initTableState(widgetId);
+      state.pageSize = size;
+      state.page = 1;
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
+    }
+
+    function sortTableByColumn(widgetId, colName) {
+      const state = initTableState(widgetId);
+      if (state.sortCol === colName) {
+        state.sortAsc = !state.sortAsc;
+      } else {
+        state.sortCol = colName;
+        state.sortAsc = true;
+      }
+      state.page = 1;
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
+    }
+
+    function filterTableSearch(widgetId, query) {
+      const state = initTableState(widgetId);
+      state.searchQuery = query;
+      state.page = 1;
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
     }
 
     function getChartOption(w, rows) {
@@ -1459,6 +2027,18 @@ export function generateInteractiveHtml(
           if (c && !c.isDisposed()) c.resize();
         });
         if (modalChartInstance && !modalChartInstance.isDisposed()) modalChartInstance.resize();
+      });
+
+      // Prepare ECharts for crisp print layout
+      window.addEventListener('beforeprint', () => {
+        Object.values(chartInstances).forEach(c => {
+          if (c && !c.isDisposed()) c.resize({ width: 'auto', height: 240 });
+        });
+      });
+      window.addEventListener('afterprint', () => {
+        Object.values(chartInstances).forEach(c => {
+          if (c && !c.isDisposed()) c.resize();
+        });
       });
     });
   </script>

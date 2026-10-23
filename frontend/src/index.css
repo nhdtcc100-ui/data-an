@@ -354,10 +354,23 @@ button, a {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   🌞 Light Theme — Black Headings, Crisp Text & High-Contrast 3D Elements
+   🍯 Warm Milky Amber 200 Theme (ثيم حليبي وأمبر 200 دافئ وفخم)
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Force all headings (h1 to h6) to deep crisp black in light mode */
+/* Base Page & Background: Milky Warmth with Amber 200 Ambient Glow */
+html:not(.dark),
+html.light,
+.light-mode,
+body.light-mode {
+  background-color: #faf5ee !important; /* Rich Warm Milky Cream */
+  background-image: 
+    radial-gradient(circle at 10% 8%, rgba(253, 230, 138, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(251, 191, 36, 0.18) 0%, transparent 50%),
+    linear-gradient(180deg, #fbf7ef 0%, #f6efe0 100%) !important;
+  color: #1c1917 !important; /* Rich warm espresso / charcoal */
+}
+
+/* Headings with Sculpted Professional Shadow */
 html:not(.dark) h1, html:not(.dark) h2, html:not(.dark) h3,
 html:not(.dark) h4, html:not(.dark) h5, html:not(.dark) h6,
 html.light h1, html.light h2, html.light h3,
@@ -365,79 +378,174 @@ html.light h4, html.light h5, html.light h6,
 .light-mode h1, .light-mode h2, .light-mode h3,
 .light-mode h4, .light-mode h5, .light-mode h6,
 body.light-mode h1, body.light-mode h2, body.light-mode h3,
-body.light-mode h4, body.light-mode h5, body.light-mode h6 {
-  color: #090d16 !important;
-}
-
-/* Force title classes inside widgets, modals and headers */
+body.light-mode h4, body.light-mode h5, body.light-mode h6,
 html:not(.dark) .widget-title,
 html.light .widget-title,
 .light-mode .widget-title,
 html:not(.dark) [data-theme] h3,
 html.light [data-theme] h3,
 .light-mode [data-theme] h3 {
-  color: #090d16 !important;
+  color: #1c1917 !important;
+  text-shadow: 
+    0 1px 2px rgba(180, 83, 9, 0.20),
+    0 2px 4px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Text color overrides for light mode */
+/* Body Text with Depth Shadow */
+html:not(.dark) p, html.light p,
+html:not(.dark) span, html.light span,
+html:not(.dark) label, html.light label {
+  text-shadow: 0 0.5px 1px rgba(180, 83, 9, 0.08);
+}
+
+/* Professional Drop-Shadow on ALL Icons */
+html:not(.dark) svg,
+html.light svg,
+.light-mode svg {
+  filter: 
+    drop-shadow(0 1.5px 3px rgba(180, 83, 9, 0.28)) 
+    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+  transition: filter 0.2s ease;
+}
+html:not(.dark) button:hover svg,
+html.light button:hover svg {
+  filter: 
+    drop-shadow(0 2px 6px rgba(217, 119, 6, 0.45)) 
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+/* Professional Multi-Layer 3D Shadow on Logos & Badges */
+html:not(.dark) .badge-3d,
+html.light .badge-3d,
+.light-mode .badge-3d,
+html:not(.dark) .logo-badge,
+html.light .logo-badge {
+  box-shadow:
+    0 4px 14px rgba(217, 119, 6, 0.35),
+    0 2px 5px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  filter: drop-shadow(0 2px 6px rgba(180, 83, 9, 0.25));
+}
+
+/* Buttons in Milky Amber Theme */
+html:not(.dark) button,
+html.light button,
+.light-mode button {
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+html:not(.dark) button:hover,
+html.light button:hover {
+  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.20), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark Mode Professional Multi-Layer Shadows */
+html.dark h1, html.dark h2, html.dark h3,
+html.dark .widget-title {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85), 0 0 22px rgba(14, 165, 233, 0.20) !important;
+}
+html.dark svg {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.65));
+}
+html.dark .badge-3d, html.dark .logo-badge {
+  box-shadow: 0 4px 18px rgba(14, 165, 233, 0.40), 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Text color overrides for Milky Amber 200 mode */
 html:not(.dark) .text-slate-100,
 html:not(.dark) .text-slate-200,
 html.light .text-slate-100,
 html.light .text-slate-200,
 .light-mode .text-slate-100,
 .light-mode .text-slate-200 {
-  color: #0f172a !important;
+  color: #1c1917 !important;
 }
 
 html:not(.dark) .text-slate-300,
 html.light .text-slate-300,
 .light-mode .text-slate-300 {
-  color: #1e293b !important;
+  color: #44403c !important;
 }
 
 html:not(.dark) .text-slate-400,
 html.light .text-slate-400,
 .light-mode .text-slate-400 {
-  color: #334155 !important;
+  color: #57534e !important;
 }
 
 html:not(.dark) .text-slate-500,
 html.light .text-slate-500,
 .light-mode .text-slate-500 {
-  color: #475569 !important;
+  color: #78716c !important;
 }
 
-/* Light mode 3D Card Surface & Layering */
+/* Milky Amber 200 3D Card Surface & Layering */
 html:not(.dark) .widget-3d,
 html.light .widget-3d,
 .light-mode .widget-3d {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  background: #fffdfa !important; /* Warm creamy milk */
+  border-color: #ebdcc6 !important; /* Warm sand/amber border */
   box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.07),
-    0 10px 24px -3px rgba(0, 0, 0, 0.08),
-    0 20px 40px -4px rgba(0, 0, 0, 0.04),
+    0 4px 16px -1px rgba(180, 83, 9, 0.09),
+    0 12px 32px -3px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(253, 230, 138, 0.45), /* Amber 200 outline glow */
     inset 0 1px 0 rgba(255, 255, 255, 1) !important;
 }
 html:not(.dark) .widget-3d:hover,
 html.light .widget-3d:hover,
 .light-mode .widget-3d:hover {
   box-shadow:
-    0 10px 20px -2px rgba(0, 0, 0, 0.12),
-    0 25px 50px -5px rgba(0, 0, 0, 0.10),
+    0 10px 28px -2px rgba(180, 83, 9, 0.18),
+    0 22px 46px -4px rgba(0, 0, 0, 0.08),
+    0 0 0 1.5px #fde68a, /* Amber 200 focus ring */
     inset 0 1px 0 rgba(255, 255, 255, 1) !important;
 }
 
-/* Light mode Header 3D */
+/* Milky Amber Header 3D */
 html:not(.dark) .header-3d,
 html.light .header-3d,
 .light-mode .header-3d {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
-  border-bottom: 1px solid #e2e8f0 !important;
+  background: linear-gradient(180deg, #fdfbf7 0%, #f7f0e2 100%) !important;
+  border-bottom: 1.5px solid #fde68a !important; /* Amber 200 bottom border */
   box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.05),
-    0 12px 28px rgba(0, 0, 0, 0.03) !important;
+    0 4px 18px -2px rgba(180, 83, 9, 0.09),
+    0 12px 28px -4px rgba(0, 0, 0, 0.04),
+    inset 0 -1px 0 rgba(245, 158, 11, 0.25) !important;
 }
+
+html:not(.dark) .header-3d .text-white,
+html.light .header-3d .text-white,
+.light-mode .header-3d .text-white {
+  color: #1c1917 !important;
+}
+
+html:not(.dark) .header-3d .bg-slate-800,
+html:not(.dark) .header-3d .bg-slate-800\/80,
+html:not(.dark) .header-3d .bg-slate-900,
+html.light .header-3d .bg-slate-800,
+html.light .header-3d .bg-slate-800\/80,
+html.light .header-3d .bg-slate-900,
+.light-mode .header-3d .bg-slate-800,
+.light-mode .header-3d .bg-slate-900 {
+  background-color: #f6efe0 !important;
+  border-color: #fde68a !important; /* Amber 200 */
+  color: #1c1917 !important;
+}
+
+html:not(.dark) .header-3d .border-slate-700,
+html:not(.dark) .header-3d .border-slate-800,
+html.light .header-3d .border-slate-700,
+html.light .header-3d .border-slate-800,
+.light-mode .header-3d .border-slate-700,
+.light-mode .header-3d .border-slate-800 {
+  border-color: #ebdcc6 !important;
+}
+
+html:not(.dark) .bg-white .text-white,
+html.light .bg-white .text-white,
+.light-mode .bg-white .text-white {
+  color: #1c1917 !important;
+}
+
 
 /* Light mode Sidebar 3D */
 html:not(.dark) .sidebar-3d,
@@ -676,4 +784,381 @@ html.light .glass-3d,
 * {
   --shadow-color: 222 47% 11%;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   🖨️  Responsive Landscape Print Architecture (طباعة منظمة ولاندسكيب ورسبونسف)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@page {
+  size: landscape;
+  margin: 10mm 12mm 10mm 12mm;
+}
+
+.print-paper-header,
+.print-paper-footer {
+  display: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WARM MILKY / AMBER 200 THEME (ثيم أبيض حليبي / أمبر 200 فاخر مع ظلال ثلاثية الأبعاد)
+   ══════════════════════════════════════════════════════════════════════════ */
+html.light,
+body.light-mode {
+  background-color: #faf5ee !important;
+  color: #1c1917 !important;
+}
+
+html.light body,
+body.light-mode {
+  background-color: #faf5ee !important;
+  color: #1c1917 !important;
+}
+
+/* Milky Top Bar */
+html.light header,
+body.light-mode header,
+html.light .header-3d,
+body.light-mode .header-3d {
+  background: #faf5ee !important;
+  border-bottom: 1.5px solid #fde68a !important;
+  box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.1) !important;
+  color: #1c1917 !important;
+}
+
+/* Secondary Topbar / Actions Toolbar */
+html.light .glass-3d,
+body.light-mode .glass-3d,
+html.light .sub-topbar,
+body.light-mode .sub-topbar {
+  background: #fdfbf7 !important;
+  border-bottom: 1px solid #ebdcc6 !important;
+  box-shadow: 0 2px 10px rgba(180, 83, 9, 0.05) !important;
+  color: #1c1917 !important;
+}
+
+/* Canvas Background */
+html.light main,
+body.light-mode main {
+  background-color: #faf5ee !important;
+  color: #1c1917 !important;
+}
+
+/* Widget Cards in Milky Amber Theme */
+html.light .widget-3d,
+body.light-mode .widget-3d,
+html.light .widget-card,
+body.light-mode .widget-card {
+  background: #fffdf9 !important;
+  border: 1.5px solid #fde68a !important;
+  box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(253, 230, 138, 0.6) !important;
+  color: #1c1917 !important;
+}
+
+html.light .widget-header,
+body.light-mode .widget-header {
+  background: linear-gradient(180deg, #fefbf6 0%, #fef3c7 100%) !important;
+  border-bottom: 1.5px solid #fde68a !important;
+  color: #1c1917 !important;
+}
+
+/* Headings and Titles with Professional Soft Shadow */
+html.light h1, html.light h2, html.light h3, html.light h4, html.light .widget-title,
+body.light-mode h1, body.light-mode h2, body.light-mode h3, body.light-mode h4, body.light-mode .widget-title {
+  color: #1c1917 !important;
+  text-shadow: 0 1px 2px rgba(180, 83, 9, 0.12), 0 1px 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Body text on light background */
+html.light p, html.light span, html.light div, html.light label,
+body.light-mode p, body.light-mode span, body.light-mode div, body.light-mode label {
+  color: inherit;
+}
+
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-slate-300,
+body.light-mode .text-slate-100,
+body.light-mode .text-slate-200,
+body.light-mode .text-slate-300 {
+  color: #1c1917 !important;
+}
+
+html.light .text-slate-400,
+html.light .text-slate-500,
+body.light-mode .text-slate-400,
+body.light-mode .text-slate-500 {
+  color: #57534e !important;
+}
+
+/* Professional Multi-Layered Drop Shadows for Icons, SVGs & Logos */
+html.light svg,
+body.light-mode svg,
+html.light .lucide,
+body.light-mode .lucide {
+  filter: drop-shadow(0 2px 4px rgba(180, 83, 9, 0.2)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08));
+}
+
+/* Badges with 3D Amber Glow */
+html.light .badge-3d,
+body.light-mode .badge-3d {
+  background: #fef3c7 !important;
+  border: 1px solid #fde68a !important;
+  color: #92400e !important;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2) !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Buttons in Milky Amber */
+html.light button.bg-slate-800,
+body.light-mode button.bg-slate-800,
+html.light button.bg-slate-900,
+body.light-mode button.bg-slate-900 {
+  background: #fef9ee !important;
+  border: 1px solid #fde68a !important;
+  color: #292524 !important;
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.08) !important;
+}
+
+html.light button.bg-slate-800:hover,
+body.light-mode button.bg-slate-800:hover {
+  background: #fef3c7 !important;
+  color: #1c1917 !important;
+}
+
+/* Interactive Data Tables in Milky Amber */
+html.light table,
+body.light-mode table {
+  background: #fffdfa !important;
+  color: #1c1917 !important;
+}
+
+html.light th,
+body.light-mode th {
+  background: #fef3c7 !important;
+  color: #78350f !important;
+  border-bottom: 2px solid #fde68a !important;
+  font-weight: 800 !important;
+}
+
+html.light td,
+body.light-mode td {
+  border-bottom: 1px solid #f5ede1 !important;
+  color: #292524 !important;
+}
+
+html.light tr:hover td,
+body.light-mode tr:hover td {
+  background-color: #fef9c3 !important;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm 12mm 10mm 12mm;
+  }
+
+  /* 1. Reset Body & Force Crisp White Printing */
+  html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    font-family: 'Cairo', -apple-system, sans-serif !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 2. HIDE ALL PLATFORM CHROME & UI NOISE (لا تظهر بيانات وأزرار المنصة) */
+  header,
+  .header-3d,
+  .header-wrapper,
+  nav,
+  .bottom-nav,
+  aside,
+  .sidebar-3d,
+  button,
+  .btn,
+  .fixed,
+  .modal,
+  input,
+  select,
+  .no-print,
+  #chart-modal,
+  .drill-actions,
+  .slicer-tabs,
+  .table-search-box,
+  .table-pagination,
+  .table-pagination-nav,
+  .pagination-size-selector,
+  .drill-card-badge,
+  .badge-engine,
+  .badge-readonly,
+  .badge-live,
+  footer {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 3. SHOW DEDICATED FORMAL PAPER REPORT HEADER */
+  .print-paper-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #0f172a;
+    width: 100%;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  .print-title-area h1 {
+    font-size: 18pt !important;
+    font-weight: 900 !important;
+    color: #0f172a !important;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .print-title-area p {
+    font-size: 9.5pt !important;
+    color: #64748b !important;
+    margin-top: 3px;
+    font-weight: 600;
+  }
+  .print-meta-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    font-size: 9pt !important;
+    color: #475569 !important;
+  }
+  .print-meta-area b {
+    color: #0f172a !important;
+  }
+
+  /* 4. PAPER FOOTER */
+  .print-paper-footer {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+    margin-top: 16px;
+    border-top: 1px solid #cbd5e1;
+    font-size: 8pt !important;
+    color: #64748b !important;
+    width: 100%;
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  /* 5. RESPONSIVE 2-COLUMN LANDSCAPE GRID */
+  main,
+  #widgets-grid,
+  .grid,
+  .canvas-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    page-break-inside: auto;
+  }
+
+  /* 6. CRITICAL: WIDGET CARD PAGE-BREAK PROTECTION (بدون أي قص للكارد بالورقة التالية) */
+  .widget-card,
+  .widget-3d,
+  [data-widget-id] {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    overflow: visible !important;
+    grid-column: span 1 !important;
+    width: 100% !important;
+  }
+
+  /* Full Width for Tables & 12-col items */
+  .widget-card.col-12,
+  .widget-card.is-table-card,
+  .widget-3d.col-12,
+  .is-table-card {
+    grid-column: span 2 !important;
+    width: 100% !important;
+  }
+
+  .widget-header {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 8px 12px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  .widget-title {
+    font-size: 11pt !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    text-shadow: none !important;
+  }
+
+  .widget-body {
+    padding: 10px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Responsive Chart Containers in Print */
+  .chart-container,
+  .echarts-for-react,
+  canvas {
+    height: 240px !important;
+    min-height: 240px !important;
+    max-height: 250px !important;
+    width: 100% !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Tables in Print */
+  .table-container {
+    max-height: none !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+  }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8.5pt !important;
+  }
+  th {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-bottom: 1.5px solid #94a3b8 !important;
+    padding: 5px 8px !important;
+    font-size: 8.5pt !important;
+    text-shadow: none !important;
+  }
+  td {
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #1e293b !important;
+    padding: 4px 8px !important;
+    font-size: 8pt !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    text-shadow: none !important;
+  }
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
 

@@ -18,108 +18,97 @@ import {
 } from '../../services/dataEngine';
 import type { MotionThemeId } from '../../services/motionThemes';
 
-// ─── Default Project ID ───────────────────────────────────────────────────────
-const DEFAULT_PROJECT_ID = 'proj-offers-2026';
+// ─── Default Project ID (Active Database Project) ─────────────────────────────
+const DEFAULT_PROJECT_ID = 'proj-1792759348439';
 
 const INITIAL_WIDGETS: Widget[] = [
-  // 1. الفلتر الرئيسي الشامل (اسم الشركة، الموقع، القسم، الحالة)
+  // 1. فلتر تصفية مراكز الكلفة والمجموعات والزبائن
   {
-    id: 'w-slicer-company',
+    id: 'w-slicer-1792761350598',
     dashboardId: 'dash-main',
-    dataSourceId: 'ds-gsheet-live-main',
+    dataSourceId: 'ds-google-sheet-live',
     type: 'slicer',
-    title: 'تصفية البيانات: اسم الشركة | الموقع | القسم | الحالة',
+    title: 'تصفية حسب: مركز الكلفة',
     config: {
-      xAxisColumn: 'اسم الشركة',
-      activeSlicerColumn: 'اسم الشركة',
-      slicerColumns: ['اسم الشركة', 'الموقع', 'القسم', 'الحالة'],
+      xAxisColumn: 'مركز الكلفة',
+      activeSlicerColumn: 'مركز الكلفة',
+      slicerColumns: ['مركز الكلفة', 'اسم المجموعة', 'اسم الزبون'],
       slicerSelectionMode: 'multi'
     },
-    layout: { x: 0, y: 0, w: 12, h: 2, i: 'w-slicer-company' }
+    layout: { x: 0, y: 0, w: 12, h: 2, i: 'w-slicer-1792761350598' }
   },
 
-  // 2. دائري مجوف (Donut Chart) بنسبة 50%
+  // 2. مؤشر إجمالي الكميات (KPI)
   {
-    id: 'w-donut-company',
+    id: 'w-kpi-1792759377793-1',
     dashboardId: 'dash-main',
-    dataSourceId: 'ds-gsheet-live-main',
-    type: 'donut',
-    title: 'توزيع كمية المنتجات حسب اسم الشركة (دائري مجوف)',
+    dataSourceId: 'ds-google-sheet-live',
+    type: 'kpi',
+    title: 'إجمالي: Count of الكمية',
     config: {
-      xAxisColumn: 'اسم الشركة',
-      yAxisColumn: 'سعر المفرد',
-      aggregation: 'COUNT',
-      numberFormat: 'compact',
-      donutHoleRatio: 45,
-      pieLabelType: 'percent',
-      showLegend: true,
-      legendPosition: 'bottom',
-      drillDownEnabled: true,
-      drillDownLevels: ['اسم الشركة', 'القسم'],
-      colorTheme: 'violet'
+      yAxisColumn: 'Count of الكمية',
+      aggregation: 'SUM',
+      numberFormat: 'standard'
     },
-    layout: { x: 0, y: 2, w: 6, h: 4, i: 'w-donut-company' }
+    layout: { x: 0, y: 2, w: 4, h: 2, i: 'w-kpi-1792759377793-1' }
   },
 
-  // 3. كولم/بار جارت 50% بجانبه (اسم الشركة وكمية المنتجات مع دخول هرمي للقسم)
+  // 3. مخطط شريطي: الكمية حسب مركز الكلفة
   {
-    id: 'w-bar-company',
+    id: 'w-bar-1792759377793-1',
     dashboardId: 'dash-main',
-    dataSourceId: 'ds-gsheet-live-main',
+    dataSourceId: 'ds-google-sheet-live',
     type: 'bar',
-    title: 'كمية المنتجات لكل شركة',
+    title: 'Count of الكمية حسب مركز الكلفة',
     config: {
-      xAxisColumn: 'اسم الشركة',
-      yAxisColumn: 'سعر المفرد',
-      aggregation: 'COUNT',
+      xAxisColumn: 'مركز الكلفة',
+      yAxisColumn: 'Count of الكمية',
+      aggregation: 'SUM',
       numberFormat: 'compact',
       sortOrder: 'desc',
       showDataLabels: true,
-      drillDownEnabled: true,
-      drillDownLevels: ['اسم الشركة', 'القسم'],
       colorTheme: 'sky'
     },
-    layout: { x: 6, y: 2, w: 6, h: 4, i: 'w-bar-company' }
+    layout: { x: 4, y: 2, w: 8, h: 4, i: 'w-bar-1792759377793-1' }
   },
 
-  // 4. الجدول الأول: تفاصيل المنتجات والأسعار (3 أعمدة فقط: اسم الشركة، اسم المنتج والوصف، السعر المفرد)
+  // 4. مخطط زمني مساحي للمواد والكميات
   {
-    id: 'w-table-products',
+    id: 'w-area-1792759377793-1',
     dashboardId: 'dash-main',
-    dataSourceId: 'ds-gsheet-live-main',
-    type: 'table',
-    title: 'جدول تفاصيل المنتجات والأسعار',
+    dataSourceId: 'ds-google-sheet-live',
+    type: 'area',
+    title: 'مسار Count of الكمية عبر الزمن (التاريخ)',
     config: {
-      tableColumns: [
-        'اسم الشركة',
-        'اسم المنتج والوصف',
-        'السعر المفرد'
-      ],
-      tablePageSize: 8,
-      tableDensity: 'comfortable'
+      xAxisColumn: 'التاريخ',
+      yAxisColumn: 'Count of الكمية',
+      aggregation: 'SUM',
+      numberFormat: 'compact',
+      colorTheme: 'amber'
     },
-    layout: { x: 0, y: 6, w: 12, h: 5, i: 'w-table-products' }
+    layout: { x: 0, y: 6, w: 12, h: 4, i: 'w-area-1792759377793-1' }
   },
 
-  // 5. الجدول الثاني: العروض والخصومات وفترة الضمان (5 أعمدة)
+  // 5. جدول تفاصيل السجلات الكاملة
   {
-    id: 'w-table-offers',
+    id: 'w-table-1792759377793-1',
     dashboardId: 'dash-main',
-    dataSourceId: 'ds-gsheet-live-main',
+    dataSourceId: 'ds-google-sheet-live',
     type: 'table',
-    title: 'جدول العروض والخصومات وفترة الضمان',
+    title: 'جدول تفاصيل سجلات Google_Sheet_Live (Google Sheets Live)',
     config: {
       tableColumns: [
-        'اسم الشركة',
-        'الخصم',
-        'العرض',
-        'مدة العرض',
-        'الضمان'
+        'التاريخ',
+        'مركز الكلفة',
+        'اسم الزبون',
+        'اسم المجموعة',
+        'اسم المادة',
+        'Count of الكمية'
       ],
-      tablePageSize: 8,
+      tablePageSize: 15,
       tableDensity: 'comfortable'
     },
-    layout: { x: 0, y: 11, w: 12, h: 5, i: 'w-table-offers' }
+    layout: { x: 0, y: 10, w: 12, h: 6, i: 'w-table-1792759377793-1' }
   }
 ];
 
@@ -476,35 +465,6 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
 
 
 // ─── Universal Mojibake Sanitation Engine (Windows-1252 / ISO-8859-1 -> UTF-8) ────────
-const WIN1252_MAP: Record<number, number> = {
-  0x20AC: 0x80, // €
-  0x201A: 0x82, // ‚
-  0x0192: 0x83, // ƒ
-  0x201E: 0x84, // „
-  0x2026: 0x85, // …
-  0x2020: 0x86, // †
-  0x2021: 0x87, // ‡
-  0x02C6: 0x88, // ˆ
-  0x2030: 0x89, // ‰
-  0x0160: 0x8A, // Š
-  0x2039: 0x8B, // ‹
-  0x0152: 0x8C, // Œ
-  0x017D: 0x8E, // Ž
-  0x2018: 0x91, // ‘
-  0x2019: 0x92, // ’
-  0x201C: 0x93, // “
-  0x201D: 0x94, // ”
-  0x2022: 0x95, // •
-  0x2013: 0x96, // –
-  0x2014: 0x97, // —
-  0x02DC: 0x98, // ˜
-  0x2122: 0x99, // ™
-  0x0161: 0x9A, // š
-  0x203A: 0x9B, // ›
-  0x0153: 0x9C, // œ
-  0x017E: 0x9E, // ž
-  0x0178: 0x9F  // Ÿ
-};
 
 const MOJIBAKE_REPLACEMENTS: [RegExp, string][] = [
   [/Ø§Ø³Ù… Ø§Ù„Ø´Ø±ÙƒØ©/g, 'اسم الشركة'],
@@ -573,48 +533,39 @@ const MOJIBAKE_REPLACEMENTS: [RegExp, string][] = [
 export function sanitizeMojibakeString(val: string): string {
   if (!val || typeof val !== 'string') return val;
 
-  // Quick check: only proceed if string contains mojibake indicators
-  if (!/[ØÙÚÛÃÅ\u0080-\u009F]/.test(val)) {
+  // Quick check: Arabic UTF-8 bytes 0xD8/0xD9 appear as Ø/Ù in Latin-1 misreads.
+  if (!/[ØÙÚÛÃÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖàáâãäåæçèéêëìíîïðñòóôõöùúûüýþÿ\u0080-\u009F]/.test(val)) {
     return val;
   }
 
-  // 1. Try Universal Windows-1252 / ISO-8859-1 to UTF-8 reconstruction
+  // 1. Latin-1 byte reconstruction: each char code 0-255 IS the raw byte.
+  // Re-assemble as byte array and decode as UTF-8 to recover Arabic text.
   try {
     const bytes: number[] = [];
-    const encoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
-
     for (let i = 0; i < val.length; i++) {
       const code = val.charCodeAt(i);
-      if (WIN1252_MAP[code] !== undefined) {
-        bytes.push(WIN1252_MAP[code]);
-      } else if (code <= 0xFF) {
+      if (code <= 0xFF) {
         bytes.push(code);
-      } else if (encoder) {
-        const encBytes = encoder.encode(val[i]);
-        for (let b = 0; b < encBytes.length; b++) {
-          bytes.push(encBytes[b]);
-        }
+      } else {
+        // Multi-byte char that survived — re-encode as UTF-8
+        const enc = new TextEncoder().encode(val[i]);
+        for (let b = 0; b < enc.length; b++) bytes.push(enc[b]);
       }
     }
 
     if (bytes.length > 0 && typeof TextDecoder !== 'undefined') {
       const decoder = new TextDecoder('utf-8', { fatal: false });
       const decoded = decoder.decode(new Uint8Array(bytes));
-      // If we recovered Arabic characters and reduced corrupted markers, adopt decoded
-      if (/[\u0600-\u06FF]/.test(decoded) && !decoded.includes('')) {
-        let clean = decoded;
-        for (const [pattern, replacement] of MOJIBAKE_REPLACEMENTS) {
-          pattern.lastIndex = 0;
-          clean = clean.replace(pattern, replacement);
-        }
-        return clean;
+      // Only adopt if Arabic was recovered and mojibake markers (Ø/Ù) are gone
+      if (/[\u0600-\u06FF]/.test(decoded) && !/[ØÙ]/.test(decoded)) {
+        return decoded;
       }
     }
   } catch {
-    // Fall back to pattern matching
+    // Fall through to pattern matching
   }
 
-  // 2. Pattern-based fallback
+  // 2. Pattern-based fallback for known column/title mojibake strings
   let res = val;
   for (const [pattern, replacement] of MOJIBAKE_REPLACEMENTS) {
     pattern.lastIndex = 0;
@@ -648,8 +599,8 @@ export const useDashboardStore = create<DashboardState>()(
   currentDashboard: {
     id: 'dash-main',
     workspaceId: 'ws-main',
-    title: 'لوحة تحليل ومقارنة عروض الشركات والموردين 2026',
-    description: 'مزامنة حية ومباشرة مع Google Sheets - تحليل تفاعلي للأسعار، الأقسام، وشروط الضمان',
+    title: 'لوحة تحليلات: Google_Sheet_Live (Google Sheets Live)',
+    description: 'مزامنة حية ومباشرة مع Google Sheets - تحليل تفاعلي للمواد ومراكز الكلفة والزبائن',
     widgets: INITIAL_WIDGETS,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -683,15 +634,15 @@ export const useDashboardStore = create<DashboardState>()(
       currentDashboard: {
         id: 'dash-main',
         workspaceId: 'ws-main',
-        title: 'لوحة تحليل ومقارنة عروض الشركات والموردين 2026',
-        description: 'مزامنة حية ومباشرة مع Google Sheets - تحليل تفاعلي للأسعار، الأقسام، وشروط الضمان',
+        title: 'لوحة تحليلات: Google_Sheet_Live (Google Sheets Live)',
+        description: 'مزامنة حية ومباشرة مع Google Sheets - تحليل تفاعلي للمواد ومراكز الكلفة والزبائن',
         widgets: INITIAL_WIDGETS,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         isPublic: true
       },
       currentDataSource: INITIAL_DATA_SOURCE,
-      selectedWidgetId: 'w-bar-1',
+      selectedWidgetId: 'w-bar-1792759377793-1',
       activeFilters: {},
       widgetFilters: {},
       isEditMode: false,
@@ -1656,7 +1607,19 @@ export const useDashboardStore = create<DashboardState>()(
 
     // Select or construct initial data source for this project
     const rawDataSource = options.initialDataSource || (
-      options.dataSourceType === 'database'
+      options.dataSourceType === 'empty'
+        ? {
+            id: `ds-${newId}`,
+            workspaceId: newId,
+            fileName: `${options.title} - فارغ`,
+            fileSizeBytes: 0,
+            uploadedAt: now,
+            activeSheetId: 'sheet-empty',
+            sheets: [],
+            columns: [],
+            rawRows: []
+          }
+        : options.dataSourceType === 'database'
         ? REGIONAL_SALES_DATA_SOURCE
         : options.dataSourceType === 'excel_csv'
         ? TECH_COMPANIES_DATA_SOURCE
@@ -1674,6 +1637,8 @@ export const useDashboardStore = create<DashboardState>()(
           ? `شيت جوجل: ${options.title}`
           : options.dataSourceType === 'excel_csv'
           ? `${options.title}.xlsx`
+          : options.dataSourceType === 'empty'
+          ? `${options.title} - مشروع فارغ`
           : `${options.title} - بيانات مخصصة`
       )
     };
@@ -2070,11 +2035,43 @@ export const useDashboardStore = create<DashboardState>()(
               const nonDeleted = (currentState.projects || []).filter(
                 (p) => !freshDeletedIds.has(p.id)
               );
-              useDashboardStore.setState({
-                projects: nonDeleted,
-                currentProjectId: nonDeleted[0]?.id || '',
-                selectedWidgetId: null
-              });
+              if (nonDeleted.length > 0) {
+                const active = nonDeleted[0];
+                useDashboardStore.setState({
+                  projects: nonDeleted,
+                  currentProjectId: active.id,
+                  currentDashboard: active.dashboard,
+                  currentDataSource: active.dataSource,
+                  selectedWidgetId: null
+                });
+              } else {
+                useDashboardStore.setState({
+                  projects: [],
+                  currentProjectId: '',
+                  currentDashboard: {
+                    id: 'dash-empty',
+                    workspaceId: 'ws-main',
+                    title: 'لا توجد مشاريع حالياً',
+                    description: 'تم حذف المشاريع. يمكنك إنشاء مشروع جديد أو رفع ملف بيانات.',
+                    widgets: [],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    isPublic: false
+                  },
+                  currentDataSource: {
+                    id: 'ds-empty',
+                    workspaceId: 'ws-main',
+                    fileName: 'لا توجد بيانات',
+                    fileSizeBytes: 0,
+                    uploadedAt: new Date().toISOString(),
+                    activeSheetId: 's-empty',
+                    sheets: [],
+                    columns: [],
+                    rawRows: []
+                  },
+                  selectedWidgetId: null
+                });
+              }
             }
           }
         }).catch((err) => {

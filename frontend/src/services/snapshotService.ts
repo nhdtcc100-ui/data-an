@@ -248,15 +248,15 @@ export function buildShareUrl(
     .replace(/\/+$/, '');
   const basePath = `${origin}${cleanPath}`;
 
-  // Preferred modern BI mode: direct project URL by unique ID
-  if (projectId) {
-    return `${basePath}/?view=public&project=${encodeURIComponent(projectId)}`;
-  }
-
-  // Fallback portable snapshot URL
+  // Preferred modern BI mode: direct project URL by unique ID with instant portable snapshot fallback
   const compact = compactDashboard(dashboard, theme, drillDownStates, widgetFilters, activeFilters, dataSource);
   const encoded = encodeSnapshot(compact);
 
+  if (projectId) {
+    return `${basePath}/?view=public&project=${encodeURIComponent(projectId)}&r=${encoded}`;
+  }
+
+  // Fallback portable snapshot URL
   return `${basePath}/?view=public&r=${encoded}`;
 }
 
