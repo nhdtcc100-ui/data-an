@@ -43,8 +43,39 @@ export async function ensureProjectStorageBucket(): Promise<boolean> {
 }
 
 /**
+ * Generates an S3 / Supabase Storage compliant ASCII-only object key.
+ * Preserves the file extension and converts Arabic / Unicode characters into a deterministic safe slug.
+ */
+export function getStorageSafeKey(fileName: string): string {
+  const lastDot = fileName.lastIndexOf('.');
+  const ext = lastDot > 0 ? fileName.substring(lastDot).toLowerCase().replace(/[^a-z0-9.]/g, '') : '';
+  const rawBase = lastDot > 0 ? fileName.substring(0, lastDot) : fileName;
+
+  // Extract clean ASCII alphanumeric characters
+  const asciiBase = rawBase
+    .replace(/[^a-zA-Z0-9_-]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+
+  // Calculate a deterministic hash for the full original filename
+  let hash = 0;
+  for (let i = 0; i < fileName.length; i++) {
+    hash = ((hash << 5) - hash) + fileName.charCodeAt(i);
+    hash |= 0;
+  }
+  const hashStr = Math.abs(hash).toString(36);
+
+  if (asciiBase && asciiBase.length > 0) {
+    return `${asciiBase.slice(0, 40)}_${hashStr}${ext}`;
+  }
+
+  // Pure non-ASCII / Arabic filename (e.g. بيانات_ببسي_بغداد.xlsx)
+  return `dataset_${hashStr}${ext}`;
+}
+
+/**
  * Uploads a raw project file (Excel/CSV/JSON) to Supabase Storage
- * Path structure: {projectId}/{timestamp}_{fileName}
+ * Path structure: {projectId}/{timestamp}_{safeFileName}
  */
 export async function uploadProjectFile(
   projectId: string,
@@ -54,15 +85,17 @@ export async function uploadProjectFile(
   try {
     await ensureProjectStorageBucket();
 
-    const sanitizedName = fileName.replace(/[^a-zA-Z0-9._\-\u0600-\u06FF]/g, '_');
+    const cleanProjectId = (projectId || 'proj-default').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safeFileName = getStorageSafeKey(fileName || 'dataset.xlsx');
     const timestamp = Date.now();
-    const filePath = `${projectId}/${timestamp}_${sanitizedName}`;
+    const filePath = `${cleanProjectId}/${timestamp}_${safeFileName}`;
 
     const { data, error } = await supabase.storage
       .from(PROJECT_STORAGE_BUCKET)
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: true
+        upsert: true,
+        contentType: (file instanceof File && file.type) ? file.type : undefined
       });
 
     if (error) {
