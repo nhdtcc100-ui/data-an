@@ -97,11 +97,25 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   const activeMotionTheme = getMotionTheme(motionTheme || currentDashboard?.motionTheme || 'glass-capsule');
 
-  // الثيمات الفاتحة التي تحتاج نصوصاً سوداء على الخلفية البيضاء
-  const LIGHT_THEME_IDS = ['minimalism-light', 'bento-light'];
+  // ثيمات حركية ذات خلفيات كروت داكنة أو سوداء (Dark / 3D themes)
+  const DARK_MOTION_THEMES = [
+    'skeuomorphism',
+    'neumorphism',
+    'glassmorphism',
+    'claymorphism',
+    'minimalism',
+    'maximalism',
+    'brutalism',
+    'liquid-glass',
+    'bento-grid',
+    'spatial-ui',
+    'cyber-neon',
+    'matrix-holo'
+  ];
+
   const activeThemeId = activeMotionTheme.id;
   const isDark = theme === 'dark';
-  const isLightCard = !isDark || LIGHT_THEME_IDS.includes(activeThemeId);
+  const isDarkThemeCard = isDark || DARK_MOTION_THEMES.includes(activeThemeId);
 
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -1059,13 +1073,13 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           ? '!border-sky-500 ring-2 ring-sky-500/30 glow-sky'
           : ''
       } ${
-        isLightCard ? 'text-gray-900' : 'text-slate-100'
+        isDarkThemeCard ? 'text-white' : 'text-gray-900'
       }`}
       data-theme={activeMotionTheme.id}
     >
       {/* Widget Header */}
       <div className={`flex items-center justify-between px-3.5 py-2 border-b select-none gap-2 ${
-        isDark ? 'border-slate-800 bg-slate-900/90' : 'border-slate-200 bg-white/95 text-slate-950'
+        isDarkThemeCard ? 'border-slate-800 bg-slate-900/90 text-white' : 'border-slate-200 bg-white/95 text-slate-950'
       }`}>
         <div className={`flex items-center gap-2 overflow-hidden flex-1 ${
           widget.config.titleAlign === 'center'
@@ -1087,14 +1101,14 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               }}
               onDragEnd={onDragEnd}
               title="اسحب بالماوس لنقل هذا العنصر وإفلاته في أي موضع بالتقرير"
-              className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-slate-800 text-slate-500 hover:text-sky-400 transition shrink-0"
+              className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-sky-400 transition shrink-0"
             >
               <GripHorizontal className="w-4 h-4" />
             </div>
           )}
           <h3
             className={`font-bold truncate ${
-              isLightCard ? 'text-slate-950 font-black' : 'text-slate-200'
+              isDarkThemeCard ? 'text-white font-bold' : 'text-slate-950 font-black'
             }`}
             title={sanitizeMojibakeString(widget.title)}
             style={{
@@ -1122,8 +1136,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
         {/* Quick Size Controls in Header (Edit Mode) */}
         {isEditMode && (
-          <div className="hidden sm:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono shrink-0">
-            <span className="text-slate-500 px-1 text-[9px]">العرض:</span>
+          <div className="hidden sm:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono shrink-0 text-white">
+            <span className="text-slate-300 px-1 text-[9px]">العرض:</span>
             {[3, 4, 6, 8, 12].map((colSpan) => (
               <button
                 key={colSpan}
@@ -1135,7 +1149,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
                   (widget.layout?.w ?? 6) === colSpan
                     ? 'bg-sky-500 text-white font-bold'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    : 'text-slate-200 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 {colSpan === 12 ? '100%' : colSpan === 6 ? '50%' : colSpan === 4 ? '33%' : colSpan === 3 ? '25%' : `${colSpan}`}
@@ -1151,18 +1165,18 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 setWidgetHeight(widget.id, Math.max(2, (widget.layout?.h || 4) - 1));
               }}
               title="تقليل الارتفاع"
-              className="px-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded cursor-pointer font-bold"
+              className="px-1 text-slate-200 hover:text-white hover:bg-slate-800 rounded cursor-pointer font-bold"
             >
               -
             </button>
-            <span className="text-slate-500 text-[9px]">H{widget.layout?.h || 4}</span>
+            <span className="text-slate-300 text-[9px]">H{widget.layout?.h || 4}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setWidgetHeight(widget.id, Math.min(8, (widget.layout?.h || 4) + 1));
               }}
               title="زيادة الارتفاع"
-              className="px-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded cursor-pointer font-bold"
+              className="px-1 text-slate-200 hover:text-white hover:bg-slate-800 rounded cursor-pointer font-bold"
             >
               +
             </button>

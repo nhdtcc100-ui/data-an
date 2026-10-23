@@ -28,6 +28,7 @@ export interface DataSource {
   activeSheetId: string;
   columns: Column[];
   rawRows: Record<string, any>[];
+  multiModel?: MultiTableDataSource;
 }
 
 // ══════════════════════════════════════════════════════════════

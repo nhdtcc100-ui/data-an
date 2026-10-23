@@ -293,6 +293,21 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
   // ─── Styling derived from config & Motion Theme ────────────────────────────
   const activeMotionTheme = getMotionTheme(motionTheme);
   const tTheme = activeMotionTheme.tableTheme;
+  const DARK_MOTION_THEMES = [
+    'skeuomorphism',
+    'neumorphism',
+    'glassmorphism',
+    'claymorphism',
+    'minimalism',
+    'maximalism',
+    'brutalism',
+    'liquid-glass',
+    'bento-grid',
+    'spatial-ui',
+    'cyber-neon',
+    'matrix-holo'
+  ];
+  const isDarkCard = isDark || DARK_MOTION_THEMES.includes(activeMotionTheme.id);
 
   const density = config?.tableDensity || 'comfortable';
   const cellPadding = density === 'compact' ? 'p-1' : density === 'spacious' ? 'p-3 sm:p-4' : 'p-1.5 sm:p-2';
@@ -339,10 +354,10 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
     <div className="flex flex-col h-full overflow-hidden select-none text-xs">
       {/* Table Toolbar */}
       <div className={`flex items-center justify-between gap-2 px-2 py-1.5 border-b text-[11px] ${
-        isDark ? 'border-slate-800/80 bg-slate-950/40 text-slate-300' : 'border-slate-200 bg-slate-100/70 text-slate-900'
+        isDarkCard ? 'border-slate-800/80 bg-slate-950/40 text-white' : 'border-slate-200 bg-slate-100/70 text-slate-900'
       }`}>
         <div className="relative flex-1 max-w-[220px]">
-          <Search className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
@@ -352,12 +367,12 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
             }}
             placeholder="بحث في الجدول..."
             className={`w-full text-[10px] rounded-lg pr-7 pl-2 py-1 focus:outline-none focus:border-sky-500 transition-colors ${
-              isDark ? 'bg-slate-900 border border-slate-800 text-slate-200 placeholder:text-slate-500' : 'bg-white border border-slate-300 text-slate-950 font-bold placeholder:text-slate-400 shadow-xs'
+              isDarkCard ? 'bg-slate-900 border border-slate-800 text-white placeholder:text-slate-400' : 'bg-white border border-slate-300 text-slate-950 font-bold placeholder:text-slate-400 shadow-xs'
             }`}
           />
         </div>
 
-        <div className={`flex items-center gap-2 text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-900 font-bold'}`}>
+        <div className={`flex items-center gap-2 text-[10px] ${isDarkCard ? 'text-white font-medium' : 'text-slate-900 font-bold'}`}>
           <span>
             {sortedRows.length.toLocaleString()} سجل
           </span>
@@ -368,7 +383,7 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
               setCurrentPage(1);
             }}
             className={`rounded px-1.5 py-0.5 outline-none focus:border-sky-500 cursor-pointer ${
-              isDark ? 'bg-slate-900 border border-slate-800 text-slate-300' : 'bg-white border border-slate-300 text-slate-950 font-bold shadow-xs'
+              isDarkCard ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white border border-slate-300 text-slate-950 font-bold shadow-xs'
             }`}
           >
             <option value={5}>5 أسطر</option>
@@ -386,12 +401,12 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
             <tr
               className="border-b sticky top-0 font-semibold z-10 backdrop-blur-md transition-colors"
               style={{
-                backgroundColor: headerBg || (isDark ? tTheme.headerBg : '#f1f5f9'),
-                color: headerColor || (isDark ? tTheme.headerTextColor : '#090d16'),
-                borderColor: isDark ? tTheme.headerBorderColor : '#cbd5e1'
+                backgroundColor: headerBg || (isDarkCard ? tTheme.headerBg : '#f1f5f9'),
+                color: headerColor || (isDarkCard ? '#ffffff' : '#090d16'),
+                borderColor: isDarkCard ? tTheme.headerBorderColor : '#cbd5e1'
               }}
             >
-              <th className={`${cellPadding} w-8 sm:w-10 text-center font-mono text-[9px] sm:text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-900 font-bold'}`}>#</th>
+              <th className={`${cellPadding} w-8 sm:w-10 text-center font-mono text-[9px] sm:text-[10px] ${isDarkCard ? 'text-slate-300 font-semibold' : 'text-slate-900 font-bold'}`}>#</th>
               {columns.map((col) => {
                 const isNum = isNumericColumn(col);
                 const isSorted = sortColumn === col;
@@ -401,11 +416,11 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
                     onClick={() => handleSort(col)}
                     className={`${cellPadding} transition-colors cursor-pointer hover:opacity-80 select-none whitespace-nowrap ${
                       isNum ? 'text-left' : 'text-right'
-                    } ${isSorted ? 'text-sky-500 font-bold' : isDark ? '' : 'text-slate-950 font-black'}`}
-                    style={{ color: headerColor || (isSorted ? tTheme.selectedBorder : isDark ? tTheme.headerTextColor : '#090d16') }}
+                    } ${isSorted ? 'text-sky-400 font-bold' : isDarkCard ? 'text-white font-bold' : 'text-slate-950 font-black'}`}
+                    style={{ color: headerColor || (isSorted ? tTheme.selectedBorder : isDarkCard ? '#ffffff' : '#090d16') }}
                   >
                     <div className={`inline-flex items-center gap-1 ${isNum ? 'flex-row-reverse' : ''}`}>
-                      <span className={isDark ? '' : 'text-slate-950 font-black'}>{sanitizeMojibakeString(col)}</span>
+                      <span className={isDarkCard ? 'text-white font-bold' : 'text-slate-950 font-black'}>{sanitizeMojibakeString(col)}</span>
                       {isSorted ? (
                         sortDirection === 'asc' ? (
                           <ArrowUp className="w-3 h-3 shrink-0" style={{ color: tTheme.selectedBorder }} />
@@ -534,19 +549,19 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
             <tfoot>
               <tr
                 className={`border-t-2 sticky bottom-0 z-10 backdrop-blur-md ${
-                  isDark ? 'font-bold text-slate-100' : 'font-black text-slate-950'
+                  isDarkCard ? 'font-bold text-white' : 'font-black text-slate-950'
                 }`}
                 style={{
-                  backgroundColor: isDark ? tTheme.headerBg : '#f1f5f9',
-                  borderColor: isDark ? tTheme.headerBorderColor : '#cbd5e1'
+                  backgroundColor: isDarkCard ? tTheme.headerBg : '#f1f5f9',
+                  borderColor: isDarkCard ? tTheme.headerBorderColor : '#cbd5e1'
                 }}
               >
-                <td className={`p-2 text-center text-[10px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-950 font-bold'}`}>Σ</td>
+                <td className={`p-2 text-center text-[10px] font-mono ${isDarkCard ? 'text-slate-400' : 'text-slate-900 font-bold'}`}>Σ</td>
                 {columns.map((col, idx) => {
                   const sum = columnSums[col];
                   if (idx === 0 && sum === null) {
                     return (
-                      <td key={col} className={`p-2 font-sans ${isDark ? 'text-slate-300' : 'text-slate-950 font-bold'}`}>
+                      <td key={col} className={`p-2 font-sans ${isDarkCard ? 'text-white font-bold' : 'text-slate-950 font-bold'}`}>
                         الإجمالي العام
                       </td>
                     );
@@ -556,10 +571,10 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
                       key={col}
                       className={`p-2 font-mono ${
                         sum !== null
-                          ? isDark ? 'text-left font-bold' : 'text-left font-black text-slate-950'
-                          : isDark ? 'text-right text-slate-500' : 'text-right text-slate-700 font-semibold'
+                          ? isDarkCard ? 'text-left font-bold text-white' : 'text-left font-black text-slate-950'
+                          : isDarkCard ? 'text-right text-slate-400' : 'text-right text-slate-700 font-semibold'
                       }`}
-                      style={{ color: sum !== null ? (isDark ? tTheme.numHighlightColor : '#090d16') : undefined }}
+                      style={{ color: sum !== null ? (isDarkCard ? (tTheme.numHighlightColor || '#38bdf8') : '#090d16') : undefined }}
                     >
                       {sum !== null ? (
                         config?.numberFormat === 'currency' ? (
@@ -581,15 +596,23 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
 
       {/* Pagination Footer */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-2.5 py-1.5 border-t border-slate-800 bg-slate-950/70 text-[10px] text-slate-400">
-          <span>
+        <div className={`flex items-center justify-between px-2.5 py-1.5 border-t text-[10px] ${
+          isDarkCard
+            ? 'border-slate-800 bg-slate-950/70 text-white'
+            : 'border-slate-200 bg-slate-100/90 text-slate-800 font-semibold'
+        }`}>
+          <span className={isDarkCard ? 'text-white' : 'text-slate-900 font-bold'}>
             صفحة {validPage} من {totalPages}
           </span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={validPage === 1}
-              className="p-1 rounded hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 hover:text-white transition"
+              className={`p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed transition ${
+                isDarkCard
+                  ? 'hover:bg-slate-800 text-white hover:text-sky-300'
+                  : 'hover:bg-slate-200 text-slate-800 hover:text-slate-950'
+              }`}
               title="الصفحة السابقة"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -597,7 +620,11 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={validPage === totalPages}
-              className="p-1 rounded hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 hover:text-white transition"
+              className={`p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed transition ${
+                isDarkCard
+                  ? 'hover:bg-slate-800 text-white hover:text-sky-300'
+                  : 'hover:bg-slate-200 text-slate-800 hover:text-slate-950'
+              }`}
               title="الصفحة التالية"
             >
               <ChevronLeft className="w-3.5 h-3.5" />

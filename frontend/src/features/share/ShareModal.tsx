@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useDashboardStore } from '../dashboard-builder/DashboardStore';
 import { buildShareUrl, downloadDeploymentConfig, downloadFullReportPackage } from '../../services/snapshotService';
-import { downloadInteractiveHtml } from '../../services/htmlExportService';
+import { downloadInteractiveHtml, downloadDatasetAsJson } from '../../services/htmlExportService';
 import { getActiveSupabaseUrl } from '../../services/supabaseClient';
 import {
   X,
@@ -231,24 +231,35 @@ export const ShareModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Standalone Interactive HTML Export Box */}
-              <div className="p-3.5 rounded-xl bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-slate-900 border border-sky-500/30 flex items-center justify-between gap-3">
+              {/* Standalone Interactive HTML Export Box with Embedded JSON */}
+              <div className="p-3.5 rounded-xl bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-slate-900 border border-sky-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-xs font-bold text-sky-300">
                     <FileCode className="w-4 h-4 text-sky-400" />
-                    <span>تصدير كملف HTML تفاعلي مستقل (.html)</span>
+                    <span>تصدير كملف HTML تفاعلي متكامل (مدمج ببيانات JSON بالكامل)</span>
                   </div>
                   <p className="text-[11px] text-slate-400 leading-relaxed">
-                    ملف واحد متكامل ترسله بالبريد أو الواتساب، يفتحه أي شخص في المتصفح أوفلاين مع بقاء حركة الماوس، الفلاتر، ونقر الجارتات!
+                    يتم تخزين 100% من بيانات وسجلات اللوحة كـ JSON مدمج بالكامل داخل صفحة الـ HTML، لتفتح أوفلاين على أي جهاز وموبايل دون الحاجة لأي خادم أو اتصال بمصدر البيانات الأصلي!
                   </p>
                 </div>
-                <button
-                  onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-sky-500/20 cursor-pointer shrink-0"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>تنزيل ملف HTML</span>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates)}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-sky-500/20 cursor-pointer shrink-0"
+                    title="تنزيل صفحة HTML تفاعلية كاملة مدمجة بكافة البيانات"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>تنزيل HTML (مع داتا JSON)</span>
+                  </button>
+                  <button
+                    onClick={() => downloadDatasetAsJson(currentDataSource, currentDashboard.title)}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0"
+                    title="تصدير السجلات والبيانات فقط كملف JSON مستقل"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>تصدير JSON</span>
+                  </button>
+                </div>
               </div>
 
               {/* Complete Portable LENS BI Package Box */}

@@ -10,6 +10,75 @@ import { formatDateAr } from './dateUtils';
  * @param widgetFilters  Per-widget drill-down filters from DashboardStore
  * @param activeFilters  Global slicer filters from DashboardStore
  */
+/**
+ * Helper to safely extract all raw rows regardless of source structure (flat, multi-sheet, or multi-table)
+ */
+export function extractAllRows(dataSource?: DataSource): Record<string, any>[] {
+  if (!dataSource) return [];
+  if (Array.isArray(dataSource.rawRows) && dataSource.rawRows.length > 0) {
+    return dataSource.rawRows;
+  }
+  if (Array.isArray(dataSource.sheets) && dataSource.sheets.length > 0) {
+    const active = dataSource.sheets.find(s => s.id === dataSource.activeSheetId) || dataSource.sheets[0];
+    if (Array.isArray(active.rawRows) && active.rawRows.length > 0) {
+      return active.rawRows;
+    }
+  }
+  const dsAny = dataSource as any;
+  if (dsAny?.multiModel?.tables && Array.isArray(dsAny.multiModel.tables)) {
+    for (const t of dsAny.multiModel.tables) {
+      const rows = t.rawRows || t.rows;
+      if (Array.isArray(rows) && rows.length > 0) {
+        return rows;
+      }
+    }
+  }
+  return [];
+}
+
+/**
+ * Helper to extract or infer column definitions
+ */
+export function extractAllColumns(dataSource?: DataSource, rows?: Record<string, any>[]): any[] {
+  if (dataSource && Array.isArray(dataSource.columns) && dataSource.columns.length > 0) {
+    return dataSource.columns;
+  }
+  if (dataSource && Array.isArray(dataSource.sheets) && dataSource.sheets.length > 0) {
+    const active = dataSource.sheets.find(s => s.id === dataSource.activeSheetId) || dataSource.sheets[0];
+    if (Array.isArray(active.columns) && active.columns.length > 0) {
+      return active.columns;
+    }
+  }
+  if (rows && rows.length > 0) {
+    return Object.keys(rows[0]).map((colName, idx) => ({
+      id: `col_${idx}`,
+      columnName: colName,
+      dataType: typeof rows[0][colName] === 'number' ? 'numeric' : 'string',
+      sampleValues: rows.slice(0, 3).map(r => String(r[colName] ?? ''))
+    }));
+  }
+  return [];
+}
+
+/**
+ * OWASP-compliant safe JSON stringifier for embedding inside HTML script tags.
+ * Escapes <, >, &, and line separators to prevent injection or breaking script tags.
+ */
+function safeJsonStringify(obj: any): string {
+  return JSON.stringify(obj)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+/**
+ * Generates a self-contained, standalone interactive HTML document
+ * that can be opened in any browser offline with full interactions.
+ * 100% of all data rows are embedded as self-contained JSON directly inside the page,
+ * ensuring complete independence from any external server, database, or network connection.
+ */
 export function generateInteractiveHtml(
   dashboard: Dashboard,
   dataSource: DataSource,
@@ -22,10 +91,8 @@ export function generateInteractiveHtml(
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
   
-  const dashboardJson = JSON.stringify(dashboard);
-  const rawRowsJson = JSON.stringify(dataSource.rawRows || []);
-  const columnsJson = JSON.stringify(dataSource.columns || []);
-  const drillDownStatesJson = JSON.stringify(drillDownStates || {});
+  const allRows = extractAllRows(dataSource);
+  const allColumns = extractAllColumns(dataSource, allRows);
 
   // Merge all widget drill-down filters + global slicer filters into one initial filter map
   const mergedInitialFilters: Record<string, any> = { ...(activeFilters || {}) };
@@ -33,7 +100,6 @@ export function generateInteractiveHtml(
     for (const wf of Object.values(widgetFilters)) {
       for (const [col, val] of Object.entries(wf || {})) {
         if (val !== undefined && val !== null && val !== '') {
-          // Only overwrite if not already set by global activeFilters
           if (!mergedInitialFilters[col]) {
             mergedInitialFilters[col] = val;
           }
@@ -41,7 +107,32 @@ export function generateInteractiveHtml(
       }
     }
   }
-  const initialFiltersJson = JSON.stringify(mergedInitialFilters);
+
+  // 📦 Full standalone dataset package serialized into the page
+  const embeddedDataPackage = {
+    format: 'lens-bi-standalone-dataset',
+    version: '2026.2',
+    exportedAt: new Date().toISOString(),
+    reportTitle: dashboard.title || 'تقرير تحليلي تفاعلي',
+    sourceFileName: dataSource.fileName || 'Embedded_Dataset.json',
+    totalRows: allRows.length,
+    totalColumns: allColumns.length,
+    columns: allColumns,
+    rows: allRows,
+    dashboard: dashboard,
+    theme: theme,
+    drillDownStates: drillDownStates || {},
+    initialFilters: mergedInitialFilters,
+    offlineCapabilities: {
+      selfContained: true,
+      requiresExternalServer: false,
+      crossFiltering: true,
+      dynamicSlicers: true,
+      exportJsonAvailable: true
+    }
+  };
+
+  const embeddedPackageJsonSafe = safeJsonStringify(embeddedDataPackage);
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -934,6 +1025,18 @@ export function generateInteractiveHtml(
       display: none;
     }
 
+    /* Contrast Contract: Any card, text background, upper/lower bar, or component in black/dark MUST have white inner text */
+    [class*="bg-black"], [class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-slate-800"],
+    .theme-skeuomorphism, .theme-neumorphism, .theme-claymorphism, .theme-maximalism,
+    .theme-brutalism, .theme-liquid-glass, .theme-bento-grid, .theme-spatial-ui {
+      color: #ffffff !important;
+    }
+    [class*="bg-black"] *, [class*="bg-slate-950"] *, [class*="bg-slate-900"] *, [class*="bg-slate-800"] *,
+    .theme-skeuomorphism *, .theme-neumorphism *, .theme-claymorphism *, .theme-maximalism *,
+    .theme-brutalism *, .theme-liquid-glass *, .theme-bento-grid *, .theme-spatial-ui * {
+      color: #ffffff !important;
+    }
+
     @media print {
       @page {
         size: landscape;
@@ -1165,8 +1268,11 @@ export function generateInteractiveHtml(
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>عرض للقراءة فقط</span>
         </span>
-        <span class="badge badge-live">تفاعلي بالكامل</span>
-        <span class="badge badge-engine">DuckDB Engine</span>
+        <span class="badge badge-live" style="background:rgba(16, 185, 129, 0.15); color:#10b981; border:1px solid rgba(16, 185, 129, 0.35);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <span>بيانات مدمجة كـ JSON (${allRows.length.toLocaleString()} سجل)</span>
+        </span>
+        <span class="badge badge-live">تفاعلي أوفلاين بالكامل</span>
       </div>
     </div>
 
@@ -1183,6 +1289,10 @@ export function generateInteractiveHtml(
         </button>
       </div>
       <div class="bar-2-actions">
+        <button class="btn btn-action" onclick="exportEmbeddedJson()" title="استخراج وتنزيل نسخة من البيانات المدمجة كملف JSON مستقل">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span>تصدير البيانات JSON</span>
+        </button>
         <button class="btn btn-action" onclick="window.print()" title="طباعة أو تصدير PDF">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
           <span>طباعة / PDF</span>
@@ -1203,7 +1313,7 @@ export function generateInteractiveHtml(
     </div>
     <div class="print-meta-area">
       <div class="print-meta-row"><span>تاريخ التقرير:</span> <b>${formatDateAr(new Date(), true)}</b></div>
-      <div class="print-meta-row"><span>إجمالي السجلات:</span> <b>${(dataSource.rawRows || []).length.toLocaleString()}</b></div>
+      <div class="print-meta-row"><span>إجمالي السجلات:</span> <b>${allRows.length.toLocaleString()} سجل</b></div>
     </div>
   </div>
 
@@ -1239,18 +1349,54 @@ export function generateInteractiveHtml(
     <div>تم الإنشاء: ${formatDateAr(new Date(), true)}</div>
   </footer>
 
+  <!-- ============================================================ -->
+  <!-- 📦 EMBEDDED SELF-CONTAINED JSON DATASET                      -->
+  <!-- Entire dataset is serialized as standalone JSON.             -->
+  <!-- No connection to Supabase, Google Sheets, or server needed! -->
+  <!-- ============================================================ -->
+  <script id="lens-bi-embedded-data" type="application/json">
+${embeddedPackageJsonSafe}
+  </script>
+
   <!-- Embedded Dashboard & Data Engine -->
   <script>
-    const DASHBOARD = ${dashboardJson};
-    const RAW_ROWS = ${rawRowsJson};
-    const COLUMNS = ${columnsJson};
-    const THEME = '${theme}';
+    // Read and parse the embedded self-contained JSON dataset directly from the page
+    const EMBEDDED_PACKAGE = JSON.parse(document.getElementById('lens-bi-embedded-data').textContent);
+    const DASHBOARD = EMBEDDED_PACKAGE.dashboard;
+    const RAW_ROWS = EMBEDDED_PACKAGE.rows || [];
+    const COLUMNS = EMBEDDED_PACKAGE.columns || [];
+    const THEME = EMBEDDED_PACKAGE.theme || '${theme}';
 
     // Pre-applied filters from the original dashboard state (drill-down hierarchy + slicer filters)
-    let activeFilters = ${initialFiltersJson};
-    let drillDownStates = ${drillDownStatesJson};
+    let activeFilters = EMBEDDED_PACKAGE.initialFilters || {};
+    let drillDownStates = EMBEDDED_PACKAGE.drillDownStates || {};
     const chartInstances = {};
     let modalChartInstance = null;
+
+    // Export embedded JSON data directly from the offline page
+    function exportEmbeddedJson() {
+      const exportPayload = {
+        format: 'lens-bi-exported-dataset',
+        version: '2026.2',
+        exportedAt: new Date().toISOString(),
+        reportTitle: DASHBOARD.title || 'تقرير تحليلي تفاعلي',
+        sourceFileName: EMBEDDED_PACKAGE.sourceFileName || 'embedded_dataset.json',
+        totalRecords: RAW_ROWS.length,
+        totalColumns: COLUMNS.length,
+        columns: COLUMNS,
+        records: RAW_ROWS
+      };
+      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const safeName = (DASHBOARD.title || 'dataset').replace(/[^a-zA-Z0-9_\\u0600-\\u06FF]+/g, '_');
+      a.download = safeName + '_data.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
 
     // Filter Logic
     function filterRows(rows, filters) {
@@ -2048,7 +2194,7 @@ export function generateInteractiveHtml(
 
 /**
  * Downloads the standalone interactive HTML file directly in the browser.
- * Optionally accepts drill-down and slicer filter states to pre-apply them in the exported file.
+ * 100% of all data rows are embedded as self-contained JSON inside the HTML file.
  */
 export function downloadInteractiveHtml(
   dashboard: Dashboard,
@@ -2065,6 +2211,37 @@ export function downloadInteractiveHtml(
   a.href = url;
   const safeTitle = (dashboard.title || 'report').replace(/[^a-zA-Z0-9_\u0600-\u06FF]+/g, '_');
   a.download = `${safeTitle}_interactive.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Downloads the raw dataset as a formatted standalone JSON file directly in the browser.
+ */
+export function downloadDatasetAsJson(
+  dataSource: DataSource,
+  dashboardTitle?: string
+): void {
+  const rows = extractAllRows(dataSource);
+  const cols = extractAllColumns(dataSource, rows);
+  const data = {
+    format: 'lens-bi-standalone-dataset',
+    version: '2026.2',
+    exportedAt: new Date().toISOString(),
+    reportTitle: dashboardTitle || 'مجموعة بيانات LENS BI',
+    sourceFileName: dataSource.fileName || 'dataset.json',
+    totalRecords: rows.length,
+    columns: cols,
+    records: rows
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const safeTitle = (dashboardTitle || dataSource.fileName || 'dataset').replace(/[^a-zA-Z0-9_\u0600-\u06FF]+/g, '_');
+  a.download = `${safeTitle}_data.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

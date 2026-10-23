@@ -17,7 +17,7 @@ import {
   Check,
   KeyRound
 } from 'lucide-react';
-import { downloadInteractiveHtml } from '../../services/htmlExportService';
+import { downloadInteractiveHtml, downloadDatasetAsJson } from '../../services/htmlExportService';
 import { buildShareUrl } from '../../services/snapshotService';
 import { MotionThemeBar } from '../dashboard-builder/MotionThemeBar';
 
@@ -398,14 +398,24 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
             <span>{copiedLink ? 'تم نسخ الرابط!' : 'نسخ رابط الصفحة'}</span>
           </button>
 
-          {/* Export HTML */}
+          {/* Export HTML (Embedded JSON) */}
           <button
             onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 text-xs font-semibold transition cursor-pointer"
-            title="تنزيل كملف HTML مستقل أوفلاين"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 text-xs font-semibold transition cursor-pointer"
+            title="تنزيل كملف HTML مستقل أوفلاين مدمج ببيانات JSON بالكامل"
           >
             <FileCode className="w-3.5 h-3.5 text-sky-400" />
-            <span className="hidden sm:inline">تصدير HTML</span>
+            <span className="hidden sm:inline">HTML مدمج</span>
+          </button>
+
+          {/* Export JSON */}
+          <button
+            onClick={() => downloadDatasetAsJson(currentDataSource, currentDashboard?.title)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 text-xs font-semibold transition cursor-pointer"
+            title="تصدير السجلات والبيانات فقط كملف JSON مستقل"
+          >
+            <Download className="w-3.5 h-3.5 text-sky-400" />
+            <span className="hidden sm:inline">JSON</span>
           </button>
 
           {/* Export PDF */}

@@ -484,7 +484,7 @@ export const App: React.FC = () => {
   // ─── PUBLIC VIEW ────────────────────────────────────────────────────────────
   if (currentView === 'public') {
     return (
-      <div dir="rtl" className={`font-sans transition-colors duration-300 ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-800'}`}>
+      <div dir="rtl" className={`font-sans transition-colors duration-300 ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'light-mode bg-slate-50 text-slate-800'}`}>
         <PublicReportViewer
           isOwner={!isPublicView}
           onBackToApp={handleAdminUnlock}
