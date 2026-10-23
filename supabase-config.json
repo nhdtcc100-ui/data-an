@@ -1,0 +1,6 @@
+{
+  "supabaseUrl": "https://hours-coins-intellectual-cultural.trycloudflare.com",
+  "note": "Active Cloudflare Tunnel for Supabase on Docker",
+  "lastUpdated": "2026-10-23T16:03:15.383Z",
+  "tunnelActive": true
+}
