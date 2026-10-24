@@ -145,8 +145,14 @@ export function generateInteractiveHtml(
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <!-- Apache ECharts for interactive charts -->
+  <!-- Apache ECharts for interactive charts (primary CDN + fallback) -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <script>
+    // Fallback: if primary CDN fails, try cdnjs
+    if (typeof echarts === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"><\/script>');
+    }
+  </script>
   <style>
     :root {
       --bg: ${theme === 'dark' ? '#020617' : '#f1f5f9'};
@@ -873,7 +879,7 @@ export function generateInteractiveHtml(
     }
     .chart-container {
       width: 100%;
-      height: 100%;
+      height: 260px;
       min-height: 200px;
     }
     footer {
@@ -2143,10 +2149,26 @@ ${embeddedPackageJsonSafe}
       }).join('');
     }
 
-    // Startup
-    window.addEventListener('DOMContentLoaded', () => {
+    // ── Robust startup: works for file://, http://, and shared links ──
+    function startApp() {
       initDOM();
       renderAllWidgets();
+
+      // Retry after 400ms to handle race conditions where ECharts
+      // initializes before the DOM has rendered chart containers
+      setTimeout(() => {
+        DASHBOARD.widgets.forEach(w => {
+          if (w.type !== 'kpi' && w.type !== 'slicer' && w.type !== 'table') {
+            const dom = document.getElementById('chart-' + w.id);
+            if (dom && (!chartInstances[w.id] || chartInstances[w.id].isDisposed())) {
+              renderChartWidget(w, filterRows(RAW_ROWS, activeFilters));
+            } else if (dom && chartInstances[w.id]) {
+              chartInstances[w.id].resize();
+            }
+          }
+        });
+      }, 400);
+
       window.addEventListener('resize', () => {
         Object.values(chartInstances).forEach(c => {
           if (c && !c.isDisposed()) c.resize();
@@ -2154,7 +2176,6 @@ ${embeddedPackageJsonSafe}
         if (modalChartInstance && !modalChartInstance.isDisposed()) modalChartInstance.resize();
       });
 
-      // Prepare ECharts for crisp print layout
       window.addEventListener('beforeprint', () => {
         Object.values(chartInstances).forEach(c => {
           if (c && !c.isDisposed()) c.resize({ width: 'auto', height: 240 });
@@ -2165,7 +2186,15 @@ ${embeddedPackageJsonSafe}
           if (c && !c.isDisposed()) c.resize();
         });
       });
-    });
+    }
+
+    // Fire as soon as possible, works regardless of script placement
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startApp);
+    } else {
+      // DOM already ready (e.g. script deferred or file:// opened)
+      startApp();
+    }
   </script>
 </body>
 </html>`;
