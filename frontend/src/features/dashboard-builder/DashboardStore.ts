@@ -1926,6 +1926,20 @@ export const useDashboardStore = create<DashboardState>()(
       );
       const proj = updated.find((p) => p.id === projectId);
       if (proj) saveProjectToDb(proj, proj.id === state.currentProjectId).catch(() => {});
+
+      // ── Sync title into currentDashboard when the active project is renamed ──
+      const isActive = projectId === state.currentProjectId;
+      const newTitle = meta.title;
+      if (isActive && newTitle !== undefined) {
+        return {
+          projects: updated,
+          currentDashboard: {
+            ...state.currentDashboard,
+            title: newTitle,
+            updatedAt: new Date().toISOString()
+          }
+        };
+      }
       return { projects: updated };
     }),
 
