@@ -1368,16 +1368,49 @@ ${embeddedPackageJsonSafe}
 
   <!-- Embedded Dashboard & Data Engine -->
   <script>
-    // Read and parse the embedded self-contained JSON dataset directly from the page
-    const EMBEDDED_PACKAGE = JSON.parse(document.getElementById('lens-bi-embedded-data').textContent);
-    const DASHBOARD = EMBEDDED_PACKAGE.dashboard;
-    const RAW_ROWS = EMBEDDED_PACKAGE.rows || [];
-    const COLUMNS = EMBEDDED_PACKAGE.columns || [];
-    const THEME = EMBEDDED_PACKAGE.theme || '${theme}';
+    // ── Global error boundary: show visible message instead of blank page ──
+    window.onerror = function(msg, src, line, col, err) {
+      var errDiv = document.getElementById('__lens-error__');
+      if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.id = '__lens-error__';
+        errDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fef2f2;padding:16px 24px;font-family:monospace;font-size:13px;z-index:9999;direction:ltr;';
+        document.body.appendChild(errDiv);
+      }
+      errDiv.textContent = '❌ Script Error: ' + msg + ' (line ' + line + ')';
+      return false;
+    };
 
-    // Pre-applied filters from the original dashboard state (drill-down hierarchy + slicer filters)
-    let activeFilters = EMBEDDED_PACKAGE.initialFilters || {};
-    let drillDownStates = EMBEDDED_PACKAGE.drillDownStates || {};
+    // ── Parse embedded JSON dataset ──
+    var EMBEDDED_PACKAGE, DASHBOARD, RAW_ROWS, COLUMNS, THEME;
+    try {
+      var embedEl = document.getElementById('lens-bi-embedded-data');
+      if (!embedEl) throw new Error('Embedded data element not found in DOM');
+      var rawText = embedEl.textContent || embedEl.innerText || '';
+      if (!rawText.trim()) throw new Error('Embedded data is empty');
+      EMBEDDED_PACKAGE = JSON.parse(rawText);
+      DASHBOARD = EMBEDDED_PACKAGE.dashboard;
+      RAW_ROWS = EMBEDDED_PACKAGE.rows || [];
+      COLUMNS = EMBEDDED_PACKAGE.columns || [];
+      THEME = EMBEDDED_PACKAGE.theme || '${theme}';
+      if (!DASHBOARD || !DASHBOARD.widgets) throw new Error('Dashboard data is missing or malformed');
+    } catch (parseErr) {
+      document.addEventListener('DOMContentLoaded', function() {
+        var grid = document.getElementById('widgets-grid');
+        if (grid) {
+          grid.style.cssText = 'padding:32px;text-align:center;color:#f87171;font-family:sans-serif;font-size:14px;';
+          grid.innerHTML = '<div style="background:#1c0a0a;border:1px solid #7f1d1d;border-radius:12px;padding:24px;max-width:600px;margin:0 auto;">'
+            + '<div style="font-size:32px;margin-bottom:12px;">⚠️</div>'
+            + '<h3 style="color:#fca5a5;margin-bottom:8px;">خطأ في تحميل بيانات التقرير</h3>'
+            + '<p style="color:#fecaca;font-size:12px;direction:ltr;font-family:monospace;">' + parseErr.message + '</p>'
+            + '</div>';
+        }
+      });
+    }
+
+    // Pre-applied filters from the original dashboard state
+    let activeFilters = (EMBEDDED_PACKAGE && EMBEDDED_PACKAGE.initialFilters) || {};
+    let drillDownStates = (EMBEDDED_PACKAGE && EMBEDDED_PACKAGE.drillDownStates) || {};
     const chartInstances = {};
     let modalChartInstance = null;
 
@@ -1719,29 +1752,29 @@ ${embeddedPackageJsonSafe}
           navEl.innerHTML = '<span class="pg-badge">صفحة 1 من 1</span>';
         } else {
           let navHtml = '';
-          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', 1)" title="الصفحة الأولى">«</button>';
-          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', ' + (state.page - 1) + ')" title="السابق">‹ السابق</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', 1)" title="الصفحة الأولى">«</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', ' + (state.page - 1) + ')" title="السابق">‹ السابق</button>';
 
           const windowSize = 2;
           let startP = Math.max(1, state.page - windowSize);
           let endP = Math.min(totalPages, state.page + windowSize);
 
           if (startP > 1) {
-            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\'' + w.id + '\', 1)">1</button>';
+            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\\'' + w.id + '\\', 1)">1</button>';
             if (startP > 2) navHtml += '<span class="pg-dots">...</span>';
           }
 
           for (let p = startP; p <= endP; p++) {
-            navHtml += '<button class="pg-btn pg-num ' + (p === state.page ? 'active' : '') + '" onclick="setTablePage(\'' + w.id + '\', ' + p + ')">' + p + '</button>';
+            navHtml += '<button class="pg-btn pg-num ' + (p === state.page ? 'active' : '') + '" onclick="setTablePage(\\'' + w.id + '\\', ' + p + ')">' + p + '</button>';
           }
 
           if (endP < totalPages) {
             if (endP < totalPages - 1) navHtml += '<span class="pg-dots">...</span>';
-            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\'' + w.id + '\', ' + totalPages + ')">' + totalPages + '</button>';
+            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\\'' + w.id + '\\', ' + totalPages + ')">' + totalPages + '</button>';
           }
 
-          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', ' + (state.page + 1) + ')" title="التالي">التالي ›</button>';
-          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\'' + w.id + '\', ' + totalPages + ')" title="الصفحة الأخيرة">»</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', ' + (state.page + 1) + ')" title="التالي">التالي ›</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', ' + totalPages + ')" title="الصفحة الأخيرة">»</button>';
 
           navEl.innerHTML = navHtml;
         }
@@ -2065,14 +2098,19 @@ ${embeddedPackageJsonSafe}
     // Build DOM structure initially
     function initDOM() {
       const grid = document.getElementById('widgets-grid');
-      grid.innerHTML = DASHBOARD.widgets.map(w => {
-        const colClass = 'col-' + (w.layout.w || 6);
+      if (!grid) return;
+      grid.innerHTML = (DASHBOARD.widgets || []).map(w => {
+        if (!w) return '';
+        const layout = w.layout || {};
+        const config = w.config || {};
+        const colClass = 'col-' + (layout.w || (w.type === 'slicer' || w.type === 'table' ? 12 : 6));
+        const safeTitle = String(w.title || 'عنصر تحليلي').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         if (w.type === 'kpi') {
           return \`
             <div class="widget-card \${colClass}" style="min-height:140px;">
               <div class="widget-header">
-                <div class="widget-title">\${w.title}</div>
+                <div class="widget-title">\${safeTitle}</div>
               </div>
               <div class="widget-body kpi-container">
                 <div class="kpi-value" id="val-\${w.id}">-</div>
@@ -2086,12 +2124,14 @@ ${embeddedPackageJsonSafe}
         }
 
         if (w.type === 'slicer') {
-          const slicerCols = w.config.slicerColumns || ['المنطقة', 'الفئة', 'الفرع'];
-          const activeCol = w.config.activeSlicerColumn || slicerCols[0];
+          const slicerCols = (config.slicerColumns && config.slicerColumns.length > 0)
+            ? config.slicerColumns
+            : (config.xAxisColumn ? [config.xAxisColumn] : (COLUMNS && COLUMNS.length > 0 ? COLUMNS.slice(0, 3).map(c => c.columnName || c) : []));
+          const activeCol = config.activeSlicerColumn || slicerCols[0] || '';
           return \`
             <div class="widget-card \${colClass}" id="slicer-\${w.id}">
               <div class="widget-header">
-                <div class="widget-title">🔍 \${w.title}</div>
+                <div class="widget-title">🔍 \${safeTitle}</div>
               </div>
               <div class="widget-body">
                 <div class="slicer-tabs" id="slicer-tabs-\${w.id}">
@@ -2106,11 +2146,13 @@ ${embeddedPackageJsonSafe}
         }
 
         if (w.type === 'table') {
-          const cols = w.config.tableColumns || COLUMNS.slice(0, 5).map(c => c.columnName);
+          const cols = (config.tableColumns && config.tableColumns.length > 0)
+            ? config.tableColumns
+            : (COLUMNS && COLUMNS.length > 0 ? COLUMNS.slice(0, 5).map(c => c.columnName || c) : (RAW_ROWS[0] ? Object.keys(RAW_ROWS[0]).slice(0, 5) : []));
           return \`
             <div class="widget-card \${colClass}">
               <div class="widget-header">
-                <div class="widget-title">📋 \${w.title}</div>
+                <div class="widget-title">📋 \${safeTitle}</div>
               </div>
               <div class="widget-body" style="padding:0;">
                 <div class="table-container">
@@ -2126,16 +2168,16 @@ ${embeddedPackageJsonSafe}
           \`;
         }
 
-        const isDrill = Boolean(w.config.drillDownEnabled && w.config.drillDownLevels && w.config.drillDownLevels.length > 0);
+        const isDrill = Boolean(config.drillDownEnabled && config.drillDownLevels && config.drillDownLevels.length > 0);
         const drill = drillDownStates[w.id] || { path: [], levelIndex: 0 };
-        const totalLevels = isDrill ? w.config.drillDownLevels.length : 0;
+        const totalLevels = isDrill ? config.drillDownLevels.length : 0;
         const currentLvl = (drill.path?.length || 0) + 1;
 
         return \`
           <div class="widget-card \${colClass}">
             <div class="widget-header">
               <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
-                <div class="widget-title">\${w.title}</div>
+                <div class="widget-title">\${safeTitle}</div>
                 \${isDrill ? \`<span class="drill-card-badge" id="drill-badge-\${w.id}">هرمي (\${currentLvl}/\${totalLevels})</span>\` : ''}
               </div>
               <button class="btn btn-secondary" style="padding:2px 8px; font-size:10px;" onclick="openModal('\${w.id}')">تكبير ⛶</button>
@@ -2151,8 +2193,21 @@ ${embeddedPackageJsonSafe}
 
     // ── Robust startup: works for file://, http://, and shared links ──
     function startApp() {
-      initDOM();
-      renderAllWidgets();
+      // Guard: if data parsing failed earlier, don't try to render
+      if (!DASHBOARD || !DASHBOARD.widgets) return;
+
+      try {
+        initDOM();
+      } catch(e) {
+        console.error('initDOM error:', e);
+        return;
+      }
+
+      try {
+        renderAllWidgets();
+      } catch(e) {
+        console.error('renderAllWidgets error:', e);
+      }
 
       // Retry after 400ms to handle race conditions where ECharts
       // initializes before the DOM has rendered chart containers

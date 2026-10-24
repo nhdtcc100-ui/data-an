@@ -24,14 +24,23 @@ function getInitialUrl(): string {
         return clean;
       }
 
-      // 2. Check localStorage
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved && saved.startsWith('http')) {
-        return saved.trim().replace(/\/+$/, '');
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+      // 2. On localhost, always prioritize direct local Docker unless explicitly overridden by ?tunnel=
+      if (isLocal && !fromParam) {
+        return 'http://127.0.0.1:8000';
       }
 
-      // 3. Fallback for localhost vs production
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      // 3. Check localStorage (ignore dead/stale quick tunnels)
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && saved.startsWith('http')) {
+        if (saved.includes('ministries-bill-palestinian-combinations')) {
+          localStorage.removeItem(STORAGE_KEY);
+        } else {
+          return saved.trim().replace(/\/+$/, '');
+        }
+      }
+
       if (isLocal) {
         return 'http://127.0.0.1:8000';
       }
@@ -108,14 +117,15 @@ export function initSupabaseFromConfig(): Promise<string> {
         const data = await res.json();
         if (data && data.supabaseUrl && data.supabaseUrl.startsWith('http')) {
           const isHttps = window.location.protocol === 'https:';
+          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
           // On HTTPS (GitHub Pages), only accept HTTPS tunnel URLs to avoid Mixed Content block
           if (isHttps) {
             if (data.supabaseUrl.startsWith('https://')) {
               setSupabaseUrl(data.supabaseUrl);
               return data.supabaseUrl;
             }
-          } else {
-            // On HTTP (localhost / local dev network)
+          } else if (!isLocal) {
+            // On non-local HTTP
             if (data.supabaseUrl) {
               setSupabaseUrl(data.supabaseUrl);
               return data.supabaseUrl;

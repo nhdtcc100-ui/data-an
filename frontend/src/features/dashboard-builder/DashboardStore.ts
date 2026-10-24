@@ -1992,9 +1992,15 @@ export const useDashboardStore = create<DashboardState>()(
 
         // Load from PostgreSQL (PostgreSQL is the source of truth)
         loadProjectsFromDb().then((result) => {
+          // STRICT GUARD: If database load failed (network error, offline, tunnel restart), NEVER wipe out local projects!
+          if (!result.success) {
+            console.warn('[DashboardStore] DB load failed, retaining local projects:', result.error);
+            return;
+          }
+
           const freshDeletedIds = getDeletedProjectIds();
 
-          if (result.success && result.projects) {
+          if (result.projects) {
             // Permanently prune any projects from DB that are tracked as deleted
             for (const p of result.projects) {
               if (freshDeletedIds.has(p.id)) {
