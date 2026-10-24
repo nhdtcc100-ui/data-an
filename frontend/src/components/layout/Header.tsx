@@ -68,7 +68,8 @@ export const Header: React.FC<HeaderProps> = ({
     currentProjectId,
     switchProject,
     createProject,
-    deleteProject
+    deleteProject,
+    motionTheme
   } = useDashboardStore();
 
   const filterCount = Object.keys(activeFilters).length;
@@ -673,7 +674,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Export Interactive HTML Button */}
           <button
-            onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates)}
+            onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates, motionTheme)}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-755 text-sky-300 hover:text-white border border-slate-700/80 text-xs font-medium transition cursor-pointer"
             title="تصدير التقرير كملف HTML تفاعلي مستقل يعمل أوفلاين بالكامل"
           >

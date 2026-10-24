@@ -31,7 +31,8 @@ export const ShareModal: React.FC = () => {
     drillDownStates,
     widgetFilters,
     activeFilters,
-    currentProjectId
+    currentProjectId,
+    motionTheme
   } = useDashboardStore();
 
   const [copiedLink, setCopiedLink] = useState(false);
@@ -244,7 +245,7 @@ export const ShareModal: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates)}
+                    onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates, motionTheme)}
                     className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-sky-500/20 cursor-pointer shrink-0"
                     title="تنزيل صفحة HTML تفاعلية كاملة مدمجة بكافة البيانات"
                   >

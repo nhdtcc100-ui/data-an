@@ -86,14 +86,18 @@ export function generateInteractiveHtml(
   theme: 'dark' | 'light' = 'dark',
   widgetFilters?: Record<string, Record<string, any>>,
   activeFilters?: Record<string, any>,
-  drillDownStates?: Record<string, { path: Array<{ column: string; value: string }>; levelIndex: number }>
+  drillDownStates?: Record<string, { path: Array<{ column: string; value: string }>; levelIndex: number }>,
+  motionTheme: string = 'glassmorphism'
 ): string {
-  const cleanTitle = (dashboard.title || 'تقرير تحليلي تفاعلي')
+  const rawTitle = (dashboard.title || 'تقرير تحليلي تفاعلي').trim();
+  const cleanTitle = rawTitle
+    .replace(/^[)\]\s;'"`,.-]+/, '')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
   
   const allRows = extractAllRows(dataSource);
   const allColumns = extractAllColumns(dataSource, allRows);
+  const initialMotionTheme = motionTheme || dashboard.motionTheme || 'glassmorphism';
 
   // Merge all widget drill-down filters + global slicer filters into one initial filter map
   const mergedInitialFilters: Record<string, any> = { ...(activeFilters || {}) };
@@ -122,6 +126,7 @@ export function generateInteractiveHtml(
     rows: allRows,
     dashboard: dashboard,
     theme: theme,
+    motionTheme: initialMotionTheme,
     drillDownStates: drillDownStates || {},
     initialFilters: mergedInitialFilters,
     offlineCapabilities: {
@@ -148,9 +153,11 @@ export function generateInteractiveHtml(
   <!-- Apache ECharts for interactive charts (primary CDN + fallback) -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
   <script>
-    // Fallback: if primary CDN fails, try cdnjs
+    // Fallback: if primary CDN fails, dynamically inject cdnjs
     if (typeof echarts === 'undefined') {
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"><\/script>');
+      var fallbackScript = document.createElement('script');
+      fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js';
+      document.head.appendChild(fallbackScript);
     }
   </script>
   <style>
@@ -465,7 +472,53 @@ export function generateInteractiveHtml(
       grid-template-columns: repeat(12, 1fr);
       gap: 16px;
     }
-    /* Widget Cards */
+    /* Motion Theme Selector in Bar 2 */
+    .motion-picker-area {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+    }
+    .motion-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--chrome-text-muted);
+      font-weight: 700;
+      font-size: 11px;
+    }
+    .motion-select {
+      background: var(--chrome-btn-bg);
+      color: var(--chrome-text);
+      border: 1px solid var(--chrome-border);
+      border-radius: 8px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .motion-select:hover, .motion-select:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       🎨 Motion UI Design Styles & Entrance Animations (الأنماط الحركية العشرة)
+       ══════════════════════════════════════════════════════════════════════════ */
+    @keyframes cardEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(22px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Widget Cards Base */
     .widget-card {
       background-color: var(--surface);
       border: 1.5px solid var(--surface-border);
@@ -474,11 +527,160 @@ export function generateInteractiveHtml(
       display: flex;
       flex-direction: column;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.25s ease !important;
+      position: relative;
     }
     .widget-card:hover {
-      border-color: #334155;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      border-color: #38bdf8;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+      transform: translateY(-4px) scale(1.002) !important;
+    }
+
+    /* 1. السكيومورفزم (Skeuomorphism - بروز واقعي مجسم) */
+    .theme-skeuomorphism {
+      background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+      border: 2px solid #334155 !important;
+      border-top-color: #475569 !important;
+      border-bottom-color: #020617 !important;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.22), inset 0 -2px 4px rgba(0, 0, 0, 0.6) !important;
+    }
+    .theme-skeuomorphism:hover {
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85), 0 0 28px rgba(217, 119, 6, 0.28), inset 0 1px 3px rgba(255, 255, 255, 0.28), inset 0 -3px 6px rgba(0, 0, 0, 0.7) !important;
+      transform: translateY(-4px) !important;
+    }
+
+    /* 2. النيومورفزم (Neumorphism - ناعم هادئ) */
+    .theme-neumorphism {
+      background: #0f172a !important;
+      border: 1px solid rgba(255, 255, 255, 0.05) !important;
+      box-shadow: 10px 10px 22px #060b14, -10px -10px 22px #182542 !important;
+    }
+    .theme-neumorphism:hover {
+      box-shadow: 14px 14px 30px #040810, -14px -14px 30px #1e3050, 0 0 20px rgba(96, 165, 250, 0.2) !important;
+      transform: translateY(-4px) !important;
+    }
+
+    /* 3. الجلاس مورفزم (Glassmorphism - زجاجي شفاف) */
+    .theme-glassmorphism {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(15, 23, 42, 0.65) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45) !important;
+    }
+    .theme-glassmorphism:hover {
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+      transform: translateY(-4px) !important;
+    }
+
+    /* 4. الكلاي مورفزم (Claymorphism - كبسولي ثلاثي الأبعاد) */
+    .theme-claymorphism {
+      background: #1e1b4b !important;
+      border: 1.5px solid rgba(167, 139, 250, 0.3) !important;
+      box-shadow: 14px 14px 28px rgba(0, 0, 0, 0.55), inset -8px -8px 16px rgba(0, 0, 0, 0.45), inset 8px 8px 16px rgba(255, 255, 255, 0.18) !important;
+      transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+    .theme-claymorphism:hover {
+      box-shadow: 20px 20px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(236, 72, 153, 0.35), inset -10px -10px 20px rgba(0, 0, 0, 0.5), inset 10px 10px 20px rgba(255, 255, 255, 0.22) !important;
+      transform: translateY(-5px) scale(1.01) !important;
+    }
+
+    /* 5. المينيماليزم (Minimalism - أنيق ومحايد) */
+    .theme-minimalism {
+      background: #080d1a !important;
+      border: 1px solid #1e293b !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+    }
+    .theme-minimalism:hover {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(56, 189, 248, 0.18) !important;
+      transform: translateY(-3px) !important;
+    }
+
+    /* 6. الماكسيماليزم (Maximalism - ألوان صاخبة) */
+    .theme-maximalism {
+      background: #0a0515 !important;
+      border: 2px solid #ec4899 !important;
+      box-shadow: 0 0 25px rgba(236, 72, 153, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.18) !important;
+    }
+    .theme-maximalism:hover {
+      box-shadow: 0 0 45px rgba(236, 72, 153, 0.65), 0 0 25px rgba(0, 229, 255, 0.35), inset 0 0 25px rgba(6, 182, 212, 0.28) !important;
+      transform: translateY(-4px) !important;
+    }
+
+    /* 7. البروتاليزم (Brutalism - هندسي بارز) */
+    .theme-brutalism {
+      background: #09090b !important;
+      border: 3px solid #38bdf8 !important;
+      border-radius: 6px !important;
+      box-shadow: 6px 6px 0px #38bdf8 !important;
+    }
+    .theme-brutalism:hover {
+      box-shadow: 10px 10px 0px #38bdf8, 4px 4px 0px #facc15 !important;
+      transform: translate(-3px, -3px) !important;
+    }
+
+    /* 8. الزجاج السائل (Liquid Glass - انسيابي مائي) */
+    .theme-liquid-glass {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(59, 130, 246, 0.08), rgba(15, 23, 42, 0.85)) !important;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(56, 189, 248, 0.38) !important;
+      box-shadow: 0 16px 40px rgba(6, 182, 212, 0.22) !important;
+    }
+    .theme-liquid-glass:hover {
+      box-shadow: 0 24px 60px rgba(6, 182, 212, 0.38), 0 0 40px rgba(59, 130, 246, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+      transform: translateY(-4px) !important;
+    }
+
+    /* 9. البينتو جرايد (Bento Grid - تقسيم بطاقات فخم) */
+    .theme-bento-grid {
+      background: rgba(15, 23, 42, 0.9) !important;
+      border: 1.5px solid rgba(71, 85, 105, 0.6) !important;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38) !important;
+    }
+    .theme-bento-grid:hover {
+      border-color: rgba(2, 132, 199, 0.5) !important;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55), 0 0 22px rgba(2, 132, 199, 0.22) !important;
+      transform: translateY(-3px) !important;
+    }
+
+    /* 10. السباتيشل ثلاثي الأبعاد (Spatial UI - واقع مكاني VisionOS) */
+    .theme-spatial-ui {
+      background: rgba(30, 27, 75, 0.38) !important;
+      backdrop-filter: blur(36px);
+      -webkit-backdrop-filter: blur(36px);
+      border: 1.5px solid rgba(167, 139, 250, 0.35) !important;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(129, 140, 248, 0.28) !important;
+    }
+    .theme-spatial-ui:hover {
+      box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.9), 0 0 50px rgba(129, 140, 248, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+      transform: translateY(-5px) !important;
+    }
+
+    /* 11. النيون السيبراني (Cyber Neon) */
+    .theme-cyber-neon {
+      background: #050a14 !important;
+      border: 1.5px solid #00f3ff !important;
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.25) !important;
+    }
+    .theme-cyber-neon:hover {
+      box-shadow: 0 0 40px rgba(0, 243, 255, 0.45), 0 0 20px rgba(255, 0, 127, 0.25) !important;
+      transform: translateY(-3px) !important;
+    }
+
+    /* 12. الكبسولة الزجاجية (Glass Capsule) */
+    .theme-glass-capsule {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(15, 23, 42, 0.72) !important;
+      border: 1.5px solid rgba(129, 140, 248, 0.3) !important;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4) !important;
+    }
+    .theme-glass-capsule:hover {
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 28px rgba(129, 140, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+      transform: translateY(-3px) !important;
     }
     .widget-header {
       padding: 10px 14px;
@@ -1301,6 +1503,26 @@ export function generateInteractiveHtml(
         </button>
       </div>
       <div class="bar-2-actions">
+        <!-- Live Motion Theme Selector -->
+        <div class="motion-picker-area">
+          <label for="motion-theme-select" class="motion-label">
+            <span>✨</span>
+            <span class="desktop-only">نمط الحركة والتصميم:</span>
+          </label>
+          <select id="motion-theme-select" class="motion-select" onchange="changeActiveMotionTheme(this.value)" title="تغيير النمط الحركي والتصميم لكافة الكروت">
+            <option value="glassmorphism">💎 جلاس مورفزم (زجاجي شفاف)</option>
+            <option value="skeuomorphism">📻 سكيومورفزم (محاكاة مجسمة 3D)</option>
+            <option value="neumorphism">🔘 نيومورفزم (بروز ناعم هادئ)</option>
+            <option value="claymorphism">🎨 كلاي مورفزم (صلصال كبسولي)</option>
+            <option value="spatial-ui">🔮 سباتيشل (واقع مكاني VisionOS)</option>
+            <option value="liquid-glass">🌊 زجاج سائل (انسيابي مائي)</option>
+            <option value="cyber-neon">⚡ نيون سيبراني (توهج إلكتروني)</option>
+            <option value="brutalism">📐 بروتاليزم (هندسي بارز)</option>
+            <option value="bento-grid">🍱 بينتو جرايد (تقسيم بطاقات)</option>
+            <option value="minimalism">🔲 مينيماليزم (أنيق ومحايد)</option>
+            <option value="glass-capsule">💊 كبسولة زجاجية (عصري)</option>
+          </select>
+        </div>
         <button class="btn btn-action" onclick="window.print()" title="طباعة أو تصدير PDF">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
           <span>طباعة / PDF</span>
@@ -1414,6 +1636,34 @@ ${embeddedPackageJsonSafe}
     const chartInstances = {};
     let modalChartInstance = null;
 
+    // Active Motion Theme State & Live Switcher
+    var currentActiveMotionTheme = (EMBEDDED_PACKAGE && (EMBEDDED_PACKAGE.motionTheme || (EMBEDDED_PACKAGE.dashboard && EMBEDDED_PACKAGE.dashboard.motionTheme))) || 'glassmorphism';
+
+    function changeActiveMotionTheme(themeId) {
+      if (!themeId) return;
+      currentActiveMotionTheme = themeId;
+      var validThemes = [
+        'skeuomorphism', 'neumorphism', 'glassmorphism', 'claymorphism',
+        'minimalism', 'maximalism', 'brutalism', 'liquid-glass',
+        'bento-grid', 'spatial-ui', 'cyber-neon', 'glass-capsule'
+      ];
+      var cards = document.querySelectorAll('.widget-card');
+      cards.forEach(function(card) {
+        validThemes.forEach(function(t) {
+          card.classList.remove('theme-' + t);
+        });
+        card.classList.add('theme-' + themeId);
+      });
+
+      var sel = document.getElementById('motion-theme-select');
+      if (sel && sel.value !== themeId) {
+        sel.value = themeId;
+      }
+
+      // Re-render charts with new theme colors & fresh fluid animation
+      renderAllWidgets();
+    }
+
 
     // Filter Logic
     function filterRows(rows, filters) {
@@ -1512,6 +1762,20 @@ ${embeddedPackageJsonSafe}
       amber: ['#fbbf24', '#d97706'],
       rose: ['#fb7185', '#e11d48'],
       cyan: ['#22d3ee', '#0891b2']
+    };
+
+    const MOTION_PALETTES = {
+      'skeuomorphism': ['#d97706', '#b45309', '#0284c7', '#10b981', '#3b82f6'],
+      'neumorphism': ['#60a5fa', '#3b82f6', '#818cf8', '#34d399', '#a78bfa'],
+      'glassmorphism': ['#38bdf8', '#0284c7', '#818cf8', '#34d399', '#ec4899'],
+      'claymorphism': ['#a78bfa', '#7c3aed', '#ec4899', '#38bdf8', '#fbbf24'],
+      'spatial-ui': ['#818cf8', '#6366f1', '#a78bfa', '#38bdf8', '#c084fc'],
+      'liquid-glass': ['#06b6d4', '#0284c7', '#3b82f6', '#8b5cf6', '#10b981'],
+      'cyber-neon': ['#00f3ff', '#ff007f', '#ffe600', '#00ff66', '#a100ff'],
+      'brutalism': ['#38bdf8', '#facc15', '#f43f5e', '#a855f7', '#22c55e'],
+      'bento-grid': ['#0ea5e9', '#0369a1', '#6366f1', '#10b981', '#f59e0b'],
+      'minimalism': ['#94a3b8', '#64748b', '#cbd5e1', '#38bdf8', '#475569'],
+      'glass-capsule': ['#38bdf8', '#0284c7', '#818cf8', '#34d399', '#ec4899']
     };
 
     function updateActiveFilterBadge() {
@@ -1649,7 +1913,7 @@ ${embeddedPackageJsonSafe}
       if (!tableStates[widgetId]) {
         tableStates[widgetId] = {
           page: 1,
-          pageSize: 25,
+          pageSize: 30, // 30 rows default per user requirement
           searchQuery: '',
           sortCol: null,
           sortAsc: true
@@ -1692,7 +1956,7 @@ ${embeddedPackageJsonSafe}
       }
 
       const totalRows = processedRows.length;
-      const pageSize = state.pageSize === 'all' ? (totalRows || 1) : parseInt(state.pageSize, 10) || 25;
+      const pageSize = state.pageSize === 'all' ? (totalRows || 1) : parseInt(state.pageSize, 10) || 30;
       const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
 
       // Ensure current page is within valid range
@@ -1735,6 +1999,12 @@ ${embeddedPackageJsonSafe}
         }
       });
 
+      // Sync page size select element
+      const sizeEl = document.getElementById('size-' + w.id);
+      if (sizeEl && sizeEl.value !== String(state.pageSize)) {
+        sizeEl.value = String(state.pageSize);
+      }
+
       // Update pagination info text
       const countEl = document.getElementById('table-count-' + w.id);
       if (countEl) {
@@ -1752,29 +2022,29 @@ ${embeddedPackageJsonSafe}
           navEl.innerHTML = '<span class="pg-badge">صفحة 1 من 1</span>';
         } else {
           let navHtml = '';
-          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', 1)" title="الصفحة الأولى">«</button>';
-          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', ' + (state.page - 1) + ')" title="السابق">‹ السابق</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(&quot;' + w.id + '&quot;, 1)" title="الصفحة الأولى">«</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="setTablePage(&quot;' + w.id + '&quot;, ' + (state.page - 1) + ')" title="السابق">‹ السابق</button>';
 
           const windowSize = 2;
           let startP = Math.max(1, state.page - windowSize);
           let endP = Math.min(totalPages, state.page + windowSize);
 
           if (startP > 1) {
-            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\\'' + w.id + '\\', 1)">1</button>';
+            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(&quot;' + w.id + '&quot;, 1)">1</button>';
             if (startP > 2) navHtml += '<span class="pg-dots">...</span>';
           }
 
           for (let p = startP; p <= endP; p++) {
-            navHtml += '<button class="pg-btn pg-num ' + (p === state.page ? 'active' : '') + '" onclick="setTablePage(\\'' + w.id + '\\', ' + p + ')">' + p + '</button>';
+            navHtml += '<button class="pg-btn pg-num ' + (p === state.page ? 'active' : '') + '" onclick="setTablePage(&quot;' + w.id + '&quot;, ' + p + ')">' + p + '</button>';
           }
 
           if (endP < totalPages) {
             if (endP < totalPages - 1) navHtml += '<span class="pg-dots">...</span>';
-            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(\\'' + w.id + '\\', ' + totalPages + ')">' + totalPages + '</button>';
+            navHtml += '<button class="pg-btn pg-num" onclick="setTablePage(&quot;' + w.id + '&quot;, ' + totalPages + ')">' + totalPages + '</button>';
           }
 
-          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', ' + (state.page + 1) + ')" title="التالي">التالي ›</button>';
-          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(\\'' + w.id + '\\', ' + totalPages + ')" title="الصفحة الأخيرة">»</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(&quot;' + w.id + '&quot;, ' + (state.page + 1) + ')" title="التالي">التالي ›</button>';
+          navHtml += '<button class="pg-btn" ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="setTablePage(&quot;' + w.id + '&quot;, ' + totalPages + ')" title="الصفحة الأخيرة">»</button>';
 
           navEl.innerHTML = navHtml;
         }
@@ -1838,7 +2108,8 @@ ${embeddedPackageJsonSafe}
       }
 
       const agg = aggregateGroupData(chartRows, activeCol, yCol, w.config.aggregation, w.config.sortOrder, w.config.topN);
-      const palette = PALETTES[w.config.colorTheme || 'sky'] || PALETTES.sky;
+      const themeColors = MOTION_PALETTES[currentActiveMotionTheme];
+      const palette = themeColors ? [themeColors[0], themeColors[1] || themeColors[0]] : (PALETTES[w.config.colorTheme || 'sky'] || PALETTES.sky);
       // Charts always use dark palette regardless of page theme to preserve vibrant colors
       const isDark = true;
       const textColor = '#94a3b8';
@@ -1846,6 +2117,12 @@ ${embeddedPackageJsonSafe}
 
       const base = {
         backgroundColor: 'transparent',
+        animation: true,
+        animationDuration: 1800,
+        animationEasing: 'cubicOut',
+        animationDelay: function(idx) { return idx * 45; },
+        animationDurationUpdate: 800,
+        animationEasingUpdate: 'cubicOut',
         tooltip: {
           trigger: w.type === 'donut' || w.type === 'pie' ? 'item' : 'axis',
           backgroundColor: isDark ? '#0f172ae6' : '#fffffffa',
@@ -1858,7 +2135,7 @@ ${embeddedPackageJsonSafe}
       };
 
       if (w.type === 'donut' || w.type === 'pie') {
-        const pieColors = [
+        const pieColors = themeColors || [
           '#0ea5e9', '#6366f1', '#10b981', '#f59e0b', '#ec4899',
           '#8b5cf6', '#14b8a6', '#f97316', '#06b6d4', '#e11d48',
           '#84cc16', '#3b82f6', '#f43f5e', '#a855f7', '#eab308'
@@ -2099,16 +2376,18 @@ ${embeddedPackageJsonSafe}
     function initDOM() {
       const grid = document.getElementById('widgets-grid');
       if (!grid) return;
-      grid.innerHTML = (DASHBOARD.widgets || []).map(w => {
+      grid.innerHTML = (DASHBOARD.widgets || []).map((w, idx) => {
         if (!w) return '';
         const layout = w.layout || {};
         const config = w.config || {};
         const colClass = 'col-' + (layout.w || (w.type === 'slicer' || w.type === 'table' ? 12 : 6));
         const safeTitle = String(w.title || 'عنصر تحليلي').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const animDelay = 'animation-delay: ' + (idx * 0.05).toFixed(2) + 's;';
+        const themeClass = 'theme-' + currentActiveMotionTheme;
 
         if (w.type === 'kpi') {
           return \`
-            <div class="widget-card \${colClass}" style="min-height:140px;">
+            <div class="widget-card \${colClass} \${themeClass}" style="\${animDelay} min-height:140px;">
               <div class="widget-header">
                 <div class="widget-title">\${safeTitle}</div>
               </div>
@@ -2129,7 +2408,7 @@ ${embeddedPackageJsonSafe}
             : (config.xAxisColumn ? [config.xAxisColumn] : (COLUMNS && COLUMNS.length > 0 ? COLUMNS.slice(0, 3).map(c => c.columnName || c) : []));
           const activeCol = config.activeSlicerColumn || slicerCols[0] || '';
           return \`
-            <div class="widget-card \${colClass}" id="slicer-\${w.id}">
+            <div class="widget-card \${colClass} \${themeClass}" id="slicer-\${w.id}" style="\${animDelay}">
               <div class="widget-header">
                 <div class="widget-title">🔍 \${safeTitle}</div>
               </div>
@@ -2148,20 +2427,51 @@ ${embeddedPackageJsonSafe}
         if (w.type === 'table') {
           const cols = (config.tableColumns && config.tableColumns.length > 0)
             ? config.tableColumns
-            : (COLUMNS && COLUMNS.length > 0 ? COLUMNS.slice(0, 5).map(c => c.columnName || c) : (RAW_ROWS[0] ? Object.keys(RAW_ROWS[0]).slice(0, 5) : []));
+            : (COLUMNS && COLUMNS.length > 0 ? COLUMNS.slice(0, 7).map(c => c.columnName || c) : (RAW_ROWS[0] ? Object.keys(RAW_ROWS[0]).slice(0, 7) : []));
           return \`
-            <div class="widget-card \${colClass}">
-              <div class="widget-header">
+            <div class="widget-card \${colClass} is-table-card \${themeClass}" style="\${animDelay}">
+              <div class="widget-header table-widget-header">
                 <div class="widget-title">📋 \${safeTitle}</div>
+                <div class="table-search-box">
+                  <span style="font-size:11px;opacity:0.7;">🔍</span>
+                  <input type="text" class="table-search-input" placeholder="بحث سريع في السجلات..." oninput="filterTableSearch('\${w.id}', this.value)" />
+                </div>
               </div>
               <div class="widget-body" style="padding:0;">
                 <div class="table-container">
                   <table>
                     <thead>
-                      <tr>\${cols.map(c => '<th>' + c + '</th>').join('')}</tr>
+                      <tr>
+                        \${cols.map(c => {
+                          const safeCol = String(c).replace(/["']/g, '');
+                          const colId = 'th-' + w.id + '-' + safeCol.replace(/\\s+/g, '_');
+                          return \`<th id="\${colId}" onclick="sortTableByColumn('\${w.id}', '\${safeCol}')" title="اضغط للترتيب">
+                            <span class="th-content">
+                              <span>\${safeCol}</span>
+                              <span class="sort-icon">⇅</span>
+                            </span>
+                          </th>\`;
+                        }).join('')}
+                      </tr>
                     </thead>
                     <tbody id="tbody-\${w.id}"></tbody>
                   </table>
+                </div>
+                <div class="table-pagination" id="table-pagination-\${w.id}">
+                  <div class="pagination-info-side">
+                    <span class="pagination-count" id="table-count-\${w.id}">جاري التحميل...</span>
+                    <div class="pagination-size-selector">
+                      <span>عرض:</span>
+                      <select class="page-size-select" id="size-\${w.id}" onchange="changeTablePageSize('\${w.id}', this.value)">
+                        <option value="15">15 سطر</option>
+                        <option value="30" selected>30 سطر</option>
+                        <option value="50">50 سطر</option>
+                        <option value="100">100 سطر</option>
+                        <option value="all">الكل</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="pagination-nav-side" id="table-nav-\${w.id}"></div>
                 </div>
               </div>
             </div>
@@ -2174,7 +2484,7 @@ ${embeddedPackageJsonSafe}
         const currentLvl = (drill.path?.length || 0) + 1;
 
         return \`
-          <div class="widget-card \${colClass}">
+          <div class="widget-card \${colClass} \${themeClass}" style="\${animDelay}">
             <div class="widget-header">
               <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
                 <div class="widget-title">\${safeTitle}</div>
@@ -2195,6 +2505,12 @@ ${embeddedPackageJsonSafe}
     function startApp() {
       // Guard: if data parsing failed earlier, don't try to render
       if (!DASHBOARD || !DASHBOARD.widgets) return;
+
+      // Sync active motion theme selector dropdown
+      const motionSel = document.getElementById('motion-theme-select');
+      if (motionSel && currentActiveMotionTheme) {
+        motionSel.value = currentActiveMotionTheme;
+      }
 
       try {
         initDOM();
@@ -2265,9 +2581,10 @@ export function downloadInteractiveHtml(
   theme: 'dark' | 'light' = 'dark',
   widgetFilters?: Record<string, Record<string, any>>,
   activeFilters?: Record<string, any>,
-  drillDownStates?: Record<string, { path: Array<{ column: string; value: string }>; levelIndex: number }>
+  drillDownStates?: Record<string, { path: Array<{ column: string; value: string }>; levelIndex: number }>,
+  motionTheme?: string
 ): void {
-  const htmlContent = generateInteractiveHtml(dashboard, dataSource, theme, widgetFilters, activeFilters, drillDownStates);
+  const htmlContent = generateInteractiveHtml(dashboard, dataSource, theme, widgetFilters, activeFilters, drillDownStates, motionTheme);
   const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

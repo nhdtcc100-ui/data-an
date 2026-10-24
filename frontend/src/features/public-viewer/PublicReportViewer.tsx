@@ -46,7 +46,8 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
     clearAllFilters,
     setEditMode,
     theme,
-    currentProjectId
+    currentProjectId,
+    motionTheme
   } = useDashboardStore();
 
   // Admin PIN modal state
@@ -400,7 +401,7 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
 
           {/* Export HTML (Embedded JSON) */}
           <button
-            onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates)}
+            onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates, motionTheme)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 text-xs font-semibold transition cursor-pointer"
             title="تنزيل كملف HTML مستقل أوفلاين مدمج ببيانات JSON بالكامل"
           >
