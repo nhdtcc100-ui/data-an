@@ -9,7 +9,8 @@ export const DashboardCanvas: React.FC = () => {
     isEditMode,
     addWidget,
     reorderWidget,
-    moveWidgetToPosition
+    moveWidgetToPosition,
+    theme
   } = useDashboardStore();
 
   const [draggedWidgetId, setDraggedWidgetId] = useState<string | null>(null);
@@ -75,9 +76,15 @@ export const DashboardCanvas: React.FC = () => {
   };
 
   return (
-    <main className="flex-1 overflow-y-auto p-5 bg-slate-950/60 custom-scrollbar relative">
+    <main className={`flex-1 overflow-y-auto p-5 custom-scrollbar relative transition-colors duration-300 rounded-2xl ${
+      theme === 'light' ? 'bg-[#d5dfe9]' : 'bg-slate-950/60'
+    }`}>
       {/* Background Grid Accent */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0a_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+      <div className={`absolute inset-0 pointer-events-none ${
+        theme === 'light'
+          ? 'bg-[radial-gradient(#94a3b838_1px,transparent_1px)] bg-[size:20px_20px]'
+          : 'bg-[linear-gradient(to_right,#1e293b0a_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0a_1px,transparent_1px)] bg-[size:24px_24px]'
+      }`} />
 
       {/* Quick Drop Zone Header when dragging a widget */}
       {draggedWidgetId && isEditMode && (

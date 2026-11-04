@@ -95,6 +95,23 @@ export interface WidgetConfig {
   linkedWidgetIds?: string[];                  // IDs of widgets receiving filters from this widget
   ignoreIncomingFilters?: boolean;             // If true, widget ignores incoming filters
   allowedIncomingWidgetIds?: string[];         // If set, only receives filters from these widgets
+
+  // Excel / Power BI 4-Zone Pivot Table Properties
+  pivotFilterColumns?: string[];
+  pivotFilterValues?: Record<string, string>;
+  pivotRowColumns?: string[];
+  pivotColumnColumns?: string[];
+  pivotValues?: PivotValueMetric[];
+  pivotShowRowTotals?: boolean;
+  pivotShowColTotals?: boolean;
+  pivotCompactMode?: boolean;
+}
+
+export interface PivotValueMetric {
+  id: string;
+  column: string;
+  aggregation: AggregationType;
+  customLabel?: string;
 }
 
 

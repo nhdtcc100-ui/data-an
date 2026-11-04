@@ -30,6 +30,9 @@ import {
   Square,
   X,
   Plus,
+  Columns as ColumnsIcon,
+  Rows as RowsIcon,
+  Calculator,
   ChevronUp,
   ChevronDown,
   Link2,
@@ -127,6 +130,38 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
       ? selectedWidget.config.activeSlicerColumn
       : activeSlicerCols[0] || selectedWidget?.config?.xAxisColumn || 'المنطقة';
 
+  // Active Pivot 4 Zones
+  const activePivotFilters = selectedWidget?.config?.pivotFilterColumns || [];
+  const activePivotRows =
+    selectedWidget?.config?.pivotRowColumns && selectedWidget.config.pivotRowColumns.length > 0
+      ? selectedWidget.config.pivotRowColumns
+      : [selectedWidget?.config?.xAxisColumn || stringColumns[0]?.columnName || columns[0]?.columnName || 'التصنيف'];
+  const activePivotCols =
+    selectedWidget?.config?.pivotColumnColumns ||
+    (selectedWidget?.config?.legendColumn ? [selectedWidget.config.legendColumn] : []);
+  const activePivotVals =
+    selectedWidget?.config?.pivotValues && selectedWidget.config.pivotValues.length > 0
+      ? selectedWidget.config.pivotValues
+      : selectedWidget?.config?.yAxisColumn
+      ? [
+          {
+            id: 'val_1',
+            column: selectedWidget.config.yAxisColumn,
+            aggregation: selectedWidget.config.aggregation || ('SUM' as AggregationType),
+            customLabel: `مجموع ${selectedWidget.config.yAxisColumn}`
+          }
+        ]
+      : numericColumns[0]
+      ? [
+          {
+            id: 'val_1',
+            column: numericColumns[0].columnName,
+            aggregation: 'SUM' as AggregationType,
+            customLabel: `مجموع ${numericColumns[0].columnName}`
+          }
+        ]
+      : [];
+
   // Resize Drag Handler
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -158,7 +193,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
     return (
       <div
         onClick={toggleVisualizationsPanel}
-        className={`w-12 bg-slate-900/95 flex flex-col items-center py-4 cursor-pointer hover:bg-slate-850 transition select-none group ${
+        className={`w-12 bg-slate-900/95 flex flex-col items-center py-4 cursor-pointer hover:bg-slate-850 transition select-none group sidebar-3d rounded-2xl ${
           dockSide === 'left' ? 'border-r border-slate-800' : 'border-l border-slate-800'
         }`}
         title="توسيع لوحة المخططات والخصائص (Power BI Visualizations)"
@@ -177,7 +212,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
   return (
     <aside
       style={isMobile ? { width: '100%' } : { width: `${visualizationsPanelWidth}px` }}
-      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm overflow-y-auto custom-scrollbar transition-[width] duration-75 sidebar-3d ${
+      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm overflow-y-auto custom-scrollbar transition-[width] duration-75 sidebar-3d rounded-2xl ${
         isMobile ? 'w-full border-none' : dockSide === 'left' ? 'border-r border-slate-800' : 'border-l border-slate-800'
       } ${isResizing ? 'select-none pointer-events-none' : ''}`}
     >
@@ -655,6 +690,380 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
                 </div>
 
+              ) : selectedWidget.type === 'pivot' ? (
+                /* ── EXCEL & POWER BI 4-ZONE BUILDER (الفلاتر، الأعمدة، الصفوف، القيم) ── */
+                <div className="space-y-3.5">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Table className="w-4 h-4 text-amber-400" />
+                      <div>
+                        <span className="font-extrabold text-xs text-amber-400 block">حقول الجدول المحوري (Excel / Power BI)</span>
+                        <span className="text-[10px] text-slate-400">4 مناطق لإدراج الفلاتر والأعمدة والصفوف والقيم</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ZONE 1: الفلاتر (Filters) */}
+                  <div className="p-3 rounded-xl bg-slate-950/70 border border-sky-800/60 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-sky-400 flex items-center gap-1.5">
+                        <Filter className="w-3.5 h-3.5" />
+                        <span>1. الفلاتر (Filters)</span>
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-mono font-bold">
+                        {activePivotFilters.length}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-400">
+                      حقول التصفية العامة: تظهر كقوائم منسدلة أعلى الجدول المحوري للتصفية المباشرة.
+                    </p>
+
+                    {/* Filter items list */}
+                    <div className="flex flex-wrap gap-1.5 min-h-[30px] p-1.5 rounded-lg bg-slate-900/60 border border-slate-800">
+                      {activePivotFilters.length === 0 ? (
+                        <span className="text-[10px] text-slate-500 italic p-1">اسحب أو أضف حقلاً كفلتر للتقرير</span>
+                      ) : (
+                        activePivotFilters.map((colName) => (
+                          <span
+                            key={colName}
+                            className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-300 font-semibold"
+                          >
+                            <span>{colName}</span>
+                            <button
+                              onClick={() => {
+                                const next = activePivotFilters.filter((c) => c !== colName);
+                                onUpdateWidgetConfig(selectedWidget.id, { pivotFilterColumns: next });
+                              }}
+                              className="text-slate-400 hover:text-rose-400 transition cursor-pointer"
+                              title="إزالة الحقل"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Add Filter column selector */}
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const next = [...activePivotFilters, e.target.value];
+                          onUpdateWidgetConfig(selectedWidget.id, { pivotFilterColumns: next });
+                        }
+                      }}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none cursor-pointer"
+                    >
+                      <option value="">+ إضافة حقل إلى الفلاتر (Filters)...</option>
+                      {columns
+                        .filter((c) => !activePivotFilters.includes(c.columnName))
+                        .map((c) => (
+                          <option key={c.id} value={c.columnName}>
+                            {c.columnName} ({c.dataType === 'numeric' ? 'رقم' : 'نص/فئة'})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  {/* ZONE 2: الأعمدة (Columns) */}
+                  <div className="p-3 rounded-xl bg-slate-950/70 border border-indigo-800/60 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-indigo-400 flex items-center gap-1.5">
+                        <ColumnsIcon className="w-3.5 h-3.5" />
+                        <span>2. الأعمدة (Columns)</span>
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono font-bold">
+                        {activePivotCols.length}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-400">
+                      الأعمدة الأفقية: تتحول قيم هذا الحقل إلى عناوين أعمدة أفقية مثل Excel (مثل: السنوات، الفصول، الفئات).
+                    </p>
+
+                    {/* Column items list */}
+                    <div className="flex flex-wrap gap-1.5 min-h-[30px] p-1.5 rounded-lg bg-slate-900/60 border border-slate-800">
+                      {activePivotCols.length === 0 ? (
+                        <span className="text-[10px] text-slate-500 italic p-1">لا توجد أعمدة أفقية (الجدول المحوري برؤوس صفوف فقط)</span>
+                      ) : (
+                        activePivotCols.map((colName) => (
+                          <span
+                            key={colName}
+                            className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg bg-indigo-500/15 border border-indigo-500/40 text-indigo-300 font-semibold"
+                          >
+                            <span>{colName}</span>
+                            <button
+                              onClick={() => {
+                                const next = activePivotCols.filter((c) => c !== colName);
+                                onUpdateWidgetConfig(selectedWidget.id, {
+                                  pivotColumnColumns: next,
+                                  legendColumn: next[0] || ''
+                                });
+                              }}
+                              className="text-slate-400 hover:text-rose-400 transition cursor-pointer"
+                              title="إزالة الحقل"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Add Column dimension selector */}
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const next = [...activePivotCols, e.target.value];
+                          onUpdateWidgetConfig(selectedWidget.id, {
+                            pivotColumnColumns: next,
+                            legendColumn: next[0]
+                          });
+                        }
+                      }}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-indigo-500 outline-none cursor-pointer"
+                    >
+                      <option value="">+ إضافة حقل إلى الأعمدة (Columns)...</option>
+                      {columns
+                        .filter((c) => !activePivotCols.includes(c.columnName))
+                        .map((c) => (
+                          <option key={c.id} value={c.columnName}>
+                            {c.columnName} ({c.dataType === 'date' ? 'تاريخ' : 'نص/فئة'})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  {/* ZONE 3: الصفوف (Rows) */}
+                  <div className="p-3 rounded-xl bg-slate-950/70 border border-amber-800/60 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-amber-400 flex items-center gap-1.5">
+                        <RowsIcon className="w-3.5 h-3.5" />
+                        <span>3. الصفوف (Rows)</span>
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-bold">
+                        {activePivotRows.length}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-400">
+                      عناوين الصفوف الهرمية: يدعم إدراج عدة حقول لتكوين تجميع هرمي متفرع (مثل: المنطقة ‹ المندوب ‹ المنتج).
+                    </p>
+
+                    {/* Row items list with reordering */}
+                    <div className="space-y-1.5">
+                      {activePivotRows.map((colName, idx) => (
+                        <div
+                          key={colName}
+                          className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-200"
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <span className="text-[10px] w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                              {idx + 1}
+                            </span>
+                            <span className="font-medium truncate">{colName}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {idx > 0 && (
+                              <button
+                                onClick={() => {
+                                  const next = [...activePivotRows];
+                                  const temp = next[idx - 1];
+                                  next[idx - 1] = next[idx];
+                                  next[idx] = temp;
+                                  onUpdateWidgetConfig(selectedWidget.id, {
+                                    pivotRowColumns: next,
+                                    xAxisColumn: next[0]
+                                  });
+                                }}
+                                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white"
+                                title="تحريك لأعلى"
+                              >
+                                <ChevronUp className="w-3 h-3" />
+                              </button>
+                            )}
+                            {idx < activePivotRows.length - 1 && (
+                              <button
+                                onClick={() => {
+                                  const next = [...activePivotRows];
+                                  const temp = next[idx + 1];
+                                  next[idx + 1] = next[idx];
+                                  next[idx] = temp;
+                                  onUpdateWidgetConfig(selectedWidget.id, {
+                                    pivotRowColumns: next,
+                                    xAxisColumn: next[0]
+                                  });
+                                }}
+                                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white"
+                                title="تحريك لأسفل"
+                              >
+                                <ChevronDown className="w-3 h-3" />
+                              </button>
+                            )}
+                            {activePivotRows.length > 1 && (
+                              <button
+                                onClick={() => {
+                                  const next = activePivotRows.filter((c) => c !== colName);
+                                  onUpdateWidgetConfig(selectedWidget.id, {
+                                    pivotRowColumns: next,
+                                    xAxisColumn: next[0]
+                                  });
+                                }}
+                                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-rose-400"
+                                title="إزالة الحقل"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add Row dimension selector */}
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const next = [...activePivotRows, e.target.value];
+                          onUpdateWidgetConfig(selectedWidget.id, {
+                            pivotRowColumns: next,
+                            xAxisColumn: next[0]
+                          });
+                        }
+                      }}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-amber-500 outline-none cursor-pointer"
+                    >
+                      <option value="">+ إضافة حقل إلى الصفوف (Rows)...</option>
+                      {columns
+                        .filter((c) => !activePivotRows.includes(c.columnName))
+                        .map((c) => (
+                          <option key={c.id} value={c.columnName}>
+                            {c.columnName} ({c.dataType === 'date' ? 'تاريخ' : 'نص/فئة'})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  {/* ZONE 4: القيم (Values) */}
+                  <div className="p-3 rounded-xl bg-slate-950/70 border border-emerald-800/60 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-emerald-400 flex items-center gap-1.5">
+                        <Calculator className="w-3.5 h-3.5" />
+                        <span>4. القيم (Values)</span>
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">
+                        {activePivotVals.length}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-400">
+                      الحقول الرقمية والعمليات الحسابية: تحدد الأرقام ودوال التجميع (مجموع SUM، عدد COUNT، متوسط AVG...).
+                    </p>
+
+                    {/* Value items list */}
+                    <div className="space-y-2">
+                      {activePivotVals.map((valItem) => (
+                        <div
+                          key={valItem.id}
+                          className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-2"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs text-emerald-400 truncate">{valItem.column}</span>
+                            {activePivotVals.length > 1 && (
+                              <button
+                                onClick={() => {
+                                  const next = activePivotVals.filter((v) => v.id !== valItem.id);
+                                  onUpdateWidgetConfig(selectedWidget.id, {
+                                    pivotValues: next,
+                                    yAxisColumn: next[0]?.column,
+                                    aggregation: next[0]?.aggregation
+                                  });
+                                }}
+                                className="text-slate-400 hover:text-rose-400 transition"
+                                title="إزالة القيمة"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[10px] text-slate-400 mb-0.5">الدالة الحسابية</label>
+                              <select
+                                value={valItem.aggregation}
+                                onChange={(e) => {
+                                  const nextAgg = e.target.value as AggregationType;
+                                  const next = activePivotVals.map((v) =>
+                                    v.id === valItem.id ? { ...v, aggregation: nextAgg } : v
+                                  );
+                                  onUpdateWidgetConfig(selectedWidget.id, {
+                                    pivotValues: next,
+                                    aggregation: next[0]?.aggregation
+                                  });
+                                }}
+                                className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-[11px] text-slate-200 outline-none"
+                              >
+                                <option value="SUM">مجموع (SUM)</option>
+                                <option value="COUNT">عدد السجلات (COUNT)</option>
+                                <option value="AVG">متوسط (AVG)</option>
+                                <option value="MAX">الحد الأقصى (MAX)</option>
+                                <option value="MIN">الحد الأدنى (MIN)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] text-slate-400 mb-0.5">تسمية العرض</label>
+                              <input
+                                type="text"
+                                value={valItem.customLabel || ''}
+                                placeholder={valItem.column}
+                                onChange={(e) => {
+                                  const next = activePivotVals.map((v) =>
+                                    v.id === valItem.id ? { ...v, customLabel: e.target.value } : v
+                                  );
+                                  onUpdateWidgetConfig(selectedWidget.id, { pivotValues: next });
+                                }}
+                                className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-[11px] text-slate-200 outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add Value metric selector */}
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const next = [
+                            ...activePivotVals,
+                            {
+                              id: `val_${Date.now()}`,
+                              column: e.target.value,
+                              aggregation: 'SUM' as AggregationType,
+                              customLabel: `مجموع ${e.target.value}`
+                            }
+                          ];
+                          onUpdateWidgetConfig(selectedWidget.id, {
+                            pivotValues: next,
+                            yAxisColumn: next[0]?.column,
+                            aggregation: next[0]?.aggregation
+                          });
+                        }
+                      }}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-emerald-500 outline-none cursor-pointer"
+                    >
+                      <option value="">+ إضافة مقياس حسابي إلى القيم (Values)...</option>
+                      {columns.map((c) => (
+                        <option key={c.id} value={c.columnName}>
+                          {c.columnName} ({c.dataType === 'numeric' ? 'رقمي' : 'نص/فئة للعد COUNT'})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               ) : (
                 <>
                   {/* Categorical Dimension: X-Axis / Slices */}

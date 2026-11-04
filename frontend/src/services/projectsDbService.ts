@@ -32,14 +32,14 @@ function toDbRow(p: Project, isActive: boolean) {
     widget_filters: p.widgetFilters || {},
     drill_down_states: p.drillDownStates || {},
     theme: p.theme || 'dark',
-    motion_theme: p.motionTheme || p.dashboard?.motionTheme || 'glass-capsule',
+    motion_theme: p.motionTheme || p.dashboard?.motionTheme || 'wps-professional',
     updated_at: new Date().toISOString()
   };
 }
 
 function fromDbRow(r: any): Project {
   const dash = r.dashboard || {};
-  const motionTheme = r.motion_theme || dash.motionTheme || 'glass-capsule';
+  const motionTheme = r.motion_theme || dash.motionTheme || 'wps-professional';
   const widgets = (dash.widgets || []).map((w: any) => ({
     ...w,
     layout: {

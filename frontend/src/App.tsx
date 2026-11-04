@@ -518,7 +518,7 @@ export const App: React.FC = () => {
       ) : (
         <>
           {/* ── DESKTOP layout (md+) ── */}
-          <div className="hidden md:flex flex-1 overflow-hidden">
+          <div className="hidden md:flex flex-1 overflow-hidden p-2 gap-2">
             {renderDesktopPanels()}
           </div>
 

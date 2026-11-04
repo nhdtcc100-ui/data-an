@@ -206,23 +206,28 @@ button, a {
   transform: translateY(-3px) !important;
 }
 
-/* 4. الكلاي مورفزم (Claymorphism) */
+/* 4. الكلاي مورفزم (Claymorphism - كبسولي مجسم ثلاثي الأبعاد) */
 .theme-claymorphism {
-  background: #1e1b4b !important;
-  border: 1.5px solid rgba(167, 139, 250, 0.3) !important;
+  background: #181b34 !important;
+  border-radius: 26px !important;
+  border: 2px solid rgba(167, 139, 250, 0.35) !important;
   box-shadow:
-    14px 14px 28px rgba(0, 0, 0, 0.55),
-    inset -8px -8px 16px rgba(0, 0, 0, 0.45),
-    inset 8px 8px 16px rgba(255, 255, 255, 0.18) !important;
-  transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    0 22px 48px -6px rgba(0, 0, 0, 0.65),
+    0 12px 24px -4px rgba(0, 0, 0, 0.50),
+    0 4px 10px -2px rgba(0, 0, 0, 0.38),
+    inset 4px 4px 10px rgba(255, 255, 255, 0.22),
+    inset -6px -6px 16px rgba(0, 0, 0, 0.55) !important;
+  transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 .theme-claymorphism:hover {
   box-shadow:
-    20px 20px 40px rgba(0, 0, 0, 0.7),
+    0 32px 64px -8px rgba(0, 0, 0, 0.75),
+    0 18px 32px -4px rgba(0, 0, 0, 0.55),
+    0 6px 14px -2px rgba(0, 0, 0, 0.42),
     0 0 35px rgba(236, 72, 153, 0.35),
-    inset -10px -10px 20px rgba(0, 0, 0, 0.5),
-    inset 10px 10px 20px rgba(255, 255, 255, 0.22) !important;
-  transform: translateY(-4px) scale(1.01) !important;
+    inset 4px 4px 12px rgba(255, 255, 255, 0.28),
+    inset -8px -8px 20px rgba(0, 0, 0, 0.65) !important;
+  transform: translateY(-6px) scale(1.008) !important;
 }
 
 /* 5. المينيماليزم البارز (Minimalism) */
@@ -357,17 +362,14 @@ button, a {
    🔘 Professional Slate Gray Theme (ثيم رمادي رصاصي متناسق وفاخر ومحايد 100%)
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Base Page & Background: Pure Neutral Slate Gray */
+/* Base Page & Background: Pristine Baqir Slate-100 Off-White */
 html:not(.dark),
 html.light,
 .light-mode,
 body.light-mode {
-  background-color: #f1f5f9 !important; /* Neutral Slate-100 */
-  background-image: 
-    radial-gradient(circle at 10% 8%, rgba(203, 213, 225, 0.40) 0%, transparent 45%),
-    radial-gradient(circle at 90% 90%, rgba(226, 232, 240, 0.50) 0%, transparent 50%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
-  color: #0f172a !important; /* Deep Neutral Slate-900 */
+  background-color: #f1f5f9 !important;
+  background-image: none !important;
+  color: #1e293b !important;
 }
 
 /* Headings with Clean Neutral Contrast */
@@ -474,72 +476,166 @@ html.light .text-slate-500,
 }
 
 
-/* Neutral Gray Header 3D */
-html:not(.dark) .header-3d,
+/* ══════════════════════════════════════════════════════════════════════════
+   🧸 TOP BAR (البار العلوي - تصميم أنيق متناسق)
+   ══════════════════════════════════════════════════════════════════════════ */
+.header-3d,
+.clay-header {
+  position: relative;
+  z-index: 40;
+}
+
+/* Dark Mode Header */
+html.dark .header-3d,
+body.dark .header-3d {
+  background: #0f172a !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 18px 40px -6px rgba(0, 0, 0, 0.70),
+    0 8px 18px -3px rgba(0, 0, 0, 0.50),
+    inset 0 3px 6px rgba(255, 255, 255, 0.18) !important;
+  color: #f8fafc !important;
+}
+
+/* Light Mode Header (Baqir Design: Pristine White Topbar) */
 html.light .header-3d,
-.light-mode .header-3d {
-  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%) !important;
-  border-bottom: 1.5px solid #cbd5e1 !important;
-  box-shadow:
-    0 4px 16px -2px rgba(15, 23, 42, 0.05),
-    inset 0 -1px 0 rgba(203, 213, 225, 0.5) !important;
-}
-
-html:not(.dark) .header-3d .text-white,
-html.light .header-3d .text-white,
-.light-mode .header-3d .text-white {
-  color: #0f172a !important;
-}
-
-html:not(.dark) .header-3d .bg-slate-800,
-html:not(.dark) .header-3d .bg-slate-800\/80,
-html:not(.dark) .header-3d .bg-slate-900,
-html.light .header-3d .bg-slate-800,
-html.light .header-3d .bg-slate-800\/80,
-html.light .header-3d .bg-slate-900,
-.light-mode .header-3d .bg-slate-800,
-.light-mode .header-3d .bg-slate-900 {
-  background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  color: #0f172a !important;
-}
-
-html:not(.dark) .header-3d .border-slate-700,
-html:not(.dark) .header-3d .border-slate-800,
-html.light .header-3d .border-slate-700,
-html.light .header-3d .border-slate-800,
-.light-mode .header-3d .border-slate-700,
-.light-mode .header-3d .border-slate-800 {
-  border-color: #cbd5e1 !important;
-}
-
-html:not(.dark) .bg-white .text-white,
-html.light .bg-white .text-white,
-.light-mode .bg-white .text-white {
-  color: #0f172a !important;
-}
-
-
-/* Light mode Sidebar 3D */
-html:not(.dark) .sidebar-3d,
-html.light .sidebar-3d,
-.light-mode .sidebar-3d {
+body.light-mode .header-3d,
+html:not(.dark) .header-3d {
   background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.06),
-    0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06) !important;
+  color: #0f172a !important;
 }
 
-/* Light mode Glass 3D */
-html:not(.dark) .glass-3d,
+html.light .header-3d h1,
+body.light-mode .header-3d h1,
+html.light .header-3d .text-slate-100,
+body.light-mode .header-3d .text-slate-100,
+html.light .header-3d .text-white,
+body.light-mode .header-3d .text-white {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+html.light .header-3d .text-slate-300,
+html.light .header-3d .text-slate-400,
+body.light-mode .header-3d .text-slate-300,
+body.light-mode .header-3d .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .header-3d button,
+body.light-mode .header-3d button {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+html.light .header-3d button:hover,
+body.light-mode .header-3d button:hover {
+  background: #f1f5f9 !important;
+  color: #2563eb !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   🧸 CLAYMORPHISM SECONDARY TOPBAR (شريط الإجراءات والفلاتر العلوي الثاني)
+   ══════════════════════════════════════════════════════════════════════════ */
+.glass-3d,
+.sub-topbar,
 html.light .glass-3d,
-.light-mode .glass-3d {
-  background: rgba(255, 255, 255, 0.90) !important;
-  border-color: #e2e8f0 !important;
+html.light .sub-topbar,
+body.light-mode .glass-3d,
+body.light-mode .sub-topbar {
+  background: #172033 !important;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.10) !important;
+  border-bottom-left-radius: 16px !important;
+  border-bottom-right-radius: 16px !important;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    0 12px 28px -4px rgba(0, 0, 0, 0.60),
+    0 4px 10px -2px rgba(0, 0, 0, 0.40),
+    inset 0 2px 4px rgba(255, 255, 255, 0.14),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.45) !important;
+  color: #f8fafc !important;
+}
+
+.glass-3d *,
+.sub-topbar *,
+html.light .glass-3d *,
+html.light .sub-topbar * {
+  color: #ffffff;
+}
+
+.glass-3d .text-slate-400,
+.sub-topbar .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   🧸 CLAYMORPHISM SIDEBARS (بار البيانات وبار الرسوم والمخططات)
+   ══════════════════════════════════════════════════════════════════════════ */
+.sidebar-3d,
+.clay-sidebar,
+html.light .sidebar-3d,
+body.light-mode .sidebar-3d,
+html:not(.dark) .sidebar-3d {
+  background: #0f172a !important;
+  border: 2px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 20px 48px -6px rgba(0, 0, 0, 0.65),
+    0 10px 22px -4px rgba(0, 0, 0, 0.50),
+    -12px 0 32px -4px rgba(0, 0, 0, 0.60),
+    12px 0 32px -4px rgba(0, 0, 0, 0.60),
+    inset 3px 3px 8px rgba(255, 255, 255, 0.16),
+    inset -5px -5px 14px rgba(0, 0, 0, 0.50) !important;
+  color: #f8fafc !important;
+  position: relative;
+  z-index: 20;
+}
+
+.sidebar-3d h2,
+.sidebar-3d h3,
+.sidebar-3d h4,
+html.light .sidebar-3d h2,
+html.light .sidebar-3d h3,
+html.light .sidebar-3d h4 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7) !important;
+}
+
+.sidebar-3d span,
+.sidebar-3d label,
+.sidebar-3d div {
+  color: #e2e8f0;
+}
+
+.sidebar-3d .text-slate-400,
+.sidebar-3d .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* Mini clay buttons & tiles inside sidebars (Visuals catalog & Data fields) */
+.sidebar-3d button,
+.sidebar-3d .draggable-column-item,
+.sidebar-3d input[type="text"],
+.sidebar-3d select {
+  border-radius: 12px;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.40),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.14),
+    inset -1px -1px 3px rgba(0, 0, 0, 0.40);
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.sidebar-3d button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.55),
+    inset 1px 1px 3px rgba(255, 255, 255, 0.20),
+    inset -1px -1px 4px rgba(0, 0, 0, 0.50);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -664,37 +760,46 @@ html.light .glass-3d,
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-/* Widget card — spatial card with layered depth */
-.widget-3d {
+/* ══════════════════════════════════════════════════════════════════════════
+   🧸 CLAYMORPHISM 3D CARDS (كروت صلصال ثلاثية الأبعاد مرفوعة بظلال سوداء بارزة)
+   ══════════════════════════════════════════════════════════════════════════ */
+.widget-3d,
+.clay-card {
   position: relative;
-  transform: perspective(800px) translateZ(0);
-  transition: transform 0.3s cubic-bezier(0.23,1,0.32,1),
-              box-shadow 0.3s cubic-bezier(0.23,1,0.32,1);
+  border-radius: 24px !important;
+  transform: perspective(1000px) translateZ(0);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.25s ease !important;
   box-shadow:
-    0 4px 12px rgba(0,0,0,0.38),
-    0 12px 32px rgba(0,0,0,0.24),
-    0 24px 56px rgba(0,0,0,0.14),
-    inset 0 1px 0 rgba(255,255,255,0.08);
+    0 18px 38px -6px rgba(0, 0, 0, 0.55),
+    0 10px 20px -4px rgba(0, 0, 0, 0.40),
+    0 4px 8px -2px rgba(0, 0, 0, 0.28),
+    inset 3px 3px 8px rgba(255, 255, 255, 0.16),
+    inset -5px -5px 12px rgba(0, 0, 0, 0.45);
 }
-.widget-3d::before {
+.widget-3d::before,
+.clay-card::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background: linear-gradient(180deg,
-    rgba(255,255,255,0.04) 0%,
-    transparent 40%,
-    rgba(0,0,0,0.08) 100%);
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 35%,
+    rgba(0, 0, 0, 0.12) 100%);
   pointer-events: none;
   z-index: 1;
 }
-.widget-3d:hover {
-  transform: perspective(800px) translateY(-3px) translateZ(6px);
+.widget-3d:hover,
+.clay-card:hover {
+  transform: perspective(1000px) translateY(-6px) scale(1.008) translateZ(8px);
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.45),
-    0 20px 48px rgba(0,0,0,0.30),
-    0 40px 80px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.12);
+    0 30px 60px -8px rgba(0, 0, 0, 0.70),
+    0 16px 30px -4px rgba(0, 0, 0, 0.50),
+    0 6px 14px -2px rgba(0, 0, 0, 0.38),
+    inset 3px 3px 10px rgba(255, 255, 255, 0.22),
+    inset -6px -6px 15px rgba(0, 0, 0, 0.55);
 }
 
 /* Sidebar 3D panel */
@@ -777,24 +882,31 @@ html.light .glass-3d,
    ══════════════════════════════════════════════════════════════════════════ */
 html.light,
 body.light-mode {
-  background-color: #f1f5f9 !important;
+  background-color: #d8e1eb !important;
   color: #0f172a !important;
 }
 
 html.light body,
 body.light-mode {
-  background-color: #f1f5f9 !important;
+  background-color: #d8e1eb !important;
   color: #0f172a !important;
 }
 
-/* Neutral Gray Top Bar — غامق نحو الأسود */
+/* Top Bar (Header & Subtopbar) Claymorphism in Light Mode */
 html.light header,
 body.light-mode header,
 html.light .header-3d,
 body.light-mode .header-3d {
   background: #0f172a !important;
-  border-bottom: 1.5px solid #1e293b !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12) !important;
+  border-bottom-left-radius: 18px !important;
+  border-bottom-right-radius: 18px !important;
+  box-shadow:
+    0 18px 40px -6px rgba(0, 0, 0, 0.70),
+    0 8px 18px -3px rgba(0, 0, 0, 0.50),
+    0 3px 6px -1px rgba(0, 0, 0, 0.35),
+    inset 0 3px 6px rgba(255, 255, 255, 0.18),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.55) !important;
   color: #f1f5f9 !important;
 }
 
@@ -803,25 +915,50 @@ html.light .glass-3d,
 body.light-mode .glass-3d,
 html.light .sub-topbar,
 body.light-mode .sub-topbar {
-  background: #1e293b !important;
-  border-bottom: 1px solid #334155 !important;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.30) !important;
+  background: #172033 !important;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.10) !important;
+  border-bottom-left-radius: 16px !important;
+  border-bottom-right-radius: 16px !important;
+  box-shadow:
+    0 12px 28px -4px rgba(0, 0, 0, 0.60),
+    0 4px 10px -2px rgba(0, 0, 0, 0.40),
+    inset 0 2px 4px rgba(255, 255, 255, 0.14),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.45) !important;
   color: #f1f5f9 !important;
 }
 
-/* Canvas Background */
+/* Canvas Background ("أبيض غامق" مريح بتدرج محايد) */
 html.light main,
 body.light-mode main {
-  background-color: #f1f5f9 !important;
+  background-color: #d5dfe9 !important;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.7) 0%, transparent 55%),
+    radial-gradient(circle at 90% 90%, rgba(148, 163, 184, 0.3) 0%, transparent 50%),
+    linear-gradient(180deg, #dde5ee 0%, #cbd6e2 100%) !important;
   color: #0f172a !important;
 }
 
-/* Footer in Neutral Gray Theme */
+/* ══════════════════════════════════════════════════════════════════════════
+   🧸 CLAYMORPHISM BOTTOM BAR (البار السفلي - Footer وشريط التنقل السفلي)
+   ══════════════════════════════════════════════════════════════════════════ */
+footer,
+nav.safe-bottom,
 html.light footer,
-body.light-mode footer {
-  background: #e2e8f0 !important;
-  border-top: 1px solid #cbd5e1 !important;
-  color: #475569 !important;
+body.light-mode footer,
+html.light nav.safe-bottom,
+body.light-mode nav.safe-bottom {
+  background: #0f172a !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.12) !important;
+  border-top-left-radius: 18px !important;
+  border-top-right-radius: 18px !important;
+  box-shadow:
+    0 -14px 34px -4px rgba(0, 0, 0, 0.65),
+    0 -6px 14px -2px rgba(0, 0, 0, 0.45),
+    inset 0 3px 6px rgba(255, 255, 255, 0.16),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.40) !important;
+  color: #f1f5f9 !important;
+  position: relative;
+  z-index: 30;
 }
 
 /* Header Text & Controls in Dark Top Bar */
@@ -867,304 +1004,272 @@ body.light-mode .sub-topbar .text-slate-400 {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   ⭐ CHARTS & TABLES PRESERVE DARK THEME CONTRACT:
-   الثيم الرصاصي لا يغير الجارتات والجداول؛ تبقى بنفس ألوانها وخلفياتها الداكنة الأصلية
+   ⭐ BAQIR'S PREMIUM DESIGN SYSTEM — LIGHT THEME (ثيم باقر الأبيض الاحترافي)
+   Topbar Layout | Arabic RTL | Claymorphism 2.0 | Pristine White & Soft Slate
    ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Surfaces & Canvas Widgets (كروت الكلايمورفزم البيضاء الناصعة بظلال ناعمة) */
 html.light .widget-3d,
 body.light-mode .widget-3d,
 html.light .widget-card,
-body.light-mode .widget-card {
-  background: #0f172a !important;
-  border: 1.5px solid #1e293b !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
-  color: #ffffff !important;
+body.light-mode .widget-card,
+html.light .card-3d,
+body.light-mode .card-3d,
+html.light .clay-card,
+body.light-mode .clay-card,
+html.light .card,
+body.light-mode .card {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 8px 8px 20px rgba(162, 178, 204, 0.25), -6px -6px 16px rgba(255, 255, 255, 0.9) !important;
+  color: #1e293b !important;
 }
 
+html.light .widget-3d:hover,
+body.light-mode .widget-3d:hover,
+html.light .widget-card:hover,
+body.light-mode .widget-card:hover,
+html.light .card-3d:hover,
+body.light-mode .card-3d:hover,
+html.light .clay-card:hover,
+body.light-mode .clay-card:hover,
+html.light .card:hover,
+body.light-mode .card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 12px 12px 28px rgba(162, 178, 204, 0.35), -8px -8px 20px #ffffff !important;
+}
+
+/* Remove dark pseudo-overlay in light theme */
+html.light .widget-3d::before,
+body.light-mode .widget-3d::before,
+html.light .clay-card::before,
+body.light-mode .clay-card::before {
+  display: none !important;
+}
+
+/* Card Header (ترويسة الكارد البيضاء النظيفة) */
 html.light .widget-header,
-body.light-mode .widget-header {
-  background: #1e293b80 !important;
-  border-bottom: 1.5px solid #1e293b !important;
-  color: #ffffff !important;
+body.light-mode .widget-header,
+html.light .widget-3d > div:first-child,
+body.light-mode .widget-3d > div:first-child {
+  background: #ffffff !important;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
 html.light .widget-title,
-body.light-mode .widget-title {
-  color: #ffffff !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
-}
-
-/* Data Tables retain their crisp dark colors */
-html.light table,
-body.light-mode table {
-  background: #0f172a !important;
-  color: #f8fafc !important;
-}
-
-html.light th,
-body.light-mode th {
-  background: #1e293b !important;
-  color: #ffffff !important;
-  border-bottom: 2px solid #334155 !important;
+body.light-mode .widget-title,
+html.light .widget-3d h3,
+body.light-mode .widget-3d h3 {
+  color: #0f172a !important;
+  text-shadow: none !important;
   font-weight: 800 !important;
 }
 
-html.light td,
-body.light-mode td {
-  border-bottom: 1px solid rgba(30, 41, 59, 0.6) !important;
-  color: #f8fafc !important;
+/* 2. Tables (جداول البيانات وقوائم باقر) */
+html.light table,
+body.light-mode table {
+  background: #ffffff !important;
+  color: #1e293b !important;
 }
 
-html.light tr:hover td,
-body.light-mode tr:hover td {
-  background-color: rgba(30, 41, 59, 0.5) !important;
+html.light thead tr,
+body.light-mode thead tr,
+html.light thead th,
+body.light-mode thead th {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  font-weight: 700 !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   🌞  LIGHT THEME — CONTRAST CONTRACT & DARK-ON-LIGHT RULES
-   قاعدة أساسية وحاسمة لجميع الصفحات:
-   بالثيم الأبيض، أي كارد أو خلفية نص أو خلفية أي مكون بالأسود أو الداكن
-   يجب أن يكون لون النص الداخلي أبيض ناصعاً لجميع الصفحات حتى يبرز ويفهم،
-   كذلك البارات العلوية والسفلية بالجارتات والجداول.
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* ── 1. أي كارد أو حاوية أو خلفية نص أو مكون بالأسود/الداكن في الثيم الأبيض ── */
-/* يشمل أنماط 3D الداكنة (Skeuomorphism, Neumorphism, Brutalism, Claymorphism, Bento, Maximalism...) */
-html.light .theme-skeuomorphism,
-html.light .theme-neumorphism,
-html.light .theme-claymorphism,
-html.light .theme-maximalism,
-html.light .theme-brutalism,
-html.light .theme-liquid-glass,
-html.light .theme-bento-grid,
-html.light .theme-spatial-ui,
-body.light-mode .theme-skeuomorphism,
-body.light-mode .theme-neumorphism,
-body.light-mode .theme-claymorphism,
-body.light-mode .theme-maximalism,
-body.light-mode .theme-brutalism,
-body.light-mode .theme-liquid-glass,
-body.light-mode .theme-bento-grid,
-body.light-mode .theme-spatial-ui,
-html.light [class*="bg-black"],
-html.light [class*="bg-slate-950"],
-html.light [class*="bg-slate-900"],
-html.light [class*="bg-slate-850"],
-html.light [class*="bg-slate-800"],
-html.light [class*="bg-gray-950"],
-html.light [class*="bg-gray-900"],
-html.light [class*="bg-zinc-950"],
-html.light [class*="bg-zinc-900"],
-html.light [class*="bg-neutral-950"],
-html.light [class*="bg-neutral-900"],
-body.light-mode [class*="bg-black"],
-body.light-mode [class*="bg-slate-950"],
-body.light-mode [class*="bg-slate-900"],
-body.light-mode [class*="bg-slate-850"],
-body.light-mode [class*="bg-slate-800"],
-body.light-mode [class*="bg-gray-950"],
-body.light-mode [class*="bg-gray-900"],
-body.light-mode [class*="bg-zinc-950"],
-body.light-mode [class*="bg-zinc-900"],
-body.light-mode [class*="bg-neutral-950"],
-body.light-mode [class*="bg-neutral-900"] {
-  color: #ffffff !important;
+html.light tbody tr,
+body.light-mode tbody tr {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border-bottom: 1px solid #f1f5f9 !important;
 }
 
-/* فرض لون النص الأبيض الناصع على كافة النصوص والعناوين داخل الحاويات السوداء والداكنة */
-html.light .theme-skeuomorphism h1, html.light .theme-skeuomorphism h2, html.light .theme-skeuomorphism h3, html.light .theme-skeuomorphism h4, html.light .theme-skeuomorphism p, html.light .theme-skeuomorphism span, html.light .theme-skeuomorphism div, html.light .theme-skeuomorphism th, html.light .theme-skeuomorphism td, html.light .theme-skeuomorphism b, html.light .theme-skeuomorphism strong,
-html.light .theme-neumorphism h1, html.light .theme-neumorphism h2, html.light .theme-neumorphism h3, html.light .theme-neumorphism h4, html.light .theme-neumorphism p, html.light .theme-neumorphism span, html.light .theme-neumorphism div, html.light .theme-neumorphism th, html.light .theme-neumorphism td, html.light .theme-neumorphism b, html.light .theme-neumorphism strong,
-html.light .theme-claymorphism h1, html.light .theme-claymorphism h2, html.light .theme-claymorphism h3, html.light .theme-claymorphism h4, html.light .theme-claymorphism p, html.light .theme-claymorphism span, html.light .theme-claymorphism div, html.light .theme-claymorphism th, html.light .theme-claymorphism td, html.light .theme-claymorphism b, html.light .theme-claymorphism strong,
-html.light .theme-maximalism h1, html.light .theme-maximalism h2, html.light .theme-maximalism h3, html.light .theme-maximalism h4, html.light .theme-maximalism p, html.light .theme-maximalism span, html.light .theme-maximalism div, html.light .theme-maximalism th, html.light .theme-maximalism td, html.light .theme-maximalism b, html.light .theme-maximalism strong,
-html.light .theme-brutalism h1, html.light .theme-brutalism h2, html.light .theme-brutalism h3, html.light .theme-brutalism h4, html.light .theme-brutalism p, html.light .theme-brutalism span, html.light .theme-brutalism div, html.light .theme-brutalism th, html.light .theme-brutalism td, html.light .theme-brutalism b, html.light .theme-brutalism strong,
-html.light .theme-liquid-glass h1, html.light .theme-liquid-glass h2, html.light .theme-liquid-glass h3, html.light .theme-liquid-glass h4, html.light .theme-liquid-glass p, html.light .theme-liquid-glass span, html.light .theme-liquid-glass div, html.light .theme-liquid-glass th, html.light .theme-liquid-glass td, html.light .theme-liquid-glass b, html.light .theme-liquid-glass strong,
-html.light .theme-bento-grid h1, html.light .theme-bento-grid h2, html.light .theme-bento-grid h3, html.light .theme-bento-grid h4, html.light .theme-bento-grid p, html.light .theme-bento-grid span, html.light .theme-bento-grid div, html.light .theme-bento-grid th, html.light .theme-bento-grid td, html.light .theme-bento-grid b, html.light .theme-bento-grid strong,
-html.light [class*="bg-black"] h1, html.light [class*="bg-black"] h2, html.light [class*="bg-black"] h3, html.light [class*="bg-black"] h4, html.light [class*="bg-black"] p, html.light [class*="bg-black"] span, html.light [class*="bg-black"] div, html.light [class*="bg-black"] th, html.light [class*="bg-black"] td, html.light [class*="bg-black"] b, html.light [class*="bg-black"] strong,
-html.light [class*="bg-slate-950"] h1, html.light [class*="bg-slate-950"] h2, html.light [class*="bg-slate-950"] h3, html.light [class*="bg-slate-950"] h4, html.light [class*="bg-slate-950"] p, html.light [class*="bg-slate-950"] span, html.light [class*="bg-slate-950"] div, html.light [class*="bg-slate-950"] th, html.light [class*="bg-slate-950"] td, html.light [class*="bg-slate-950"] b, html.light [class*="bg-slate-950"] strong,
-html.light [class*="bg-slate-900"] h1, html.light [class*="bg-slate-900"] h2, html.light [class*="bg-slate-900"] h3, html.light [class*="bg-slate-900"] h4, html.light [class*="bg-slate-900"] p, html.light [class*="bg-slate-900"] span, html.light [class*="bg-slate-900"] div, html.light [class*="bg-slate-900"] th, html.light [class*="bg-slate-900"] td, html.light [class*="bg-slate-900"] b, html.light [class*="bg-slate-900"] strong,
-body.light-mode [class*="bg-black"] h1, body.light-mode [class*="bg-black"] h2, body.light-mode [class*="bg-black"] h3, body.light-mode [class*="bg-black"] h4, body.light-mode [class*="bg-black"] p, body.light-mode [class*="bg-black"] span, body.light-mode [class*="bg-black"] div, body.light-mode [class*="bg-black"] th, body.light-mode [class*="bg-black"] td, body.light-mode [class*="bg-black"] b, body.light-mode [class*="bg-black"] strong,
-body.light-mode [class*="bg-slate-950"] h1, body.light-mode [class*="bg-slate-950"] h2, body.light-mode [class*="bg-slate-950"] h3, body.light-mode [class*="bg-slate-950"] h4, body.light-mode [class*="bg-slate-950"] p, body.light-mode [class*="bg-slate-950"] span, body.light-mode [class*="bg-slate-950"] div, body.light-mode [class*="bg-slate-950"] th, body.light-mode [class*="bg-slate-950"] td, body.light-mode [class*="bg-slate-950"] b, body.light-mode [class*="bg-slate-950"] strong,
-body.light-mode [class*="bg-slate-900"] h1, body.light-mode [class*="bg-slate-900"] h2, body.light-mode [class*="bg-slate-900"] h3, body.light-mode [class*="bg-slate-900"] h4, body.light-mode [class*="bg-slate-900"] p, body.light-mode [class*="bg-slate-900"] span, body.light-mode [class*="bg-slate-900"] div, body.light-mode [class*="bg-slate-900"] th, body.light-mode [class*="bg-slate-900"] td, body.light-mode [class*="bg-slate-900"] b, body.light-mode [class*="bg-slate-900"] strong {
-  color: #ffffff !important;
+html.light tbody tr:hover,
+body.light-mode tbody tr:hover {
+  background: #f8fafc !important;
 }
 
-/* ── 2. البارات العلوية بالجارتات (Upper Bars in Charts) ── */
-/* شريط رأس الكارد العلوي للرسم البياني عند كونه داكناً أو أسود */
-html.light .widget-3d [class*="bg-slate-900/90"],
-html.light .widget-3d [class*="bg-slate-900\\/90"],
-body.light-mode .widget-3d [class*="bg-slate-900/90"],
-body.light-mode .widget-3d [class*="bg-slate-900\\/90"] {
-  background: #090d16 !important;
-  border-bottom-color: #1e293b !important;
-  color: #ffffff !important;
-}
-html.light .widget-3d [class*="bg-slate-900/90"] *,
-html.light .widget-3d [class*="bg-slate-900\\/90"] *,
-body.light-mode .widget-3d [class*="bg-slate-900/90"] *,
-body.light-mode .widget-3d [class*="bg-slate-900\\/90"] * {
-  color: #ffffff !important;
+html.light tbody td,
+body.light-mode tbody td {
+  color: #1e293b !important;
+  border-color: #f1f5f9 !important;
 }
 
-/* شريط التدرج والتفصيل الهرمي (DrillBreadcrumb Bar) فوق الرسم البياني */
-html.light [class*="bg-slate-900/80"],
-html.light [class*="bg-slate-900\\/80"],
-body.light-mode [class*="bg-slate-900/80"],
-body.light-mode [class*="bg-slate-900\\/80"] {
-  background: #0b1120 !important;
-  border-bottom-color: rgba(56, 189, 248, 0.3) !important;
-  color: #ffffff !important;
-}
-html.light [class*="bg-slate-900/80"] *,
-html.light [class*="bg-slate-900\\/80"] *,
-body.light-mode [class*="bg-slate-900/80"] *,
-body.light-mode [class*="bg-slate-900\\/80"] * {
-  color: #ffffff !important;
-}
-html.light [class*="bg-slate-900/80"] .text-sky-400,
-body.light-mode [class*="bg-slate-900/80"] .text-sky-400 { color: #38bdf8 !important; }
-html.light [class*="bg-slate-900/80"] .text-amber-300,
-body.light-mode [class*="bg-slate-900/80"] .text-amber-300 { color: #fde047 !important; }
-
-/* أزرار الحجم والتحكم السريع في الشريط العلوي (bg-slate-950/80) */
-html.light .widget-3d [class*="bg-slate-950/80"],
-html.light .widget-3d [class*="bg-slate-950\\/80"],
-body.light-mode .widget-3d [class*="bg-slate-950/80"],
-body.light-mode .widget-3d [class*="bg-slate-950\\/80"] {
-  background: #020617 !important;
-  border-color: #1e293b !important;
-  color: #ffffff !important;
-}
-html.light .widget-3d [class*="bg-slate-950/80"] *,
-body.light-mode .widget-3d [class*="bg-slate-950/80"] * {
-  color: #ffffff !important;
+html.light tfoot tr,
+body.light-mode tfoot tr,
+html.light tfoot td,
+body.light-mode tfoot td {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-top: 2px solid #cbd5e1 !important;
+  font-weight: 800 !important;
 }
 
-/* زر ربط التفاعل والأزرار في شريط العنوان (bg-slate-800/80) */
-html.light .widget-3d button[class*="bg-slate-800"],
-body.light-mode .widget-3d button[class*="bg-slate-800"] {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-  color: #ffffff !important;
-}
-html.light .widget-3d button[class*="bg-slate-800"] *,
-body.light-mode .widget-3d button[class*="bg-slate-800"] * {
-  color: #ffffff !important;
-}
-
-/* ── 3. البارات العلوية بالجداول (Upper Bars in Tables) ── */
-/* شريط البحث والتحكم فوق الجدول (Table Toolbar) */
+/* Table Toolbar & Pagination */
 html.light .widget-3d [class*="bg-slate-950/40"],
-html.light .widget-3d [class*="bg-slate-950\\/40"],
+html.light .widget-3d [class*="bg-slate-950\/40"],
 body.light-mode .widget-3d [class*="bg-slate-950/40"],
-body.light-mode .widget-3d [class*="bg-slate-950\\/40"] {
-  background: #0f172a !important;
-  border-bottom-color: #1e293b !important;
-  color: #ffffff !important;
-}
-html.light .widget-3d [class*="bg-slate-950/40"] *,
-body.light-mode .widget-3d [class*="bg-slate-950/40"] * {
-  color: #ffffff !important;
-}
-html.light .widget-3d [class*="bg-slate-950/40"] input[type="text"],
-body.light-mode .widget-3d [class*="bg-slate-950/40"] input[type="text"] {
-  background: #020617 !important;
-  border-color: #334155 !important;
-  color: #ffffff !important;
-}
-html.light .widget-3d [class*="bg-slate-950/40"] input[type="text"]::placeholder,
-body.light-mode .widget-3d [class*="bg-slate-950/40"] input[type="text"]::placeholder {
-  color: #94a3b8 !important;
-}
-html.light .widget-3d [class*="bg-slate-950/40"] select,
-body.light-mode .widget-3d [class*="bg-slate-950/40"] select {
-  background: #020617 !important;
-  border-color: #334155 !important;
-  color: #ffffff !important;
+body.light-mode .widget-3d [class*="bg-slate-950\/40"] {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
-/* شريط رؤوس الأعمدة للجدول (thead th) إذا كانت ذات خلفية داكنة */
-html.light [class*="theme-"] thead tr,
-html.light [class*="theme-"] thead th,
-body.light-mode [class*="theme-"] thead tr,
-body.light-mode [class*="theme-"] thead th {
-  color: #ffffff !important;
-}
-
-/* ── 4. البارات السفلية / التحتية بالجداول (Lower Bars in Tables) ── */
-/* شريط ترقيم الصفحات أسفل الجدول (Pagination Footer: bg-slate-950/70) */
 html.light [class*="border-t"][class*="slate-950"],
 html.light [class*="border-t"][class*="bg-slate-950"],
 body.light-mode [class*="border-t"][class*="slate-950"],
 body.light-mode [class*="border-t"][class*="bg-slate-950"] {
-  background: #020617 !important;
-  border-top-color: #1e293b !important;
-  color: #ffffff !important;
-}
-html.light [class*="border-t"][class*="slate-950"] *,
-body.light-mode [class*="border-t"][class*="slate-950"] * {
-  color: #ffffff !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
-/* شريط ملخص الإجماليات أسفل الجدول (tfoot tr / tfoot td) */
-html.light [class*="theme-"] tfoot tr,
-html.light [class*="theme-"] tfoot td,
-body.light-mode [class*="theme-"] tfoot tr,
-body.light-mode [class*="theme-"] tfoot td {
-  color: #ffffff !important;
+/* 3. Inputs & Controls (مدخلات الصلصال الناعمة المريحة) */
+html.light input[type="text"],
+html.light input[type="search"],
+html.light input[type="number"],
+html.light select,
+html.light textarea,
+body.light-mode input[type="text"],
+body.light-mode input[type="search"],
+body.light-mode input[type="number"],
+body.light-mode select,
+body.light-mode textarea {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  color: #0f172a !important;
+  box-shadow: inset 3px 3px 7px rgba(162, 178, 204, 0.15), inset -3px -3px 7px rgba(255, 255, 255, 0.85) !important;
 }
 
-/* ── 5. البارات السفلية / التحتية بالجارتات (Lower Sub-Bars in Charts) ── */
-/* شريط أزرار تصفية السلايسر وأزرار الخيارات السفلية (Slicer Pills: bg-slate-800/90) */
-html.light [class*="bg-slate-800/90"],
-html.light [class*="bg-slate-800\\/90"],
-body.light-mode [class*="bg-slate-800/90"],
-body.light-mode [class*="bg-slate-800\\/90"] {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-  color: #ffffff !important;
-}
-html.light [class*="bg-slate-800/90"] *,
-body.light-mode [class*="bg-slate-800/90"] * {
-  color: #ffffff !important;
+html.light input:focus,
+html.light select:focus,
+body.light-mode input:focus,
+body.light-mode select:focus {
+  background: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), inset 1px 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* شريط الإحصائيات والمقارنة أسفل كارد KPI (kpi-meta / delta) */
-html.light [class*="theme-"] .kpi-value,
-body.light-mode [class*="theme-"] .kpi-value {
-  color: #ffffff !important;
-}
-html.light [class*="theme-"] .kpi-count,
-body.light-mode [class*="theme-"] .kpi-count {
-  color: #cbd5e1 !important;
+/* 4. Sidebars & Drawers (القوائم الجانبية DataPanel و VisualizationsPanel) */
+html.light aside,
+body.light-mode aside,
+html.light [class*="bg-slate-900"][class*="border-l"],
+html.light [class*="bg-slate-900"][class*="border-r"],
+body.light-mode [class*="bg-slate-900"][class*="border-l"],
+body.light-mode [class*="bg-slate-900"][class*="border-r"] {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
 }
 
-/* ── 6. النوافذ المنبثقة والقوائم الداكنة (Modals & Dropdowns) ── */
+html.light aside h1, html.light aside h2, html.light aside h3, html.light aside h4,
+body.light-mode aside h1, body.light-mode aside h2, body.light-mode aside h3, body.light-mode aside h4 {
+  color: #0f172a !important;
+}
+
+html.light aside p, html.light aside label,
+body.light-mode aside p, body.light-mode aside label {
+  color: #475569 !important;
+}
+
+html.light aside [class*="bg-slate-950"],
+body.light-mode aside [class*="bg-slate-950"] {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* 5. Modals & Dropdown Popups (النوافذ المنبثقة والقوائم المنسدلة بيضاء ناصعة) */
 html.light [class*="bg-slate-900"][class*="rounded-2xl"],
 body.light-mode [class*="bg-slate-900"][class*="rounded-2xl"],
 html.light [class*="bg-slate-950"][class*="rounded-2xl"],
 body.light-mode [class*="bg-slate-950"][class*="rounded-2xl"] {
-  background: #0f172a !important;
-  border-color: #334155 !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
+
 html.light [class*="bg-slate-900"][class*="rounded-2xl"] *,
 body.light-mode [class*="bg-slate-900"][class*="rounded-2xl"] *,
 html.light [class*="bg-slate-950"][class*="rounded-2xl"] *,
 body.light-mode [class*="bg-slate-950"][class*="rounded-2xl"] * {
-  color: #ffffff !important;
+  color: #0f172a;
 }
 
-/* ── 7. الكروت تحتفظ بلونها الداكن (Dark Cards Contract) ── */
-html.light .widget-3d:not([class*="theme-"]) {
-  background: #0f172a;
-  border-color: #1e293b;
+html.light [class*="bg-slate-900"][class*="rounded-2xl"] [class*="text-slate-400"],
+body.light-mode [class*="bg-slate-900"][class*="rounded-2xl"] [class*="text-slate-400"] {
+  color: #64748b !important;
 }
-html.light .widget-3d:not([class*="theme-"]) > div:first-child {
-  background: #1e293b80;
-  border-bottom-color: #1e293b;
-  color: #ffffff;
+
+/* 6. Slicer Pills & Filter Badges (أزرار التصفية التفاعلية) */
+html.light [class*="bg-slate-800/90"],
+html.light [class*="bg-slate-800\/90"],
+body.light-mode [class*="bg-slate-800/90"],
+body.light-mode [class*="bg-slate-800\/90"] {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
-html.light .widget-3d:not([class*="theme-"]) > div:first-child h3 {
-  color: #ffffff;
+
+html.light [class*="bg-slate-800/90"]:hover,
+body.light-mode [class*="bg-slate-800/90"]:hover {
+  background: #f1f5f9 !important;
+  color: #2563eb !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* 7. KPI Stat Cards (كروت المؤشرات كما في باقر) */
+html.light .kpi-value,
+body.light-mode .kpi-value,
+html.light [class*="theme-"] .kpi-value,
+body.light-mode [class*="theme-"] .kpi-value {
+  color: #0f172a !important;
+}
+
+html.light .kpi-count,
+body.light-mode .kpi-count,
+html.light [class*="theme-"] .kpi-count,
+body.light-mode [class*="theme-"] .kpi-count {
+  color: #64748b !important;
+}
+
+/* General Text Overrides in Light Theme */
+html.light .text-slate-100,
+html.light .text-slate-200,
+body.light-mode .text-slate-100,
+body.light-mode .text-slate-200 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-300,
+body.light-mode .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400,
+body.light-mode .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-700,
+body.light-mode .border-slate-800,
+body.light-mode .border-slate-700 {
+  border-color: #e2e8f0 !important;
 }
 
 @media print {

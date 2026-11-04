@@ -91,10 +91,11 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     resetDrillDown,
     activeTableRowKey,
     setActiveTableRowKey,
-    motionTheme
+    motionTheme,
+    theme
   } = useDashboardStore();
 
-  const activeMotionTheme = getMotionTheme(motionTheme || currentDashboard?.motionTheme || 'glass-capsule');
+  const activeMotionTheme = getMotionTheme(motionTheme || currentDashboard?.motionTheme || 'wps-professional');
 
   // Charts & table cards always maintain their original dark styling regardless of page theme
   const isDarkThemeCard = true;
@@ -238,10 +239,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     ? getDrillLeafRows(filteredRows, currentDrillPath)
     : filteredRows;
 
-  // Charts always use dark palette to preserve vibrant colors regardless of page theme
-  const chartIsDark = true;
-  const textColor = '#94a3b8';
-  const splitLineColor = '#1e293b';
+  // Charts theme: sync with light / dark mode
+  const isPageDark = theme === 'dark';
+  const textColor = isPageDark ? '#94a3b8' : '#334155';
+  const splitLineColor = isPageDark ? '#1e293b' : '#e2e8f0';
 
   // Helper for number formatting
   const formatNumber = (val: number) => {
@@ -260,7 +261,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   };
 
   const getChartOption = (): echarts.EChartsOption => {
-    const isDark = chartIsDark; // Charts always dark regardless of page theme
+    const isDark = isPageDark;
     const showLegend = widget.config.showLegend !== false;
     const legendPos = widget.config.legendPosition || 'bottom';
     const legendConfig = showLegend
@@ -966,21 +967,13 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       }
 
       case 'pivot': {
-        const secCol = widget.config.secondaryMetric || currentDataSource.columns.find((c) => c.dataType === 'numeric' && c.columnName !== yCol)?.columnName || yCol;
-        const pivotRows = aggResult.categories.map((cat, idx) => {
-          const catRows = drillFilteredRows.filter((r) => String(r[activeGroupCol]) === cat);
-          const secSum = catRows.reduce((acc, r) => acc + (typeof r[secCol] === 'number' ? r[secCol] : parseFloat(r[secCol]) || 0), 0);
-
-          return {
-            groupKey: cat,
-            count: aggResult.counts[idx],
-            revenue: aggResult.values[idx],
-            profit: Math.round(secSum)
-          };
-        });
         return (
           <PivotTableWidget
-            data={pivotRows}
+            widgetId={widget.id}
+            config={widget.config}
+            rows={drillFilteredRows}
+            columns={currentDataSource.columns}
+            onUpdateConfig={(updates) => updateWidgetConfig(widget.id, updates)}
             groupByColumn={activeGroupCol}
             drillEnabled={drillDownEnabled}
             hasMoreLevels={currentLevelIndex < drillLevels.length - 1}
@@ -1030,8 +1023,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       default:
         return (
           <EChartWrapper
-            options={applyMotionThemeToECharts(getChartOption(), motionTheme || currentDashboard?.motionTheme || 'glass-capsule')}
-            theme="dark"
+            options={applyMotionThemeToECharts(getChartOption(), motionTheme || currentDashboard?.motionTheme || 'wps-professional')}
+            theme={theme}
             onEvents={{ click: onChartClick }}
           />
         );
@@ -1051,7 +1044,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           ? 'none'
           : undefined
       }}
-      className={`relative flex flex-col h-full rounded-xl border transition-all duration-300 overflow-hidden widget-3d group/card cursor-default ${
+      className={`relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden widget-3d clay-card group/card cursor-default ${
         activeMotionTheme.cardWrapperClass
       } ${
         isSelected
@@ -1063,7 +1056,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       data-theme={activeMotionTheme.id}
     >
       {/* Widget Header */}
-      <div className={`flex items-center justify-between px-3.5 py-2 border-b select-none gap-2 ${
+      <div className={`flex items-center justify-between px-3.5 py-2.5 border-b select-none gap-2 rounded-t-[22px] ${
         isDarkThemeCard ? 'border-slate-800 bg-slate-900/90 text-white' : 'border-slate-200 bg-white/95 text-slate-950'
       }`}>
         <div className={`flex items-center gap-2 overflow-hidden flex-1 ${

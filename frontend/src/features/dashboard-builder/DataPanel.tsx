@@ -101,7 +101,7 @@ export const DataPanel: React.FC<DataPanelProps> = ({
     return (
       <div
         onClick={toggleDataPanel}
-        className={`w-12 bg-slate-900/95 flex flex-col items-center py-4 cursor-pointer hover:bg-slate-850 transition select-none group ${
+        className={`w-12 bg-slate-900/95 flex flex-col items-center py-4 cursor-pointer hover:bg-slate-850 transition select-none group sidebar-3d rounded-2xl ${
           dockSide === 'left' ? 'border-r border-slate-800' : 'border-l border-slate-800'
         }`}
         title="توسيع لوحة البيانات والحقول (Power BI Fields)"
@@ -120,7 +120,7 @@ export const DataPanel: React.FC<DataPanelProps> = ({
   return (
     <aside
       style={isMobile ? { width: '100%' } : { width: `${dataPanelWidth}px` }}
-      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm transition-[width] duration-75 sidebar-3d ${
+      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm transition-[width] duration-75 sidebar-3d rounded-2xl ${
         isMobile ? 'w-full border-none' : dockSide === 'left' ? 'border-r border-slate-800/60' : 'border-l border-slate-800/60'
       } ${isResizing ? 'select-none pointer-events-none' : ''}`}
     >

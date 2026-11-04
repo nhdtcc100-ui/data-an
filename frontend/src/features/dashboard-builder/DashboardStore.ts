@@ -616,7 +616,7 @@ export const useDashboardStore = create<DashboardState>()(
   isShareModalOpen: false,
   isDataGridOpen: false,
   theme: 'dark',
-  motionTheme: 'glass-capsule',
+  motionTheme: 'wps-professional',
   lastSavedAt: null,
   drillDownStates: {},
   activeTableRowKey: null,
@@ -1593,7 +1593,7 @@ export const useDashboardStore = create<DashboardState>()(
         widgetFilters: target.widgetFilters,
         drillDownStates: target.drillDownStates,
         theme: target.theme,
-        motionTheme: (target.motionTheme as MotionThemeId) || (target.dashboard?.motionTheme as MotionThemeId) || state.motionTheme || 'glass-capsule',
+        motionTheme: (target.motionTheme as MotionThemeId) || (target.dashboard?.motionTheme as MotionThemeId) || state.motionTheme || 'wps-professional',
         selectedWidgetId: null,
         lastSavedAt: new Date().toISOString()
       };

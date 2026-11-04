@@ -18,6 +18,7 @@ export type MotionThemeId =
   | 'bento-grid'         // 09. البينتو جرايد (تقسيم بطاقات ومربعات Bento Box منظمة)
   | 'spatial-ui'         // 10. السباتيشل ثلاثي الأبعاد (واجهات الواقع المعزز والافتراضي VisionOS)
   // ── ثيمات التنقل الحركي المكملة ──
+  | 'wps-professional'   // احترافي WPS/Excel (تيل داكن - الثيم الافتراضي)
   | 'cyber-neon'         // نيون سيبراني داكن
   | 'glass-capsule'      // الكبسولة الزجاجية
   | 'liquid-floating'    // العائم السائل
@@ -426,6 +427,42 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
   },
 
   // ──────────────────────────────────────────────────────────────────────────
+  // الثيم الاحترافي WPS/Excel (الثيم الافتراضي للتقارير)
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    id: 'wps-professional',
+    nameAr: 'احترافي WPS',
+    nameEn: 'WPS Professional',
+    category: 'clean',
+    categoryAr: 'احترافي مكتبي',
+    tagline: 'ثيم احترافي مستوحى من WPS Office وExcel برأس تيل داكن أنيق، صفوف نظيفة، وأرقام مضيئة بالأخضر الزمردي',
+    icon: '📊',
+    previewColors: ['#0d9488', '#14b8a6', '#0f766e', '#10b981', '#059669', '#06b6d4'],
+    chartColors: ['#14b8a6', '#0d9488', '#10b981', '#06b6d4', '#0284c7', '#059669', '#f59e0b'],
+    animation: {
+      duration: 1800,
+      easing: 'cubicOut',
+      delayStep: 55
+    },
+    cardWrapperClass: 'theme-wps-professional rounded-2xl border border-teal-800/40 bg-slate-900/95 transition-all duration-300',
+    badgeStyle: {
+      bg: 'bg-teal-500/20',
+      border: 'border-teal-400/40',
+      text: 'text-teal-300',
+      glow: 'shadow-[0_0_10px_rgba(20,184,166,0.4)]'
+    },
+    tableTheme: {
+      headerBg: 'linear-gradient(135deg, #0d4f47 0%, #0f6b61 50%, #0d9488 100%)',
+      headerTextColor: '#f0fdfa',
+      headerBorderColor: 'rgba(20,184,166,0.45)',
+      rowHoverBg: 'rgba(13,148,136,0.10)',
+      selectedRowBg: 'linear-gradient(90deg, rgba(13,148,136,0.30), rgba(6,182,212,0.14))',
+      selectedBorder: '#14b8a6',
+      numHighlightColor: '#5eead4'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
   // أنماط مكملة (التوافق مع المشاريع السابقة)
   // ──────────────────────────────────────────────────────────────────────────
   {
@@ -595,18 +632,19 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
 ];
 
 export function getMotionTheme(id?: MotionThemeId | string): MotionThemeConfig {
-  if (!id) return MOTION_THEMES[2]; // Default to Glassmorphism
+  const defaultTheme = () => MOTION_THEMES.find((t) => t.id === 'wps-professional') || MOTION_THEMES[2];
+  if (!id) return defaultTheme();
   const found = MOTION_THEMES.find((t) => t.id === id);
   if (found) return found;
 
   // Fallbacks for legacy theme IDs
-  if (id === 'matrix-holo') return MOTION_THEMES.find((t) => t.id === 'cyber-neon') || MOTION_THEMES[2];
+  if (id === 'matrix-holo') return MOTION_THEMES.find((t) => t.id === 'cyber-neon') || defaultTheme();
   if (id === 'magnetic-dock') return MOTION_THEMES.find((t) => t.id === 'neumorphism') || MOTION_THEMES[1];
   if (id === 'segmented-dynamic') return MOTION_THEMES.find((t) => t.id === 'bento-grid') || MOTION_THEMES[8];
   if (id === 'morphing-blob') return MOTION_THEMES.find((t) => t.id === 'claymorphism') || MOTION_THEMES[3];
   if (id === 'layered-card') return MOTION_THEMES.find((t) => t.id === 'spatial-ui') || MOTION_THEMES[9];
 
-  return MOTION_THEMES[2]; // default Glassmorphism
+  return defaultTheme(); // default WPS Professional
 }
 
 /**

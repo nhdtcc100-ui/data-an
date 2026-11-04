@@ -532,7 +532,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* ── Top Bar 2 — hidden on mobile, visible on md+ ── */}
-      <div className="min-h-10 glass-3d border-b border-slate-800/60 px-4 sm:px-6 py-1 hidden md:flex items-center justify-between gap-3 overflow-x-auto custom-scrollbar">
+      <div className="min-h-10 glass-3d sub-topbar border-b border-slate-800/60 px-4 sm:px-6 py-1 hidden md:flex items-center justify-between gap-3 overflow-x-auto custom-scrollbar">
         {/* Right side (RTL): Filter status + Data actions */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink-0">
           {/* Active Filters Pill */}

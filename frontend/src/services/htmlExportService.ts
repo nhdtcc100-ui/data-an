@@ -87,7 +87,7 @@ export function generateInteractiveHtml(
   widgetFilters?: Record<string, Record<string, any>>,
   activeFilters?: Record<string, any>,
   drillDownStates?: Record<string, { path: Array<{ column: string; value: string }>; levelIndex: number }>,
-  motionTheme: string = 'glassmorphism'
+  motionTheme: string = 'wps-professional'
 ): string {
   const rawTitle = (dashboard.title || 'تقرير تحليلي تفاعلي').trim();
   const cleanTitle = rawTitle
@@ -97,7 +97,7 @@ export function generateInteractiveHtml(
   
   const allRows = extractAllRows(dataSource);
   const allColumns = extractAllColumns(dataSource, allRows);
-  const initialMotionTheme = motionTheme || dashboard.motionTheme || 'glassmorphism';
+  const initialMotionTheme = motionTheme || dashboard.motionTheme || 'wps-professional';
 
   // Merge all widget drill-down filters + global slicer filters into one initial filter map
   const mergedInitialFilters: Record<string, any> = { ...(activeFilters || {}) };
@@ -162,7 +162,7 @@ export function generateInteractiveHtml(
   </script>
   <style>
     :root {
-      --bg: ${theme === 'dark' ? '#020617' : '#f1f5f9'};
+      --bg: ${theme === 'dark' ? '#020617' : '#d8e1eb'};
       --surface: #0f172a;
       --surface-border: #1e293b;
       --surface-header: #1e293b80;
@@ -172,7 +172,7 @@ export function generateInteractiveHtml(
       --accent-hover: #38bdf8;
       --primary-glow: rgba(14, 165, 233, 0.15);
       --chrome-bar-1: ${theme === 'dark' ? '#0f172ae6' : '#e2e8f0e6'};
-      --chrome-bar-2: ${theme === 'dark' ? '#090d16f2' : '#f1f5f9f2'};
+      --chrome-bar-2: ${theme === 'dark' ? '#090d16f2' : '#d8e1ebf2'};
       --chrome-border: ${theme === 'dark' ? '#1e293b' : '#cbd5e1'};
       --chrome-text: ${theme === 'dark' ? '#f8fafc' : '#0f172a'};
       --chrome-text-muted: ${theme === 'dark' ? '#94a3b8' : '#475569'};
@@ -200,7 +200,13 @@ export function generateInteractiveHtml(
       top: 0;
       z-index: 50;
       width: 100%;
-      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+      box-shadow:
+        0 18px 40px -6px rgba(0, 0, 0, 0.70),
+        0 8px 18px -3px rgba(0, 0, 0, 0.50),
+        inset 0 3px 6px rgba(255, 255, 255, 0.18),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.55);
     }
     /* Bar 1: Branding, Report Title & Status Badges */
     .top-bar-1 {
@@ -518,23 +524,33 @@ export function generateInteractiveHtml(
       }
     }
 
-    /* Widget Cards Base */
+    /* Widget Cards Base - Claymorphism Raised Tactile 3D */
     .widget-card {
       background-color: var(--surface);
-      border: 1.5px solid var(--surface-border);
-      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      box-shadow:
+        0 20px 45px -8px rgba(0, 0, 0, 0.65),
+        0 12px 24px -4px rgba(0, 0, 0, 0.50),
+        0 4px 10px -2px rgba(0, 0, 0, 0.38),
+        inset 3px 3px 8px rgba(255, 255, 255, 0.16),
+        inset -5px -5px 12px rgba(0, 0, 0, 0.45);
       animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.25s ease !important;
+      transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease !important;
       position: relative;
     }
     .widget-card:hover {
-      border-color: #38bdf8;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
-      transform: translateY(-4px) scale(1.002) !important;
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow:
+        0 30px 60px -8px rgba(0, 0, 0, 0.75),
+        0 16px 30px -4px rgba(0, 0, 0, 0.52),
+        0 6px 14px -2px rgba(0, 0, 0, 0.40),
+        inset 3px 3px 10px rgba(255, 255, 255, 0.22),
+        inset -6px -6px 15px rgba(0, 0, 0, 0.55);
+      transform: translateY(-5px) scale(1.008) !important;
     }
 
     /* 1. السكيومورفزم (Skeuomorphism - بروز واقعي مجسم) */
@@ -576,14 +592,26 @@ export function generateInteractiveHtml(
 
     /* 4. الكلاي مورفزم (Claymorphism - كبسولي ثلاثي الأبعاد) */
     .theme-claymorphism {
-      background: #1e1b4b !important;
-      border: 1.5px solid rgba(167, 139, 250, 0.3) !important;
-      box-shadow: 14px 14px 28px rgba(0, 0, 0, 0.55), inset -8px -8px 16px rgba(0, 0, 0, 0.45), inset 8px 8px 16px rgba(255, 255, 255, 0.18) !important;
+      background: #181b34 !important;
+      border-radius: 26px !important;
+      border: 2px solid rgba(167, 139, 250, 0.35) !important;
+      box-shadow:
+        0 22px 48px -6px rgba(0, 0, 0, 0.65),
+        0 12px 24px -4px rgba(0, 0, 0, 0.50),
+        0 4px 10px -2px rgba(0, 0, 0, 0.38),
+        inset 4px 4px 10px rgba(255, 255, 255, 0.22),
+        inset -6px -6px 16px rgba(0, 0, 0, 0.55) !important;
       transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }
     .theme-claymorphism:hover {
-      box-shadow: 20px 20px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(236, 72, 153, 0.35), inset -10px -10px 20px rgba(0, 0, 0, 0.5), inset 10px 10px 20px rgba(255, 255, 255, 0.22) !important;
-      transform: translateY(-5px) scale(1.01) !important;
+      box-shadow:
+        0 32px 64px -8px rgba(0, 0, 0, 0.75),
+        0 18px 32px -4px rgba(0, 0, 0, 0.55),
+        0 6px 14px -2px rgba(0, 0, 0, 0.42),
+        0 0 35px rgba(236, 72, 153, 0.35),
+        inset 4px 4px 12px rgba(255, 255, 255, 0.28),
+        inset -8px -8px 20px rgba(0, 0, 0, 0.65) !important;
+      transform: translateY(-6px) scale(1.008) !important;
     }
 
     /* 5. المينيماليزم (Minimalism - أنيق ومحايد) */
@@ -682,10 +710,35 @@ export function generateInteractiveHtml(
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 28px rgba(129, 140, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
       transform: translateY(-3px) !important;
     }
+    /* 13. احترافي WPS/Excel */
+    .theme-wps-professional {
+      background: #0f172a !important;
+      border: 1.5px solid rgba(20, 184, 166, 0.35) !important;
+      border-radius: 24px !important;
+      box-shadow:
+        0 20px 45px -8px rgba(0, 0, 0, 0.65),
+        0 12px 24px -4px rgba(0, 0, 0, 0.50),
+        0 4px 10px -2px rgba(0, 0, 0, 0.38),
+        inset 3px 3px 8px rgba(255, 255, 255, 0.16),
+        inset -5px -5px 12px rgba(0, 0, 0, 0.45) !important;
+    }
+    .theme-wps-professional:hover {
+      border-color: rgba(20, 184, 166, 0.6) !important;
+      box-shadow:
+        0 30px 60px -8px rgba(0, 0, 0, 0.75),
+        0 16px 30px -4px rgba(0, 0, 0, 0.52),
+        0 6px 14px -2px rgba(0, 0, 0, 0.40),
+        inset 3px 3px 10px rgba(255, 255, 255, 0.22),
+        inset -6px -6px 15px rgba(0, 0, 0, 0.55) !important;
+      transform: translateY(-5px) scale(1.008) !important;
+    }
+
     .widget-header {
       padding: 10px 14px;
       border-bottom: 1.5px solid var(--surface-border);
       background-color: var(--surface-header);
+      border-top-left-radius: 22px;
+      border-top-right-radius: 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1085,14 +1138,21 @@ export function generateInteractiveHtml(
       min-height: 200px;
     }
     footer {
-      border-top: 1px solid var(--chrome-border);
+      border-top: 2px solid rgba(255, 255, 255, 0.12);
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
       padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 11px;
-      color: var(--chrome-text-muted);
-      background: var(--chrome-footer-bg);
+      color: #94a3b8;
+      background: #0f172a;
+      box-shadow:
+        0 -14px 34px -4px rgba(0, 0, 0, 0.65),
+        0 -6px 14px -2px rgba(0, 0, 0, 0.45),
+        inset 0 3px 6px rgba(255, 255, 255, 0.16),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.40);
     }
 
     /* ─── Table Widget: Pagination, Sorting & Live Search ─── */
@@ -1637,7 +1697,7 @@ ${embeddedPackageJsonSafe}
     let modalChartInstance = null;
 
     // Active Motion Theme State & Live Switcher
-    var currentActiveMotionTheme = (EMBEDDED_PACKAGE && (EMBEDDED_PACKAGE.motionTheme || (EMBEDDED_PACKAGE.dashboard && EMBEDDED_PACKAGE.dashboard.motionTheme))) || 'glassmorphism';
+    var currentActiveMotionTheme = (EMBEDDED_PACKAGE && (EMBEDDED_PACKAGE.motionTheme || (EMBEDDED_PACKAGE.dashboard && EMBEDDED_PACKAGE.dashboard.motionTheme))) || 'wps-professional';
 
     function changeActiveMotionTheme(themeId) {
       if (!themeId) return;

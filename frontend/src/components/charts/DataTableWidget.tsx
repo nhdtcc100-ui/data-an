@@ -293,8 +293,7 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
   // ─── Styling derived from config & Motion Theme ────────────────────────────
   const activeMotionTheme = getMotionTheme(motionTheme);
   const tTheme = activeMotionTheme.tableTheme;
-  // Data tables always maintain their original dark styling regardless of page theme
-  const isDarkCard = true;
+  const isDarkCard = isDark;
 
   const density = config?.tableDensity || 'comfortable';
   const cellPadding = density === 'compact' ? 'p-1' : density === 'spacious' ? 'p-3 sm:p-4' : 'p-1.5 sm:p-2';
