@@ -104,8 +104,10 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
     isVisualizationsPanelCollapsed,
     toggleVisualizationsPanel,
     sidebarsPlacement,
-    setSidebarsPlacement
+    setSidebarsPlacement,
+    theme
   } = useDashboardStore();
+  const isDark = theme === 'dark';
 
   const [activeTab, setActiveTab] = useState<'setup' | 'format' | 'interactions'>('setup');
   const [isResizing, setIsResizing] = useState(false);
@@ -193,16 +195,22 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
     return (
       <div
         onClick={toggleVisualizationsPanel}
-        className={`w-12 bg-slate-900/95 flex flex-col items-center py-4 cursor-pointer hover:bg-slate-850 transition select-none group sidebar-3d rounded-2xl ${
-          dockSide === 'left' ? 'border-r border-slate-800' : 'border-l border-slate-800'
+        className={`w-12 flex flex-col items-center py-4 cursor-pointer transition select-none group sidebar-3d rounded-2xl ${
+          isDark
+            ? 'bg-slate-900/95 hover:bg-slate-800'
+            : 'bg-white hover:bg-slate-50 shadow-md'
+        } ${
+          dockSide === 'left'
+            ? isDark ? 'border-r border-slate-800' : 'border-r border-slate-200'
+            : isDark ? 'border-l border-slate-800' : 'border-l border-slate-200'
         }`}
         title="توسيع لوحة المخططات والخصائص (Power BI Visualizations)"
       >
-        <Sparkles className="w-5 h-5 text-sky-400 mb-4 group-hover:scale-110 transition-transform" />
-        <span className="text-[11px] font-bold text-slate-400 [writing-mode:vertical-lr] tracking-widest uppercase">
+        <Sparkles className={`w-5 h-5 mb-4 group-hover:scale-110 transition-transform ${isDark ? 'text-sky-400' : 'text-sky-600'}`} />
+        <span className={`text-[11px] font-bold [writing-mode:vertical-lr] tracking-widest uppercase ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
           المخططات والتنسيق
         </span>
-        <div className="mt-auto p-1.5 rounded-lg text-slate-500 group-hover:text-slate-200">
+        <div className={`mt-auto p-1.5 rounded-lg transition ${isDark ? 'text-slate-500 group-hover:text-slate-200' : 'text-slate-400 group-hover:text-slate-700'}`}>
           {dockSide === 'left' ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </div>
       </div>
@@ -212,28 +220,36 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
   return (
     <aside
       style={isMobile ? { width: '100%' } : { width: `${visualizationsPanelWidth}px` }}
-      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm overflow-y-auto custom-scrollbar transition-[width] duration-75 sidebar-3d rounded-2xl ${
-        isMobile ? 'w-full border-none' : dockSide === 'left' ? 'border-r border-slate-800' : 'border-l border-slate-800'
+      className={`relative p-3.5 flex flex-col h-full select-none backdrop-blur-sm overflow-y-auto custom-scrollbar transition-[width] duration-75 sidebar-3d rounded-2xl ${
+        isDark
+          ? 'bg-slate-900/95 text-slate-200 border-slate-800'
+          : 'bg-white text-slate-900 border-slate-200 shadow-md'
+      } ${
+        isMobile ? 'w-full border-none' : dockSide === 'left' ? 'border-r' : 'border-l'
       } ${isResizing ? 'select-none pointer-events-none' : ''}`}
     >
       {/* Visualizations Catalog */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-sky-400" />
-            <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-sky-500" />
+            <h3 className={`text-xs font-black uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
               المخططات والعناصر (Visuals)
             </h3>
           </div>
 
           <div className="flex items-center gap-1">
             {/* Quick Dock Mode Switcher */}
-            <div className="hidden sm:flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[9px]">
+            <div className={`hidden sm:flex items-center p-0.5 rounded-lg border text-[9px] ${
+              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-300'
+            }`}>
               <button
                 onClick={() => setSidebarsPlacement('powerbi-right')}
                 title="نمط Power BI: الألواح متجاورة على اليمين"
                 className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                  sidebarsPlacement === 'powerbi-right' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                  sidebarsPlacement === 'powerbi-right'
+                    ? 'bg-sky-500 text-white font-bold'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 PBI
@@ -242,7 +258,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 onClick={() => setSidebarsPlacement('split')}
                 title="نمط منفصل: لوحة على اليمين وأخرى على اليسار"
                 className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                  sidebarsPlacement === 'split' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                  sidebarsPlacement === 'split'
+                    ? 'bg-sky-500 text-white font-bold'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 فصل
@@ -251,7 +269,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 onClick={() => setSidebarsPlacement('powerbi-left')}
                 title="الألواح متجاورة على اليسار"
                 className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                  sidebarsPlacement === 'powerbi-left' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                  sidebarsPlacement === 'powerbi-left'
+                    ? 'bg-sky-500 text-white font-bold'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 يسار
@@ -261,7 +281,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
             <button
               onClick={toggleVisualizationsPanel}
               title="طي اللوحة"
-              className="p-1 text-slate-500 hover:text-slate-200 rounded hover:bg-slate-800 transition cursor-pointer"
+              className={`p-1 rounded transition cursor-pointer ${
+                isDark ? 'text-slate-500 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+              }`}
             >
               {dockSide === 'left' ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
             </button>
@@ -274,13 +296,19 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
             <button
               key={item.type}
               onClick={() => onAddWidget(item.type)}
-              className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/50 hover:border-sky-500/60 transition-all text-center group cursor-pointer"
+              className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all text-center group cursor-pointer ${
+                isDark
+                  ? 'bg-slate-800/70 hover:bg-slate-800 border-slate-700/50 hover:border-sky-500/60'
+                  : 'bg-white hover:bg-sky-50 border-slate-200 hover:border-sky-400 shadow-xs hover:shadow-sm'
+              }`}
             >
-              <div className="p-1.5 rounded-lg bg-slate-900 group-hover:scale-110 transition-transform mb-1 shadow-inner">
+              <div className={`p-1.5 rounded-lg group-hover:scale-110 transition-transform mb-1 shadow-inner ${
+                isDark ? 'bg-slate-900' : 'bg-slate-100 border border-slate-200'
+              }`}>
                 {item.icon}
               </div>
-              <span className="text-[11px] font-semibold text-slate-200">{item.label}</span>
-              <span className="text-[9px] text-slate-500 line-clamp-1">{item.desc}</span>
+              <span className={`text-[11px] font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{item.label}</span>
+              <span className={`text-[9px] line-clamp-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{item.desc}</span>
             </button>
           ))}
         </div>
@@ -288,16 +316,18 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
       {/* Widget Properties (If a widget is currently selected) */}
       {selectedWidget ? (
-        <div className="border-t border-slate-800 pt-3 flex-1 flex flex-col space-y-3">
+        <div className={`border-t pt-3 flex-1 flex flex-col space-y-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
           {/* Header with Power BI Tabs */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <div className={`flex items-center gap-1 p-1 rounded-xl border ${
+              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+            }`}>
               <button
                 onClick={() => setActiveTab('setup')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
                   activeTab === 'setup'
                     ? 'bg-sky-500 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Sliders className="w-3.5 h-3.5" />
@@ -308,7 +338,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
                   activeTab === 'format'
                     ? 'bg-sky-500 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Paintbrush className="w-3.5 h-3.5" />
@@ -319,7 +349,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
                   activeTab === 'interactions'
                     ? 'bg-sky-500 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Link2 className="w-3.5 h-3.5" />
@@ -331,14 +361,22 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               <button
                 onClick={() => duplicateWidget(selectedWidget.id)}
                 title="استنساخ العنصر"
-                className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
+                className={`p-1 rounded-lg transition cursor-pointer border ${
+                  isDark
+                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border-slate-700'
+                    : 'bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 border-slate-200 shadow-xs'
+                }`}
               >
                 <Copy className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => removeWidget(selectedWidget.id)}
                 title="حذف العنصر"
-                className="p-1 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 transition cursor-pointer"
+                className={`p-1 rounded-lg transition cursor-pointer border ${
+                  isDark
+                    ? 'bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 border-slate-700'
+                    : 'bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 border-slate-200 shadow-xs'
+                }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -350,22 +388,30 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
             <div className="space-y-3 text-xs">
               {/* Widget Title */}
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">عنوان العنصر (Title)</label>
+                <label className={`block mb-1 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>عنوان العنصر (Title)</label>
                 <input
                   type="text"
                   value={sanitizeMojibakeString(selectedWidget.title)}
                   onChange={(e) => updateWidgetTitle(selectedWidget.id, e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                  className={`w-full rounded-lg p-2 text-xs outline-none transition-colors border ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                      : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                  }`}
                 />
               </div>
 
               {/* Chart Type Switcher */}
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">تغيير نوع الرسم البياني فورياً</label>
+                <label className={`block mb-1 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>تغيير نوع الرسم البياني فورياً</label>
                 <select
                   value={selectedWidget.type}
                   onChange={(e) => changeWidgetType(selectedWidget.id, e.target.value as WidgetType)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                  className={`w-full rounded-lg p-2 text-xs outline-none transition-colors border ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                      : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                  }`}
                 >
                   {WIDGET_TYPES.map((t) => (
                     <option key={t.type} value={t.type}>
@@ -379,8 +425,8 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               {selectedWidget.type === 'table' ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-slate-300 font-semibold flex items-center gap-1.5 text-xs">
-                      <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+                    <label className={`font-semibold flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" />
                       <span>أعمدة الجدول المعروضة ({activeTableCols.length})</span>
                     </label>
                     <div className="flex items-center gap-1 text-[10px]">
@@ -390,7 +436,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                             tableColumns: columns.map((c) => c.columnName)
                           })
                         }
-                        className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-750 text-sky-400 border border-slate-700/60 transition cursor-pointer"
+                        className={`px-2 py-0.5 rounded transition cursor-pointer border ${
+                          isDark
+                            ? 'bg-slate-800 hover:bg-slate-750 text-sky-400 border-slate-700/60'
+                            : 'bg-white hover:bg-sky-50 text-sky-600 border-slate-200 shadow-xs'
+                        }`}
                       >
                         تحديد الكل
                       </button>
@@ -398,7 +448,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         onClick={() =>
                           onUpdateWidgetConfig(selectedWidget.id, { tableColumns: [] })
                         }
-                        className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-750 text-rose-400 border border-slate-700/60 transition cursor-pointer"
+                        className={`px-2 py-0.5 rounded transition cursor-pointer border ${
+                          isDark
+                            ? 'bg-slate-800 hover:bg-slate-750 text-rose-400 border-slate-700/60'
+                            : 'bg-white hover:bg-rose-50 text-rose-600 border-slate-200 shadow-xs'
+                        }`}
                       >
                         مسح
                       </button>
@@ -407,11 +461,17 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Selected columns badge list */}
                   {activeTableCols.length > 0 && (
-                    <div className="flex flex-wrap gap-1 p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <div className={`flex flex-wrap gap-1 p-2 rounded-xl border ${
+                      isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-100 border-slate-200'
+                    }`}>
                       {activeTableCols.map((colName) => (
                         <span
                           key={colName}
-                          className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg bg-slate-800/90 text-slate-200 border border-slate-700/80 shadow-sm"
+                          className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg border shadow-xs ${
+                            isDark
+                              ? 'bg-slate-800/90 text-slate-200 border-slate-700/80'
+                              : 'bg-white text-slate-800 border-slate-200'
+                          }`}
                         >
                           <span>{colName}</span>
                           <button
@@ -419,7 +479,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                               const nextCols = activeTableCols.filter((c) => c !== colName);
                               onUpdateWidgetConfig(selectedWidget.id, { tableColumns: nextCols });
                             }}
-                            className="text-slate-400 hover:text-rose-400 transition cursor-pointer"
+                            className="text-slate-400 hover:text-rose-500 transition cursor-pointer"
                             title="إزالة العمود"
                           >
                             <X className="w-3 h-3" />
@@ -431,10 +491,12 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* All available columns checkbox list */}
                   <div>
-                    <span className="block text-[11px] text-slate-400 mb-1.5 font-medium">
+                    <span className={`block text-[11px] mb-1.5 font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       اختر الحقول التي تود إضافتها للجدول:
                     </span>
-                    <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar p-1.5 rounded-xl bg-slate-950/60 border border-slate-800">
+                    <div className={`space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar p-1.5 rounded-xl border ${
+                      isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                    }`}>
                       {columns.map((col) => {
                         const isSelected = activeTableCols.includes(col.columnName);
                         return (
@@ -451,19 +513,25 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                             }}
                             className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition border text-xs ${
                               isSelected
-                                ? 'bg-sky-950/40 border-sky-600/50 text-sky-200 shadow-sm'
-                                : 'bg-slate-900/60 border-slate-800/80 text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                                ? isDark
+                                  ? 'bg-sky-950/40 border-sky-600/50 text-sky-200 shadow-xs'
+                                  : 'bg-sky-50 border-sky-300 text-sky-800 shadow-xs'
+                                : isDark
+                                  ? 'bg-slate-900/60 border-slate-800/80 text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-xs'
                             }`}
                           >
                             <div className="flex items-center gap-2 overflow-hidden flex-1">
                               {isSelected ? (
-                                <CheckSquare className="w-4 h-4 text-sky-400 shrink-0" />
+                                <CheckSquare className="w-4 h-4 text-sky-500 shrink-0" />
                               ) : (
-                                <Square className="w-4 h-4 text-slate-600 shrink-0" />
+                                <Square className={`w-4 h-4 shrink-0 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
                               )}
                               <span className="font-medium truncate">{col.columnName}</span>
                             </div>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-950 text-slate-500 font-mono shrink-0">
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono shrink-0 border ${
+                              isDark ? 'bg-slate-950 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
+                            }`}>
                               {col.dataType === 'numeric' ? 'رقم' : col.dataType === 'date' ? 'تاريخ' : 'نص'}
                             </span>
                           </div>
@@ -473,8 +541,8 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* Page Size Selector */}
-                  <div className="pt-2 border-t border-slate-800">
-                    <label className="block text-slate-400 mb-1 font-semibold">
+                  <div className={`pt-2 border-t ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                    <label className={`block mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       عدد الأسطر في الصفحة (Page Size)
                     </label>
                     <select
@@ -484,7 +552,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           tablePageSize: Number(e.target.value)
                         })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 text-xs outline-none transition-colors border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value={5}>5 أسطر لكل صفحة</option>
                       <option value={8}>8 أسطر لكل صفحة</option>
@@ -496,8 +568,8 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               ) : selectedWidget.type === 'slicer' ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-slate-300 font-semibold flex items-center gap-1.5 text-xs">
-                      <Filter className="w-3.5 h-3.5 text-cyan-400" />
+                    <label className={`font-semibold flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <Filter className="w-3.5 h-3.5 text-cyan-500" />
                       <span>قنوات وأعمدة التصفية ({activeSlicerCols.length})</span>
                     </label>
                     <div className="flex items-center gap-1 text-[10px]">
@@ -510,7 +582,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                             xAxisColumn: currentActiveSlicerCol
                           });
                         }}
-                        className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-750 text-sky-400 border border-slate-700/60 transition cursor-pointer"
+                        className={`px-2 py-0.5 rounded transition cursor-pointer border ${
+                          isDark
+                            ? 'bg-slate-800 hover:bg-slate-750 text-sky-400 border-slate-700/60'
+                            : 'bg-white hover:bg-sky-50 text-sky-600 border-slate-200 shadow-xs'
+                        }`}
                       >
                         تحديد الكل
                       </button>
@@ -523,7 +599,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                             xAxisColumn: fallbackCol
                           });
                         }}
-                        className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-750 text-slate-400 border border-slate-700/60 transition cursor-pointer"
+                        className={`px-2 py-0.5 rounded transition cursor-pointer border ${
+                          isDark
+                            ? 'bg-slate-800 hover:bg-slate-750 text-slate-400 border-slate-700/60'
+                            : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200 shadow-xs'
+                        }`}
                       >
                         إعادة ضبط
                       </button>
@@ -531,7 +611,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* Active columns badges */}
-                  <div className="flex flex-wrap gap-1 p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div className={`flex flex-wrap gap-1 p-2 rounded-xl border ${
+                    isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-100 border-slate-200'
+                  }`}>
                     {activeSlicerCols.map((colName) => {
                       const isDefault = colName === currentActiveSlicerCol;
                       return (
@@ -543,10 +625,12 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                               xAxisColumn: colName
                             })
                           }
-                          className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg border shadow-sm cursor-pointer transition ${
+                          className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg border shadow-xs cursor-pointer transition ${
                             isDefault
                               ? 'bg-sky-500 text-white border-sky-400 font-bold'
-                              : 'bg-slate-800/90 text-slate-300 border-slate-700/80 hover:text-white'
+                              : isDark
+                                ? 'bg-slate-800/90 text-slate-300 border-slate-700/80 hover:text-white'
+                                : 'bg-white text-slate-700 border-slate-200 hover:text-slate-900'
                           }`}
                           title={isDefault ? 'العمود النشط حالياً' : 'انقر لتعيينه كعمود نشط'}
                         >
@@ -564,7 +648,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                   xAxisColumn: nextActive
                                 });
                               }}
-                              className="text-slate-400 hover:text-rose-400 transition cursor-pointer p-0.5"
+                              className="text-slate-400 hover:text-rose-500 transition cursor-pointer p-0.5"
                               title="إزالة العمود"
                             >
                               <X className="w-3 h-3" />
@@ -577,10 +661,12 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Column Picker Checkbox list */}
                   <div>
-                    <span className="block text-[11px] text-slate-400 mb-1.5 font-medium">
+                    <span className={`block text-[11px] mb-1.5 font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       اختر الحقول لتضمينها في هذا الفلتر (تصفية متعددة الأعمدة):
                     </span>
-                    <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar p-1.5 rounded-xl bg-slate-950/60 border border-slate-800">
+                    <div className={`space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar p-1.5 rounded-xl border ${
+                      isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                    }`}>
                       {columns.map((col) => {
                         const isIncluded = activeSlicerCols.includes(col.columnName);
                         return (
@@ -606,19 +692,25 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                             }}
                             className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition border text-xs ${
                               isIncluded
-                                ? 'bg-sky-950/40 border-sky-600/50 text-sky-200 shadow-sm'
-                                : 'bg-slate-900/60 border-slate-800/80 text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                                ? isDark
+                                  ? 'bg-sky-950/40 border-sky-600/50 text-sky-200 shadow-xs'
+                                  : 'bg-sky-50 border-sky-300 text-sky-800 shadow-xs'
+                                : isDark
+                                  ? 'bg-slate-900/60 border-slate-800/80 text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-xs'
                             }`}
                           >
                             <div className="flex items-center gap-2 overflow-hidden flex-1">
                               {isIncluded ? (
-                                <CheckSquare className="w-4 h-4 text-sky-400 shrink-0" />
+                                <CheckSquare className="w-4 h-4 text-sky-500 shrink-0" />
                               ) : (
-                                <Square className="w-4 h-4 text-slate-600 shrink-0" />
+                                <Square className={`w-4 h-4 shrink-0 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
                               )}
                               <span className="font-medium truncate">{col.columnName}</span>
                             </div>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-950 text-slate-500 font-mono shrink-0">
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono shrink-0 border ${
+                              isDark ? 'bg-slate-950 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
+                            }`}>
                               {col.dataType === 'numeric' ? 'رقم' : col.dataType === 'date' ? 'تاريخ' : 'فئة'}
                             </span>
                           </div>
@@ -628,8 +720,8 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* Active Column Dropdown */}
-                  <div className="pt-2 border-t border-slate-800">
-                    <label className="block text-slate-400 mb-1 font-semibold">
+                  <div className={`pt-2 border-t ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                    <label className={`block mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       العمود الافتراضي للعرض (Active Column)
                     </label>
                     <select
@@ -640,7 +732,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           xAxisColumn: e.target.value
                         })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sky-300 font-bold focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 font-bold outline-none text-xs border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-sky-300 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-sky-700 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       {activeSlicerCols.map((c) => (
                         <option key={c} value={c}>
@@ -651,8 +747,8 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* Selection Mode Toggle */}
-                  <div className="pt-2 border-t border-slate-800">
-                    <label className="block text-slate-400 mb-1.5 font-semibold">
+                  <div className={`pt-2 border-t ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                    <label className={`block mb-1.5 font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       وضع الاختيار (Selection Mode)
                     </label>
                     <div className="flex items-center gap-2">
@@ -663,7 +759,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
                           (selectedWidget.config.slicerSelectionMode || 'single') === 'single'
                             ? 'bg-sky-500 text-white border-sky-400'
-                            : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white hover:bg-slate-750'
+                            : isDark
+                              ? 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white hover:bg-slate-750'
+                              : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:bg-slate-100 shadow-xs'
                         }`}
                       >
                         اختيار واحد فردي
@@ -675,13 +773,15 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
                           selectedWidget.config.slicerSelectionMode === 'multi'
                             ? 'bg-emerald-500 text-white border-emerald-400'
-                            : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white hover:bg-slate-750'
+                            : isDark
+                              ? 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white hover:bg-slate-750'
+                              : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:bg-slate-100 shadow-xs'
                         }`}
                       >
                         تعدد الاختيارات
                       </button>
                     </div>
-                    <p className="text-[10px] text-slate-500 mt-1">
+                    <p className={`text-[10px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
                       {selectedWidget.config.slicerSelectionMode === 'multi'
                         ? 'وضع متعدد: يمكن تحديد أكثر من قيمة لتصفية البيانات في آن واحد'
                         : 'وضع فردي: يُحدد قيمة واحدة فقط في كل مرة'
@@ -695,38 +795,48 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 <div className="space-y-3.5">
                   <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Table className="w-4 h-4 text-amber-400" />
+                      <Table className="w-4 h-4 text-amber-500" />
                       <div>
-                        <span className="font-extrabold text-xs text-amber-400 block">حقول الجدول المحوري (Excel / Power BI)</span>
-                        <span className="text-[10px] text-slate-400">4 مناطق لإدراج الفلاتر والأعمدة والصفوف والقيم</span>
+                        <span className="font-extrabold text-xs text-amber-600 dark:text-amber-400 block">حقول الجدول المحوري (Excel / Power BI)</span>
+                        <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>4 مناطق لإدراج الفلاتر والأعمدة والصفوف والقيم</span>
                       </div>
                     </div>
                   </div>
 
                   {/* ZONE 1: الفلاتر (Filters) */}
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-sky-800/60 space-y-2">
+                  <div className={`p-3 rounded-xl space-y-2 border ${
+                    isDark ? 'bg-slate-950/70 border-sky-800/60' : 'bg-sky-50/70 border-sky-200'
+                  }`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-sky-400 flex items-center gap-1.5">
+                      <span className="font-bold text-xs text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
                         <Filter className="w-3.5 h-3.5" />
                         <span>1. الفلاتر (Filters)</span>
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-mono font-bold">
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300 font-mono font-bold">
                         {activePivotFilters.length}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400">
+                    <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       حقول التصفية العامة: تظهر كقوائم منسدلة أعلى الجدول المحوري للتصفية المباشرة.
                     </p>
 
                     {/* Filter items list */}
-                    <div className="flex flex-wrap gap-1.5 min-h-[30px] p-1.5 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <div className={`flex flex-wrap gap-1.5 min-h-[30px] p-1.5 rounded-lg border ${
+                      isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
                       {activePivotFilters.length === 0 ? (
-                        <span className="text-[10px] text-slate-500 italic p-1">اسحب أو أضف حقلاً كفلتر للتقرير</span>
+                        <span className={`text-[10px] italic p-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                          اسحب أو أضف حقلاً كفلتر للتقرير
+                        </span>
                       ) : (
                         activePivotFilters.map((colName) => (
                           <span
                             key={colName}
-                            className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-300 font-semibold"
+                            className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg border font-semibold ${
+                              isDark
+                                ? 'bg-sky-500/15 border-sky-500/40 text-sky-300'
+                                : 'bg-sky-100 border-sky-300 text-sky-800 shadow-xs'
+                            }`}
                           >
                             <span>{colName}</span>
                             <button
@@ -734,7 +844,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                 const next = activePivotFilters.filter((c) => c !== colName);
                                 onUpdateWidgetConfig(selectedWidget.id, { pivotFilterColumns: next });
                               }}
-                              className="text-slate-400 hover:text-rose-400 transition cursor-pointer"
+                              className="text-slate-400 hover:text-rose-500 transition cursor-pointer"
                               title="إزالة الحقل"
                             >
                               <X className="w-3 h-3" />
@@ -753,7 +863,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           onUpdateWidgetConfig(selectedWidget.id, { pivotFilterColumns: next });
                         }
                       }}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-sky-500 outline-none cursor-pointer"
+                      className={`w-full rounded-lg p-1.5 text-xs outline-none cursor-pointer border ${
+                        isDark
+                          ? 'bg-slate-900 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="">+ إضافة حقل إلى الفلاتر (Filters)...</option>
                       {columns
@@ -767,29 +881,39 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* ZONE 2: الأعمدة (Columns) */}
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-indigo-800/60 space-y-2">
+                  <div className={`p-3 rounded-xl space-y-2 border ${
+                    isDark ? 'bg-slate-950/70 border-indigo-800/60' : 'bg-indigo-50/70 border-indigo-200'
+                  }`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-indigo-400 flex items-center gap-1.5">
+                      <span className="font-bold text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
                         <ColumnsIcon className="w-3.5 h-3.5" />
                         <span>2. الأعمدة (Columns)</span>
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono font-bold">
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 font-mono font-bold">
                         {activePivotCols.length}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400">
+                    <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       الأعمدة الأفقية: تتحول قيم هذا الحقل إلى عناوين أعمدة أفقية مثل Excel (مثل: السنوات، الفصول، الفئات).
                     </p>
 
                     {/* Column items list */}
-                    <div className="flex flex-wrap gap-1.5 min-h-[30px] p-1.5 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <div className={`flex flex-wrap gap-1.5 min-h-[30px] p-1.5 rounded-lg border ${
+                      isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
                       {activePivotCols.length === 0 ? (
-                        <span className="text-[10px] text-slate-500 italic p-1">لا توجد أعمدة أفقية (الجدول المحوري برؤوس صفوف فقط)</span>
+                        <span className={`text-[10px] italic p-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                          لا توجد أعمدة أفقية (الجدول المحوري برؤوس صفوف فقط)
+                        </span>
                       ) : (
                         activePivotCols.map((colName) => (
                           <span
                             key={colName}
-                            className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg bg-indigo-500/15 border border-indigo-500/40 text-indigo-300 font-semibold"
+                            className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-lg border font-semibold ${
+                              isDark
+                                ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
+                                : 'bg-indigo-100 border-indigo-300 text-indigo-800 shadow-xs'
+                            }`}
                           >
                             <span>{colName}</span>
                             <button
@@ -800,7 +924,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                   legendColumn: next[0] || ''
                                 });
                               }}
-                              className="text-slate-400 hover:text-rose-400 transition cursor-pointer"
+                              className="text-slate-400 hover:text-rose-500 transition cursor-pointer"
                               title="إزالة الحقل"
                             >
                               <X className="w-3 h-3" />
@@ -822,7 +946,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           });
                         }
                       }}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-indigo-500 outline-none cursor-pointer"
+                      className={`w-full rounded-lg p-1.5 text-xs outline-none cursor-pointer border ${
+                        isDark
+                          ? 'bg-slate-900 border-slate-700 text-slate-200 focus:border-indigo-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-indigo-500 shadow-xs'
+                      }`}
                     >
                       <option value="">+ إضافة حقل إلى الأعمدة (Columns)...</option>
                       {columns
@@ -836,17 +964,19 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* ZONE 3: الصفوف (Rows) */}
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-amber-800/60 space-y-2">
+                  <div className={`p-3 rounded-xl space-y-2 border ${
+                    isDark ? 'bg-slate-950/70 border-amber-800/60' : 'bg-amber-50/70 border-amber-200'
+                  }`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-amber-400 flex items-center gap-1.5">
+                      <span className="font-bold text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                         <RowsIcon className="w-3.5 h-3.5" />
                         <span>3. الصفوف (Rows)</span>
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-bold">
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300 font-mono font-bold">
                         {activePivotRows.length}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400">
+                    <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       عناوين الصفوف الهرمية: يدعم إدراج عدة حقول لتكوين تجميع هرمي متفرع (مثل: المنطقة ‹ المندوب ‹ المنتج).
                     </p>
 
@@ -855,10 +985,14 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                       {activePivotRows.map((colName, idx) => (
                         <div
                           key={colName}
-                          className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-200"
+                          className={`flex items-center justify-between p-2 rounded-lg border text-xs ${
+                            isDark
+                              ? 'bg-slate-900 border-slate-800 text-slate-200'
+                              : 'bg-white border-slate-200 text-slate-800 shadow-xs'
+                          }`}
                         >
                           <div className="flex items-center gap-2 truncate">
-                            <span className="text-[10px] w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                            <span className="text-[10px] w-4 h-4 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
                               {idx + 1}
                             </span>
                             <span className="font-medium truncate">{colName}</span>
@@ -876,7 +1010,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                     xAxisColumn: next[0]
                                   });
                                 }}
-                                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white"
+                                className={`p-1 rounded transition ${isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-900'}`}
                                 title="تحريك لأعلى"
                               >
                                 <ChevronUp className="w-3 h-3" />
@@ -894,7 +1028,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                     xAxisColumn: next[0]
                                   });
                                 }}
-                                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white"
+                                className={`p-1 rounded transition ${isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-900'}`}
                                 title="تحريك لأسفل"
                               >
                                 <ChevronDown className="w-3 h-3" />
@@ -909,7 +1043,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                     xAxisColumn: next[0]
                                   });
                                 }}
-                                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-rose-400"
+                                className={`p-1 rounded transition ${isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-rose-400' : 'hover:bg-rose-50 text-slate-400 hover:text-rose-600'}`}
                                 title="إزالة الحقل"
                               >
                                 <X className="w-3 h-3" />
@@ -932,7 +1066,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           });
                         }
                       }}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-amber-500 outline-none cursor-pointer"
+                      className={`w-full rounded-lg p-1.5 text-xs outline-none cursor-pointer border ${
+                        isDark
+                          ? 'bg-slate-900 border-slate-700 text-slate-200 focus:border-amber-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-amber-500 shadow-xs'
+                      }`}
                     >
                       <option value="">+ إضافة حقل إلى الصفوف (Rows)...</option>
                       {columns
@@ -946,17 +1084,19 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* ZONE 4: القيم (Values) */}
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-emerald-800/60 space-y-2">
+                  <div className={`p-3 rounded-xl space-y-2 border ${
+                    isDark ? 'bg-slate-950/70 border-emerald-800/60' : 'bg-emerald-50/70 border-emerald-200'
+                  }`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-emerald-400 flex items-center gap-1.5">
+                      <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                         <Calculator className="w-3.5 h-3.5" />
                         <span>4. القيم (Values)</span>
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-mono font-bold">
                         {activePivotVals.length}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400">
+                    <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       الحقول الرقمية والعمليات الحسابية: تحدد الأرقام ودوال التجميع (مجموع SUM، عدد COUNT، متوسط AVG...).
                     </p>
 
@@ -965,10 +1105,12 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                       {activePivotVals.map((valItem) => (
                         <div
                           key={valItem.id}
-                          className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-2"
+                          className={`p-2.5 rounded-lg border space-y-2 ${
+                            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                          }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-xs text-emerald-400 truncate">{valItem.column}</span>
+                            <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400 truncate">{valItem.column}</span>
                             {activePivotVals.length > 1 && (
                               <button
                                 onClick={() => {
@@ -979,7 +1121,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                     aggregation: next[0]?.aggregation
                                   });
                                 }}
-                                className="text-slate-400 hover:text-rose-400 transition"
+                                className="text-slate-400 hover:text-rose-500 transition cursor-pointer"
                                 title="إزالة القيمة"
                               >
                                 <X className="w-3 h-3" />
@@ -989,7 +1131,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="block text-[10px] text-slate-400 mb-0.5">الدالة الحسابية</label>
+                              <label className={`block text-[10px] mb-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>الدالة الحسابية</label>
                               <select
                                 value={valItem.aggregation}
                                 onChange={(e) => {
@@ -1002,7 +1144,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                     aggregation: next[0]?.aggregation
                                   });
                                 }}
-                                className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-[11px] text-slate-200 outline-none"
+                                className={`w-full rounded p-1 text-[11px] outline-none border ${
+                                  isDark ? 'bg-slate-950 border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-300 text-slate-800'
+                                }`}
                               >
                                 <option value="SUM">مجموع (SUM)</option>
                                 <option value="COUNT">عدد السجلات (COUNT)</option>
@@ -1013,7 +1157,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                             </div>
 
                             <div>
-                              <label className="block text-[10px] text-slate-400 mb-0.5">تسمية العرض</label>
+                              <label className={`block text-[10px] mb-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>تسمية العرض</label>
                               <input
                                 type="text"
                                 value={valItem.customLabel || ''}
@@ -1024,7 +1168,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                                   );
                                   onUpdateWidgetConfig(selectedWidget.id, { pivotValues: next });
                                 }}
-                                className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-[11px] text-slate-200 outline-none"
+                                className={`w-full rounded p-1 text-[11px] outline-none border ${
+                                  isDark ? 'bg-slate-950 border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-300 text-slate-800'
+                                }`}
                               />
                             </div>
                           </div>
@@ -1053,7 +1199,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           });
                         }
                       }}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 text-xs focus:border-emerald-500 outline-none cursor-pointer"
+                      className={`w-full rounded-lg p-1.5 text-xs outline-none cursor-pointer border ${
+                        isDark
+                          ? 'bg-slate-900 border-slate-700 text-slate-200 focus:border-emerald-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-emerald-500 shadow-xs'
+                      }`}
                     >
                       <option value="">+ إضافة مقياس حسابي إلى القيم (Values)...</option>
                       {columns.map((c) => (
@@ -1068,14 +1218,18 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 <div className="space-y-3.5">
                   {/* KPI Quantitative Metric: Y-Axis */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                    <label className={`block mb-1 font-semibold flex items-center justify-between text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       <span>الحقل الحسابي للرقم القياسي (Metric)</span>
-                      <span className="text-[10px] text-emerald-400 font-normal">قيم وأرقام</span>
+                      <span className={`text-[10px] font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>قيم وأرقام</span>
                     </label>
                     <select
                       value={selectedWidget.config.yAxisColumn || ''}
                       onChange={(e) => onUpdateWidgetConfig(selectedWidget.id, { yAxisColumn: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs font-mono"
+                      className={`w-full rounded-lg p-2 text-xs font-mono outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="">-- اختر حقل الحساب --</option>
                       <optgroup label="الحقول الرقمية (جمع / متوسط)">
@@ -1097,9 +1251,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Aggregation */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                    <label className={`block mb-1 font-semibold flex items-center justify-between text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       <span>نوع العملية الحسابية (Aggregation)</span>
-                      <span className="text-[10px] text-amber-400 font-mono">
+                      <span className={`text-[10px] font-mono font-bold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                         {selectedWidget.config.aggregation || 'SUM'}
                       </span>
                     </label>
@@ -1110,7 +1264,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           aggregation: e.target.value as AggregationType
                         })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 text-xs outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="SUM">جمع الأرقام الإجمالية (SUM)</option>
                       <option value="COUNT">عد السجلات والتكرارات (COUNT)</option>
@@ -1122,7 +1280,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* KPI Icon Selector */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold text-xs">
+                    <label className={`block mb-1 font-semibold text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       أيقونة البطاقة الزجاجية (Glass Card Icon)
                     </label>
                     <select
@@ -1132,7 +1290,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           kpiIcon: e.target.value as any
                         })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 text-xs outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="trending">📈 سهم نمو وتوجه (Trending)</option>
                       <option value="dollar">💲 عملة وأموال (Dollar / Revenue)</option>
@@ -1146,7 +1308,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Color Theme / Glass Gradient */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold text-xs">
+                    <label className={`block mb-1 font-semibold text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       تدرج الزجاج والألوان (Modern Purple Glassmorphism)
                     </label>
                     <select
@@ -1156,7 +1318,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           colorTheme: e.target.value as any
                         })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 text-xs outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="violet">🟣 بنفسجي أرجواني حديث (Modern Purple - ثيم الفيديو)</option>
                       <option value="sky">🔵 أزرق سماوي زجاجي (Sky Glass)</option>
@@ -1169,9 +1335,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Comparison Delta */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                    <label className={`block mb-1 font-semibold flex items-center justify-between text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       <span>نسبة التغير ومقارنة الفترة (%)</span>
-                      <span className="text-[10px] text-slate-400">مثال: 12.5 أو -5</span>
+                      <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>مثال: 12.5 أو -5</span>
                     </label>
                     <input
                       type="number"
@@ -1182,7 +1348,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           comparisonDelta: parseFloat(e.target.value) || 0
                         })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 text-xs outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     />
                   </div>
                 </div>
@@ -1190,20 +1360,24 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 <>
                   {/* Categorical Dimension: X-Axis / Slices */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                    <label className={`block mb-1 font-semibold flex items-center justify-between text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       <span>
                         {selectedWidget.type === 'pie' || selectedWidget.type === 'donut'
                           ? 'فئات وتصنيف الشرائح (الوصفي X)'
                           : 'المحور الأفقي / البُعد الوصفي (X-Axis)'}
                       </span>
-                      <span className="text-[10px] text-sky-400 font-normal">تصنيف / فئات</span>
+                      <span className={`text-[10px] font-bold ${isDark ? 'text-sky-400' : 'text-sky-600'}`}>تصنيف / فئات</span>
                     </label>
                     <select
                       value={selectedWidget.config.xAxisColumn || ''}
                       onChange={(e) =>
                         onUpdateWidgetConfig(selectedWidget.id, { xAxisColumn: e.target.value })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 text-xs outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="">-- اختر الحقل الوصفي / الفئات --</option>
                       {stringColumns.map((col) => (
@@ -1221,20 +1395,24 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Quantitative Metric: Y-Axis / Values */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                    <label className={`block mb-1 font-semibold flex items-center justify-between text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       <span>
                         {selectedWidget.type === 'pie' || selectedWidget.type === 'donut'
                           ? 'قيم وأحجام الشرائح (الحسابي Y)'
                           : 'المحور الرأسي / القياس الحسابي (Y-Axis)'}
                       </span>
-                      <span className="text-[10px] text-emerald-400 font-normal">قيم وأرقام</span>
+                      <span className={`text-[10px] font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>قيم وأرقام</span>
                     </label>
                     <select
                       value={selectedWidget.config.yAxisColumn || ''}
                       onChange={(e) =>
                         onUpdateWidgetConfig(selectedWidget.id, { yAxisColumn: e.target.value })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs font-mono"
+                      className={`w-full rounded-lg p-2 text-xs font-mono outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="">-- اختر حقل الحساب --</option>
                       <optgroup label="الحقول الرقمية (تصلح للجمع والمتوسط)">
@@ -1256,13 +1434,13 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Aggregation Function */}
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                    <label className={`block mb-1 font-semibold flex items-center justify-between text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       <span>
                         {selectedWidget.type === 'pie' || selectedWidget.type === 'donut'
                           ? 'نوع العملية الحسابية للشرائح'
                           : 'دالة التجميع والعملية الحسابية (Aggregation)'}
                       </span>
-                      <span className="text-[10px] text-amber-400 font-mono">
+                      <span className={`text-[10px] font-mono font-bold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                         {selectedWidget.config.aggregation || 'SUM'}
                       </span>
                     </label>
@@ -1273,7 +1451,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           aggregation: e.target.value as AggregationType
                         })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                      className={`w-full rounded-lg p-2 text-xs outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="SUM">جمع الأرقام الإجمالية (SUM) - مجموع المبيعات/الأرباح</option>
                       <option value="COUNT">عد السجلات والتكرارات (COUNT) - عدد العمليات أو الطلبات</option>
@@ -1281,7 +1463,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                       <option value="MAX">أعلى قيمة مسجلة (MAX) - الحد الأقصى</option>
                       <option value="MIN">أدنى قيمة مسجلة (MIN) - الحد الأدنى</option>
                     </select>
-                    <p className="text-[10px] text-slate-500 mt-1">
+                    <p className={`text-[10px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
                       {selectedWidget.config.aggregation === 'COUNT'
                         ? '🔢 دالة العد (COUNT) تحسب عدد مرات تكرار كل فئة وتعمل مع أي حقل حتى الحقول النصية.'
                         : '➕ تجمع الأرقام بحسب كل فئة من فئات المحور الأفقي أو شرائح الدائري.'}
@@ -1290,7 +1472,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Secondary Metric (For dual axes / scatter / pivot) */}
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">
+                    <label className={`block mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       مقياس إضافي ثاني (Secondary Metric) - اختياري
                     </label>
                     <select
@@ -1298,7 +1480,11 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                       onChange={(e) =>
                         onUpdateWidgetConfig(selectedWidget.id, { secondaryMetric: e.target.value })
                       }
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs font-mono"
+                      className={`w-full rounded-lg p-2 text-xs font-mono outline-none border ${
+                        isDark
+                          ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                          : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                      }`}
                     >
                       <option value="">-- بدون مقياس إضافي --</option>
                       {numericColumns.map((col) => (
@@ -1310,15 +1496,19 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                   </div>
 
                   {/* Sorting & Top N */}
-                  <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800">
+                  <div className={`grid grid-cols-2 gap-2 pt-1 border-t ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
                     <div>
-                      <label className="block text-slate-400 mb-1 font-semibold">ترتيب النتائج</label>
+                      <label className={`block mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>ترتيب النتائج</label>
                       <select
                         value={selectedWidget.config.sortOrder || 'desc'}
                         onChange={(e) =>
                           onUpdateWidgetConfig(selectedWidget.id, { sortOrder: e.target.value as any })
                         }
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                        className={`w-full rounded-lg p-1.5 text-xs outline-none border ${
+                          isDark
+                            ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                            : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                        }`}
                       >
                         <option value="desc">تنازلي (الأعلى أولاً)</option>
                         <option value="asc">تصاعدي (الأقل أولاً)</option>
@@ -1327,13 +1517,17 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-slate-400 mb-1 font-semibold">تحديد أعلى N فئة</label>
+                      <label className={`block mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>تحديد أعلى N فئة</label>
                       <select
                         value={selectedWidget.config.topN || 0}
                         onChange={(e) =>
                           onUpdateWidgetConfig(selectedWidget.id, { topN: parseInt(e.target.value) || undefined })
                         }
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                        className={`w-full rounded-lg p-1.5 text-xs outline-none border ${
+                          isDark
+                            ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-sky-500'
+                            : 'bg-white border-slate-300 text-slate-800 focus:border-sky-500 shadow-xs'
+                        }`}
                       >
                         <option value={0}>عرض جميع الفئات</option>
                         <option value={5}>أعلى 5 فقط (Top 5)</option>
@@ -1505,15 +1699,15 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
           {activeTab === 'format' && (
             <div className="space-y-4 text-xs">
               {/* SECTION 1: Card & Frame Styling (تنسيق البطاقة والإطار) */}
-              <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                <span className="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+              <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                <span className="font-bold text-sky-500 flex items-center gap-1.5 text-xs">
                   <Square className="w-3.5 h-3.5" />
                   <span>تنسيق البطاقة والإطار (Card Container)</span>
                 </span>
 
                 {/* Card Background Presets */}
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">لون خلفية البطاقة</label>
+                  <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>لون خلفية البطاقة</label>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
                       { id: '#0f172a', label: 'داكن Slate' },
@@ -1527,7 +1721,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         className={`py-1 px-1.5 rounded-lg border text-[10px] font-mono transition cursor-pointer ${
                           selectedWidget.config.cardBgColor === bg.id
                             ? 'border-sky-400 bg-sky-500/20 text-white font-bold'
-                            : 'border-slate-700 bg-slate-900 text-slate-400 hover:text-white'
+                            : isDark
+                              ? 'border-slate-700 bg-slate-900 text-slate-400 hover:text-white'
+                              : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 shadow-xs'
                         }`}
                       >
                         {bg.label}
@@ -1538,7 +1734,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                 {/* Card Border Radius */}
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">استدارة حواف البطاقة</label>
+                  <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>استدارة حواف البطاقة</label>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
                       { val: 0, label: 'حادة (0px)' },
@@ -1551,8 +1747,10 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         onClick={() => onUpdateWidgetConfig(selectedWidget.id, { cardBorderRadius: r.val })}
                         className={`py-1 rounded-lg border text-[10px] transition cursor-pointer ${
                           (selectedWidget.config.cardBorderRadius ?? 16) === r.val
-                            ? 'border-sky-400 bg-sky-500/20 text-sky-300 font-bold'
-                            : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
+                            ? 'border-sky-400 bg-sky-500/20 text-sky-500 dark:text-sky-300 font-bold'
+                            : isDark
+                              ? 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
+                              : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 shadow-xs'
                         }`}
                       >
                         {r.label}
@@ -1563,7 +1761,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                 {/* Card Shadow */}
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-slate-300 text-[11px]">تأثير الظل والبروز (Card Shadow)</span>
+                  <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>تأثير الظل والبروز (Card Shadow)</span>
                   <input
                     type="checkbox"
                     checked={selectedWidget.config.cardShadow ?? true}
@@ -1574,17 +1772,17 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               </div>
 
               {/* SECTION 2: Header & Typography Styling (العنوان والنصوص) */}
-              <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                <span className="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+              <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                <span className="font-bold text-sky-500 flex items-center gap-1.5 text-xs">
                   <AlignRight className="w-3.5 h-3.5" />
                   <span>تنسيق العنوان والخطوط (Title & Typography)</span>
                 </span>
 
                 {/* Title Font Size */}
                 <div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                  <div className={`flex items-center justify-between text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>
                     <span>حجم خط العنوان</span>
-                    <span className="font-mono text-sky-400">{selectedWidget.config.titleFontSize || 12}px</span>
+                    <span className="font-mono text-sky-500 font-bold">{selectedWidget.config.titleFontSize || 12}px</span>
                   </div>
                   <input
                     type="range"
@@ -1599,7 +1797,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                 {/* Title Alignment */}
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">محاذاة العنوان</label>
+                  <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>محاذاة العنوان</label>
                   <div className="flex gap-1.5">
                     {[
                       { id: 'right', icon: <AlignRight className="w-3.5 h-3.5" />, label: 'يمين' },
@@ -1612,7 +1810,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         className={`flex-1 flex items-center justify-center gap-1 p-1 rounded-lg border text-xs cursor-pointer transition ${
                           (selectedWidget.config.titleAlign || 'right') === align.id
                             ? 'bg-sky-500 text-white border-sky-500 font-bold'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                            : isDark
+                              ? 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                              : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 shadow-xs'
                         }`}
                       >
                         {align.icon}
@@ -1624,7 +1824,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                 {/* Title Text Color */}
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">لون خط العنوان</label>
+                  <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>لون خط العنوان</label>
                   <div className="grid grid-cols-5 gap-1.5">
                     {[
                       { id: '#f8fafc', label: 'أبيض' },
@@ -1639,7 +1839,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         className={`py-0.5 rounded border text-[10px] transition cursor-pointer ${
                           selectedWidget.config.titleColor === c.id
                             ? 'border-white font-bold ring-1 ring-sky-400'
-                            : 'border-slate-800 text-slate-300'
+                            : isDark ? 'border-slate-800 text-slate-300' : 'border-slate-300 text-slate-700'
                         }`}
                         style={{ backgroundColor: c.id + '25', color: c.id }}
                       >
@@ -1651,15 +1851,15 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               </div>
 
               {/* SECTION 3: Colors & Palettes (الألوان والتدرجات) */}
-              <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                <span className="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+              <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                <span className="font-bold text-sky-500 flex items-center gap-1.5 text-xs">
                   <Palette className="w-3.5 h-3.5" />
                   <span>الألوان والتدرجات (Colors & Palette)</span>
                 </span>
 
                 {/* Preset Palettes */}
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">النمط اللوني المنسق</label>
+                  <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>النمط اللوني المنسق</label>
                   <div className="grid grid-cols-6 gap-1.5">
                     {COLOR_THEMES.map((theme) => (
                       <button
@@ -1670,7 +1870,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         }
                         className={`h-6 rounded-md ${theme.class} transition-transform cursor-pointer ${
                           selectedWidget.config.colorTheme === theme.id && !selectedWidget.config.primaryColor
-                            ? 'ring-2 ring-white scale-110'
+                            ? 'ring-2 ring-sky-500 scale-110'
                             : 'opacity-70 hover:opacity-100'
                         }`}
                       />
@@ -1679,30 +1879,32 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 </div>
 
                 {/* Custom Primary Color Picker */}
-                <div className="pt-1.5 border-t border-slate-800/80">
+                <div className={`pt-1.5 border-t ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
                   <div className="flex items-center justify-between gap-2">
-                    <label className="text-[11px] text-slate-300 font-medium">لون مخصص حر (Custom Color)</label>
+                    <label className={`text-[11px] font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>لون مخصص حر (Custom Color)</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
                         value={selectedWidget.config.primaryColor || '#0ea5e9'}
                         onChange={(e) => onUpdateWidgetConfig(selectedWidget.id, { primaryColor: e.target.value })}
-                        className="w-7 h-7 rounded border border-slate-700 bg-transparent cursor-pointer p-0"
+                        className="w-7 h-7 rounded border border-slate-300 dark:border-slate-700 bg-transparent cursor-pointer p-0"
                       />
                       <input
                         type="text"
                         value={selectedWidget.config.primaryColor || ''}
                         placeholder="#0ea5e9"
                         onChange={(e) => onUpdateWidgetConfig(selectedWidget.id, { primaryColor: e.target.value })}
-                        className="w-18 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-slate-200 font-mono text-[10px] text-center"
+                        className={`w-18 rounded px-1.5 py-0.5 font-mono text-[10px] text-center border ${
+                          isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800 shadow-xs'
+                        }`}
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Gradient Toggle */}
-                <div className="flex items-center justify-between pt-1 border-t border-slate-800/80">
-                  <span className="text-slate-300 text-[11px]">تدرج لوني انسيابي (Color Gradient)</span>
+                <div className={`flex items-center justify-between pt-1 border-t ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
+                  <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>تدرج لوني انسيابي (Color Gradient)</span>
                   <input
                     type="checkbox"
                     checked={selectedWidget.config.isGradient ?? true}
@@ -1714,17 +1916,17 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
               {/* SECTION 4: Chart-Specific Visual Styling (حسب نوع المخطط) */}
               {(selectedWidget.type === 'bar' || selectedWidget.type === 'horizontal_bar') && (
-                <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                  <span className="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+                <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                  <span className="font-bold text-sky-500 flex items-center gap-1.5 text-xs">
                     <BarChart3 className="w-3.5 h-3.5" />
                     <span>خصائص الأعمدة (Bar Styling)</span>
                   </span>
 
                   {/* Bar Corner Radius */}
                   <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                    <div className={`flex items-center justify-between text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>
                       <span>استدارة حواف الأعمدة</span>
-                      <span className="font-mono text-sky-400">{selectedWidget.config.barBorderRadius ?? 6}px</span>
+                      <span className="font-mono text-sky-500 font-bold">{selectedWidget.config.barBorderRadius ?? 6}px</span>
                     </div>
                     <input
                       type="range"
@@ -1739,7 +1941,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Data Labels */}
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300 text-[11px]">إظهار قيم الأرقام على الأعمدة (Data Labels)</span>
+                    <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>إظهار قيم الأرقام على الأعمدة (Data Labels)</span>
                     <input
                       type="checkbox"
                       checked={selectedWidget.config.showDataLabels ?? true}
@@ -1751,17 +1953,17 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               )}
 
               {(selectedWidget.type === 'pie' || selectedWidget.type === 'donut') && (
-                <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                  <span className="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+                <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                  <span className="font-bold text-sky-500 flex items-center gap-1.5 text-xs">
                     <PieChart className="w-3.5 h-3.5" />
                     <span>خصائص الدائري والمجوف (Pie/Donut Options)</span>
                   </span>
 
                   {/* Donut Hole Ratio */}
                   <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                    <div className={`flex items-center justify-between text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>
                       <span>نسبة التجويف الداخلي</span>
-                      <span className="font-mono text-sky-400">{selectedWidget.config.donutHoleRatio ?? (selectedWidget.type === 'donut' ? 42 : 0)}%</span>
+                      <span className="font-mono text-sky-500 font-bold">{selectedWidget.config.donutHoleRatio ?? (selectedWidget.type === 'donut' ? 42 : 0)}%</span>
                     </div>
                     <input
                       type="range"
@@ -1776,7 +1978,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Nightingale Rose Type */}
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300 text-[11px]">نمط الورود القطبي (Rose Chart)</span>
+                    <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>نمط الورود القطبي (Rose Chart)</span>
                     <input
                       type="checkbox"
                       checked={selectedWidget.config.pieRoseType ?? false}
@@ -1787,11 +1989,13 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Pie Labels Type */}
                   <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">نوع التسميات على الشرائح</label>
+                    <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>نوع التسميات على الشرائح</label>
                     <select
                       value={selectedWidget.config.pieLabelType || 'percent'}
                       onChange={(e) => onUpdateWidgetConfig(selectedWidget.id, { pieLabelType: e.target.value as any })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 outline-none text-xs"
+                      className={`w-full rounded-lg p-1.5 text-xs outline-none border ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800 shadow-xs'
+                      }`}
                     >
                       <option value="percent">نسبة مئوية (%)</option>
                       <option value="value">القيمة المالية / الرقمية ($)</option>
@@ -1802,15 +2006,15 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               )}
 
               {(selectedWidget.type === 'line' || selectedWidget.type === 'area') && (
-                <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                  <span className="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+                <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                  <span className="font-bold text-sky-500 flex items-center gap-1.5 text-xs">
                     <LineChart className="w-3.5 h-3.5" />
                     <span>خصائص الخط والمساحة (Line/Area Options)</span>
                   </span>
 
                   {/* Smooth Line */}
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300 text-[11px]">انحناء مسار سلس (Smooth Curve)</span>
+                    <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>انحناء مسار سلس (Smooth Curve)</span>
                     <input
                       type="checkbox"
                       checked={selectedWidget.config.smoothLine ?? true}
@@ -1821,9 +2025,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Line Width */}
                   <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                    <div className={`flex items-center justify-between text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>
                       <span>سماكة خط المسار</span>
-                      <span className="font-mono text-sky-400">{selectedWidget.config.lineWidth ?? 3}px</span>
+                      <span className="font-mono text-sky-500 font-bold">{selectedWidget.config.lineWidth ?? 3}px</span>
                     </div>
                     <input
                       type="range"
@@ -1838,7 +2042,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Show Symbols / Dots */}
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300 text-[11px]">إظهار نقاط البيانات (Data Dots)</span>
+                    <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>إظهار نقاط البيانات (Data Dots)</span>
                     <input
                       type="checkbox"
                       checked={selectedWidget.config.showSymbols ?? true}
@@ -1851,15 +2055,15 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
               {/* SECTION 5: Table Specific Styling (عندما يكون العنصر جدولاً) */}
               {(selectedWidget.type === 'table' || selectedWidget.type === 'pivot') && (
-                <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                  <span className="font-bold text-emerald-400 flex items-center gap-1.5 text-xs">
+                <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                  <span className="font-bold text-emerald-500 flex items-center gap-1.5 text-xs">
                     <Table className="w-3.5 h-3.5" />
                     <span>تنسيق مظهر الجدول (Table Styling)</span>
                   </span>
 
                   {/* Table Header Background */}
                   <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">لون ترويسة الجدول (Header)</label>
+                    <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>لون ترويسة الجدول (Header)</label>
                     <div className="grid grid-cols-4 gap-1.5">
                       {[
                         { id: 'slate', label: 'داكن Slate', class: 'bg-slate-900 text-slate-200' },
@@ -1884,7 +2088,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Zebra Striping */}
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300 text-[11px]">تظليل الصفوف المتبادلة (Zebra Striping)</span>
+                    <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>تظليل الصفوف المتبادلة (Zebra Striping)</span>
                     <input
                       type="checkbox"
                       checked={selectedWidget.config.tableZebra ?? true}
@@ -1895,7 +2099,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Table Row Density */}
                   <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">كثافة وتباعد الأسطر</label>
+                    <label className={`block text-[11px] mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600 font-medium'}`}>كثافة وتباعد الأسطر</label>
                     <div className="grid grid-cols-3 gap-1.5">
                       {[
                         { id: 'compact', label: 'مضغوط (Compact)' },
@@ -1907,8 +2111,10 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           onClick={() => onUpdateWidgetConfig(selectedWidget.id, { tableDensity: d.id as any })}
                           className={`py-1 rounded-lg border text-[10px] transition cursor-pointer ${
                             (selectedWidget.config.tableDensity || 'comfortable') === d.id
-                              ? 'border-emerald-400 bg-emerald-500/20 text-emerald-300 font-bold'
-                              : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
+                              ? 'border-emerald-400 bg-emerald-500/20 text-emerald-500 dark:text-emerald-300 font-bold'
+                              : isDark
+                                ? 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
+                                : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 shadow-xs'
                           }`}
                         >
                           {d.label}
@@ -1919,7 +2125,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
 
                   {/* Highlight Max Values */}
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300 text-[11px]">تمييز أعلى قيمة بالأعمدة (Highlight Max)</span>
+                    <span className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>تمييز أعلى قيمة بالأعمدة (Highlight Max)</span>
                     <input
                       type="checkbox"
                       checked={selectedWidget.config.tableHighlightMax ?? true}
@@ -1931,15 +2137,15 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               )}
 
               {/* General Grid & Legend Settings */}
-              <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-3">
-                <span className="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+              <div className={`p-3 rounded-xl border space-y-3 ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'}`}>
+                <span className="font-bold text-sky-500 flex items-center gap-1.5 text-xs">
                   <Grid className="w-3.5 h-3.5" />
                   <span>الشبكة ودليل الرسم (Grid & Legend)</span>
                 </span>
 
                 {/* Gridlines */}
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-200 text-[11px]">خطوط الشبكة الخلفية (Gridlines)</span>
+                  <span className={`font-semibold text-[11px] ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>خطوط الشبكة الخلفية (Gridlines)</span>
                   <input
                     type="checkbox"
                     checked={selectedWidget.config.showGridlines ?? true}
@@ -1949,9 +2155,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 </div>
 
                 {/* Legend */}
-                <div className="space-y-1.5 pt-1 border-t border-slate-800/80">
+                <div className={`space-y-1.5 pt-1 border-t ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-200 text-[11px]">دليل الرسم (Legend)</span>
+                    <span className={`font-semibold text-[11px] ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>دليل الرسم (Legend)</span>
                     <input
                       type="checkbox"
                       checked={selectedWidget.config.showLegend ?? true}
@@ -1963,7 +2169,9 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                     <select
                       value={selectedWidget.config.legendPosition || 'bottom'}
                       onChange={(e) => onUpdateWidgetConfig(selectedWidget.id, { legendPosition: e.target.value as any })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 outline-none text-xs"
+                      className={`w-full rounded-lg p-1.5 outline-none text-xs border ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800 shadow-xs'
+                      }`}
                     >
                       <option value="top">أعلى المخطط (Top)</option>
                       <option value="bottom">أسفل المخطط (Bottom)</option>
@@ -1974,12 +2182,14 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                 </div>
 
                 {/* Number Format */}
-                <div className="pt-1 border-t border-slate-800/80">
-                  <label className="block text-slate-400 mb-1 font-semibold text-[11px]">تنسيق عرض الأرقام والعملات</label>
+                <div className={`pt-1 border-t ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
+                  <label className={`block mb-1 font-semibold text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>تنسيق عرض الأرقام والعملات</label>
                   <select
                     value={selectedWidget.config.numberFormat || 'currency'}
                     onChange={(e) => onUpdateWidgetConfig(selectedWidget.id, { numberFormat: e.target.value as any })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-slate-200 outline-none text-xs font-medium"
+                    className={`w-full rounded-lg p-1.5 outline-none text-xs font-medium border ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800 shadow-xs'
+                    }`}
                   >
                     <option value="currency">عملة مالية ($ / د.ع)</option>
                     <option value="compact">مختصر رقمي (K / M / B)</option>
@@ -1996,7 +2206,7 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
             <div className="space-y-4 text-xs">
               {/* Mode Selector */}
               <div>
-                <label className="block text-slate-400 mb-1.5 font-semibold">
+                <label className={`block mb-1.5 font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                   نمط تفاعل وتصفية هذا العنصر مع اللوحة
                 </label>
                 <div className="space-y-1.5">
@@ -2005,16 +2215,18 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                     onClick={() => setWidgetLinks(selectedWidget.id, undefined, 'all', true)}
                     className={`w-full flex items-center justify-between p-2.5 rounded-lg border text-right transition cursor-pointer ${
                       (selectedWidget.config?.crossFilterMode || 'all') === 'all'
-                        ? 'bg-sky-500/15 border-sky-500 text-sky-200'
-                        : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                        ? 'bg-sky-500/15 border-sky-500 text-sky-600 dark:text-sky-200 font-bold'
+                        : isDark
+                          ? 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900 shadow-xs'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Link2 className="w-4 h-4 text-sky-400" />
+                      <Link2 className="w-4 h-4 text-sky-500" />
                       <span className="font-bold text-xs">ربط مع الكل (افتراضي)</span>
                     </div>
                     {(selectedWidget.config?.crossFilterMode || 'all') === 'all' && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300">مفعل</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300 font-bold">مفعل</span>
                     )}
                   </button>
 
@@ -2028,16 +2240,18 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                     }}
                     className={`w-full flex items-center justify-between p-2.5 rounded-lg border text-right transition cursor-pointer ${
                       selectedWidget.config?.crossFilterMode === 'custom'
-                        ? 'bg-purple-500/15 border-purple-500 text-purple-200'
-                        : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                        ? 'bg-purple-500/15 border-purple-500 text-purple-600 dark:text-purple-200 font-bold'
+                        : isDark
+                          ? 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900 shadow-xs'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-purple-400" />
+                      <Sparkles className="w-4 h-4 text-purple-500" />
                       <span className="font-bold text-xs">تخصيص الربط (عناصر محددة)</span>
                     </div>
                     {selectedWidget.config?.crossFilterMode === 'custom' && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">مفعل</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold">مفعل</span>
                     )}
                   </button>
 
@@ -2046,26 +2260,30 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                     onClick={() => setWidgetLinks(selectedWidget.id, [], 'none', true)}
                     className={`w-full flex items-center justify-between p-2.5 rounded-lg border text-right transition cursor-pointer ${
                       selectedWidget.config?.crossFilterMode === 'none'
-                        ? 'bg-rose-500/15 border-rose-500 text-rose-200'
-                        : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                        ? 'bg-rose-500/15 border-rose-500 text-rose-600 dark:text-rose-200 font-bold'
+                        : isDark
+                          ? 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900 shadow-xs'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Unlink className="w-4 h-4 text-rose-400" />
+                      <Unlink className="w-4 h-4 text-rose-500" />
                       <span className="font-bold text-xs">فصل تام (مستقل)</span>
                     </div>
                     {selectedWidget.config?.crossFilterMode === 'none' && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">مفعل</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-600 dark:text-rose-300 font-bold">مفعل</span>
                     )}
                   </button>
                 </div>
               </div>
 
               {/* Incoming Filter Toggle */}
-              <div className="p-3 rounded-xl bg-slate-950/40 border border-slate-800 space-y-2">
+              <div className={`p-3 rounded-xl border space-y-2 ${
+                isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'
+              }`}>
                 <div className="flex items-center justify-between">
-                  <label className="font-semibold text-slate-300 flex items-center gap-1.5 text-xs">
-                    <Shield className="w-3.5 h-3.5 text-amber-400" />
+                  <label className={`font-semibold flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                    <Shield className="w-3.5 h-3.5 text-amber-500" />
                     <span>استقبال التصفية من الجارتات</span>
                   </label>
                   <button
@@ -2078,14 +2296,14 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                     }
                     className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
                       selectedWidget.config?.ignoreIncomingFilters
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                        ? 'bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/40'
+                        : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40'
                     }`}
                   >
                     {selectedWidget.config?.ignoreIncomingFilters ? 'معزول 🛡️' : 'يستقبل ✅'}
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                   {selectedWidget.config?.ignoreIncomingFilters
                     ? 'هذا العنصر معزول ولن يتأثر بنقرات أو فلاتر أي جارت آخر ويعرض كامل البيانات دائماً.'
                     : 'يتأثر هذا العنصر بالنقرات والتصفية القادمة من الجارتات المرتبطة به.'}
@@ -2095,8 +2313,8 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
               {/* Target Visuals List */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="font-semibold text-slate-300 flex items-center gap-1.5 text-xs">
-                    <Link2 className="w-3.5 h-3.5 text-sky-400" />
+                  <label className={`font-semibold flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                    <Link2 className="w-3.5 h-3.5 text-sky-500" />
                     <span>العناصر المرتبطة والمفصولة</span>
                   </label>
                   <div className="flex items-center gap-1">
@@ -2106,15 +2324,19 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                         const allIds = currentDashboard.widgets.filter((w) => w.id !== selectedWidget.id).map((w) => w.id);
                         setWidgetLinks(selectedWidget.id, allIds, 'custom', true);
                       }}
-                      className="text-[10px] text-sky-400 hover:text-sky-300 px-1 py-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                      className={`text-[10px] px-1 py-0.5 rounded cursor-pointer transition ${
+                        isDark ? 'text-sky-400 hover:text-sky-300 hover:bg-slate-800' : 'text-sky-600 hover:text-sky-700 hover:bg-sky-50'
+                      }`}
                     >
                       ربط الكل
                     </button>
-                    <span className="text-slate-600">|</span>
+                    <span className="text-slate-400">|</span>
                     <button
                       type="button"
                       onClick={() => setWidgetLinks(selectedWidget.id, [], 'custom', true)}
-                      className="text-[10px] text-rose-400 hover:text-rose-300 px-1 py-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                      className={`text-[10px] px-1 py-0.5 rounded cursor-pointer transition ${
+                        isDark ? 'text-rose-400 hover:text-rose-300 hover:bg-slate-800' : 'text-rose-600 hover:text-rose-700 hover:bg-rose-50'
+                      }`}
                     >
                       فصل الكل
                     </button>
@@ -2139,21 +2361,27 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                           onClick={() => toggleWidgetLink(selectedWidget.id, other.id, true)}
                           className={`flex items-center justify-between p-2 rounded-lg border transition cursor-pointer text-xs ${
                             isLinked
-                              ? 'bg-slate-900/90 border-sky-500/30 hover:border-sky-400'
-                              : 'bg-slate-950/40 border-slate-800/80 opacity-60 hover:opacity-100 hover:border-slate-700'
+                              ? isDark
+                                ? 'bg-slate-900/90 border-sky-500/30 hover:border-sky-400'
+                                : 'bg-sky-50/80 border-sky-300 hover:border-sky-400 shadow-xs'
+                              : isDark
+                                ? 'bg-slate-950/40 border-slate-800/80 opacity-60 hover:opacity-100 hover:border-slate-700'
+                                : 'bg-white border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-300 shadow-xs'
                           }`}
                         >
                           <div className="min-w-0 pr-1">
-                            <div className="font-semibold text-slate-200 truncate">{other.title}</div>
-                            <span className="text-[10px] text-slate-500">{other.type}</span>
+                            <div className={`font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{other.title}</div>
+                            <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{other.type}</span>
                           </div>
                           <div className="shrink-0">
                             {isLinked ? (
-                              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+                              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
                                 مرتبط 🔗
                               </span>
                             ) : (
-                              <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                              <span className={`text-[10px] px-2 py-0.5 rounded border ${
+                                isDark ? 'text-slate-400 bg-slate-800 border-slate-700' : 'text-slate-500 bg-slate-100 border-slate-200'
+                              }`}>
                                 مفصول 🚫
                               </span>
                             )}
@@ -2167,8 +2395,10 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
           )}
         </div>
       ) : (
-        <div className="border-t border-slate-800 pt-6 text-center text-slate-500 text-xs flex-1 flex flex-col items-center justify-center">
-          <Sparkles className="w-8 h-8 text-slate-700 mb-2" />
+        <div className={`border-t pt-6 text-center text-xs flex-1 flex flex-col items-center justify-center ${
+          isDark ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
+        }`}>
+          <Sparkles className={`w-8 h-8 mb-2 ${isDark ? 'text-slate-700' : 'text-slate-300'}`} />
           <span>انقر على أي مخطط في اللوحة لتعديل إعدادات البيانات (Setup) ومظهره (Format) مثل Power BI</span>
         </div>
       )}

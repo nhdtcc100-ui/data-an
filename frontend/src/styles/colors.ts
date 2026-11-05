@@ -122,3 +122,4 @@ export const THEME_TOKENS: Record<'light' | 'dark', ThemeColors> = {
 export const getThemeColors = (theme: 'light' | 'dark' = 'dark'): ThemeColors => {
   return THEME_TOKENS[theme] || THEME_TOKENS.dark;
 };
+

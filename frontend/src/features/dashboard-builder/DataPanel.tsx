@@ -40,8 +40,10 @@ export const DataPanel: React.FC<DataPanelProps> = ({
     toggleDataPanel,
     addSlicerForColumn,
     sidebarsPlacement,
-    setSidebarsPlacement
+    setSidebarsPlacement,
+    theme
   } = useDashboardStore();
+  const isDark = theme === 'dark';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isResizing, setIsResizing] = useState(false);
@@ -101,16 +103,22 @@ export const DataPanel: React.FC<DataPanelProps> = ({
     return (
       <div
         onClick={toggleDataPanel}
-        className={`w-12 bg-slate-900/95 flex flex-col items-center py-4 cursor-pointer hover:bg-slate-850 transition select-none group sidebar-3d rounded-2xl ${
-          dockSide === 'left' ? 'border-r border-slate-800' : 'border-l border-slate-800'
+        className={`w-12 flex flex-col items-center py-4 cursor-pointer transition select-none group sidebar-3d rounded-2xl ${
+          isDark
+            ? 'bg-slate-900/95 hover:bg-slate-800'
+            : 'bg-white hover:bg-slate-50 shadow-md'
+        } ${
+          dockSide === 'left'
+            ? isDark ? 'border-r border-slate-800' : 'border-r border-slate-200'
+            : isDark ? 'border-l border-slate-800' : 'border-l border-slate-200'
         }`}
         title="توسيع لوحة البيانات والحقول (Power BI Fields)"
       >
-        <Database className="w-5 h-5 text-sky-400 mb-4 group-hover:scale-110 transition-transform" />
-        <span className="text-[11px] font-bold text-slate-400 [writing-mode:vertical-lr] tracking-widest uppercase">
+        <Database className={`w-5 h-5 mb-4 group-hover:scale-110 transition-transform ${isDark ? 'text-sky-400' : 'text-sky-600'}`} />
+        <span className={`text-[11px] font-bold [writing-mode:vertical-lr] tracking-widest uppercase ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
           الحقول ({cleanColumns.length})
         </span>
-        <div className="mt-auto p-1.5 rounded-lg text-slate-500 group-hover:text-slate-200">
+        <div className={`mt-auto p-1.5 rounded-lg transition ${isDark ? 'text-slate-500 group-hover:text-slate-200' : 'text-slate-400 group-hover:text-slate-700'}`}>
           {dockSide === 'left' ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </div>
       </div>
@@ -120,30 +128,42 @@ export const DataPanel: React.FC<DataPanelProps> = ({
   return (
     <aside
       style={isMobile ? { width: '100%' } : { width: `${dataPanelWidth}px` }}
-      className={`relative bg-slate-900/95 p-3.5 text-slate-200 flex flex-col h-full select-none backdrop-blur-sm transition-[width] duration-75 sidebar-3d rounded-2xl ${
-        isMobile ? 'w-full border-none' : dockSide === 'left' ? 'border-r border-slate-800/60' : 'border-l border-slate-800/60'
+      className={`relative p-3.5 flex flex-col h-full select-none backdrop-blur-sm transition-[width] duration-75 sidebar-3d rounded-2xl ${
+        isDark
+          ? 'bg-slate-900/95 text-slate-200 border-slate-800/60'
+          : 'bg-white text-slate-900 border-slate-200/80 shadow-md'
+      } ${
+        isMobile ? 'w-full border-none' : dockSide === 'left' ? 'border-r' : 'border-l'
       } ${isResizing ? 'select-none pointer-events-none' : ''}`}
     >
       {/* Panel Header */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-sky-400" />
-          <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+          <Database className="w-4 h-4 text-sky-500" />
+          <h3 className={`text-xs font-black uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
             حقول البيانات (Data Fields)
           </h3>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800/60 font-mono">
+          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold border ${
+            isDark
+              ? 'bg-sky-950 text-sky-400 border-sky-800/60'
+              : 'bg-sky-50 text-sky-700 border-sky-200'
+          }`}>
             {cleanColumns.length}
           </span>
 
           {/* Quick Dock Mode Switcher */}
-          <div className="hidden sm:flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[9px]">
+          <div className={`hidden sm:flex items-center p-0.5 rounded-lg border text-[9px] ${
+            isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-300'
+          }`}>
             <button
               onClick={() => setSidebarsPlacement('powerbi-right')}
               title="نمط Power BI: الألواح متجاورة على اليمين"
               className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                sidebarsPlacement === 'powerbi-right' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                sidebarsPlacement === 'powerbi-right'
+                  ? 'bg-sky-500 text-white font-bold'
+                  : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               PBI
@@ -152,7 +172,9 @@ export const DataPanel: React.FC<DataPanelProps> = ({
               onClick={() => setSidebarsPlacement('split')}
               title="نمط منفصل: لوحة على اليمين وأخرى على اليسار"
               className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                sidebarsPlacement === 'split' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                sidebarsPlacement === 'split'
+                  ? 'bg-sky-500 text-white font-bold'
+                  : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               فصل
@@ -161,7 +183,9 @@ export const DataPanel: React.FC<DataPanelProps> = ({
               onClick={() => setSidebarsPlacement('powerbi-left')}
               title="الألواح متجاورة على اليسار"
               className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                sidebarsPlacement === 'powerbi-left' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                sidebarsPlacement === 'powerbi-left'
+                  ? 'bg-sky-500 text-white font-bold'
+                  : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               يسار
@@ -171,7 +195,9 @@ export const DataPanel: React.FC<DataPanelProps> = ({
           <button
             onClick={toggleDataPanel}
             title="طي اللوحة"
-            className="p-1 text-slate-500 hover:text-slate-200 rounded hover:bg-slate-800 transition cursor-pointer"
+            className={`p-1 rounded transition cursor-pointer ${
+              isDark ? 'text-slate-500 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+            }`}
           >
             {dockSide === 'left' ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </button>
@@ -179,15 +205,19 @@ export const DataPanel: React.FC<DataPanelProps> = ({
       </div>
 
       {/* Dataset Name Badge with Quick Change Button */}
-      <div className="text-[11px] font-medium text-slate-400 mb-2.5 bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between gap-1.5">
+      <div className={`text-[11px] font-medium mb-2.5 px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1.5 ${
+        isDark
+          ? 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+          : 'bg-slate-50 text-slate-600 border-slate-200'
+      }`}>
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <Columns className="w-3 h-3 text-emerald-400 shrink-0" />
-          <span className="truncate font-semibold text-slate-300" title={dataSource.fileName}>{dataSource.fileName}</span>
+          <Columns className="w-3 h-3 text-emerald-500 shrink-0" />
+          <span className={`truncate font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`} title={dataSource.fileName}>{dataSource.fileName}</span>
         </div>
         {onOpenUpload && (
           <button
             onClick={onOpenUpload}
-            className="text-[10px] text-sky-400 hover:text-sky-300 hover:underline flex items-center gap-1 shrink-0 font-bold cursor-pointer bg-sky-500/10 hover:bg-sky-500/20 px-2 py-0.5 rounded border border-sky-500/30 transition"
+            className="text-[10px] text-sky-500 hover:text-sky-400 hover:underline flex items-center gap-1 shrink-0 font-bold cursor-pointer bg-sky-500/10 hover:bg-sky-500/20 px-2 py-0.5 rounded border border-sky-500/30 transition"
             title="تغيير ملف البيانات أو رفع ملف Excel آخر"
           >
             <UploadCloud className="w-3 h-3" />
@@ -198,13 +228,17 @@ export const DataPanel: React.FC<DataPanelProps> = ({
 
       {/* Search Field Input */}
       <div className="relative mb-2.5">
-        <Search className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
+        <Search className={`w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="ابحث عن حقل في الملف..."
-          className="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-lg pr-8 pl-2.5 py-1.5 focus:outline-none focus:border-sky-500 transition-colors"
+          className={`w-full text-xs rounded-lg pr-8 pl-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-sky-500 transition-colors border ${
+            isDark
+              ? 'bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600'
+              : 'bg-white border-slate-300 text-slate-800 placeholder:text-slate-400 shadow-sm'
+          }`}
         />
       </div>
 
@@ -216,18 +250,28 @@ export const DataPanel: React.FC<DataPanelProps> = ({
             draggable
             onDragStart={() => onDragStartColumn(col)}
             onClick={() => onSelectColumn && onSelectColumn(col)}
-            className="group flex items-center justify-between p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/50 hover:border-sky-500/50 cursor-pointer transition-all shadow-sm"
+            className={`group flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all shadow-sm ${
+              isDark
+                ? 'bg-slate-800/80 hover:bg-slate-700/90 border-slate-700/50 hover:border-sky-500/50'
+                : 'bg-white hover:bg-sky-50 border-slate-200 hover:border-sky-400 shadow-sm hover:shadow-md'
+            }`}
           >
             <div className="flex items-center gap-2 overflow-hidden flex-1">
-              <GripVertical className="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 cursor-grab" />
+              <GripVertical className={`w-3 h-3 shrink-0 cursor-grab transition ${isDark ? 'text-slate-600 group-hover:text-slate-400' : 'text-slate-300 group-hover:text-slate-500'}`} />
               {getDataTypeIcon(col.dataType)}
-              <span className="text-xs font-medium text-slate-200 truncate" title={col.columnName}>
+              <span className={`text-xs font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`} title={col.columnName}>
                 {col.columnName}
               </span>
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-[9px] px-1 py-0.2 rounded bg-slate-900 text-slate-400 border border-slate-700 font-mono">
+              <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold border ${
+                col.dataType === 'numeric'
+                  ? isDark ? 'bg-emerald-950 text-emerald-400 border-emerald-800/60' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : col.dataType === 'date'
+                  ? isDark ? 'bg-amber-950 text-amber-400 border-amber-800/60' : 'bg-amber-50 text-amber-700 border-amber-200'
+                  : isDark ? 'bg-sky-950 text-sky-400 border-sky-800/60' : 'bg-sky-50 text-sky-700 border-sky-200'
+              }`}>
                 {col.dataType === 'numeric' ? 'num' : col.dataType === 'date' ? 'date' : 'str'}
               </span>
 
@@ -238,7 +282,9 @@ export const DataPanel: React.FC<DataPanelProps> = ({
                   addSlicerForColumn(col.columnName);
                 }}
                 title={`إضافة ${col.columnName} كفلتر سلايسر تفاعلي`}
-                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-sky-500/20 text-slate-400 hover:text-sky-300 transition cursor-pointer flex items-center gap-0.5 text-[10px]"
+                className={`opacity-0 group-hover:opacity-100 p-1 rounded transition cursor-pointer flex items-center gap-0.5 text-[10px] ${
+                  isDark ? 'hover:bg-sky-500/20 text-slate-400 hover:text-sky-300' : 'hover:bg-sky-100 text-slate-400 hover:text-sky-600'
+                }`}
               >
                 <Filter className="w-3 h-3 text-sky-400" />
               </button>
@@ -247,13 +293,15 @@ export const DataPanel: React.FC<DataPanelProps> = ({
         ))}
 
         {filteredColumns.length === 0 && (
-          <div className="text-center py-6 text-xs text-slate-500">
+          <div className={`text-center py-6 text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
             لا توجد حقول مطابقة
           </div>
         )}
       </div>
 
-      <div className="mt-2 pt-2 border-t border-slate-800 text-[10px] text-slate-500 text-center flex items-center justify-between">
+      <div className={`mt-2 pt-2 border-t text-[10px] text-center flex items-center justify-between ${
+        isDark ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
+      }`}>
         <span>انقر للربط بالمخطط</span>
         <span>أيقونة 🔍 لإضافة سلايسر</span>
       </div>
