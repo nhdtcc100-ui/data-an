@@ -117,6 +117,15 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
     if (config?.pivotValues && config.pivotValues.length > 0) {
       return config.pivotValues;
     }
+    const legacyMetrics = (config as any)?.pivotValueMetrics;
+    if (legacyMetrics && legacyMetrics.length > 0) {
+      return legacyMetrics.map((m: any, idx: number) => ({
+        id: m.id || `val_${idx + 1}`,
+        column: m.column,
+        aggregation: m.aggregation || 'SUM',
+        customLabel: m.customLabel
+      }));
+    }
     const metricCol = config?.yAxisColumn || columns.find((c) => c.dataType === 'numeric')?.columnName;
     if (metricCol) {
       return [

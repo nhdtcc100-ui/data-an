@@ -16,6 +16,9 @@ export interface Sheet {
   columns: Column[];
   previewRows?: Record<string, any>[];
   rawRows?: Record<string, any>[];
+  tableTitle?: string;
+  isPivot?: boolean;
+  pivotDetection?: any;
 }
 
 export interface DataSource {
@@ -29,6 +32,8 @@ export interface DataSource {
   columns: Column[];
   rawRows: Record<string, any>[];
   multiModel?: MultiTableDataSource;
+  isPivot?: boolean;
+  pivotDetection?: any;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -46,6 +51,9 @@ export interface TableEntry {
   rowCount: number;
   uploadedAt: string;
   color?: string; // لون العرض في الرسم البياني
+  isPivot?: boolean;
+  pivotDetection?: any;
+  pivotQuestion?: string;
 }
 
 /** علاقة ربط بين جدولين */

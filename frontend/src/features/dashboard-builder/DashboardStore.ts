@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Dashboard, Widget, WidgetType, WidgetConfig, WidgetLayout } from '../../types/dashboard';
+import type { Dashboard, Widget, WidgetType, WidgetConfig, WidgetLayout, PivotValueMetric } from '../../types/dashboard';
 import type { DataSource, MultiTableDataSource } from '../../types/dataSource';
 import type { Project, CreateProjectOptions, ProjectDatabaseConfig } from '../../types/project';
 import {
@@ -142,6 +142,7 @@ interface DashboardState {
   // ─── Widget Actions ────────────────────────────────────────────────────────
   setSelectedWidgetId: (id: string | null) => void;
   addWidget: (type: WidgetType) => void;
+  addPivotWidgetFromDetection: (pivotStructure: any, question?: string) => void;
   duplicateWidget: (id: string) => void;
   changeWidgetType: (id: string, type: WidgetType) => void;
   removeWidget: (id: string) => void;
@@ -318,6 +319,153 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
 
   const now = Date.now();
   const widgets: Widget[] = [];
+
+  const activeSheet = dataSource.sheets?.find((s) => s.id === dataSource.activeSheetId) || dataSource.sheets?.[0];
+  const isPivotData = Boolean(dataSource.isPivot || activeSheet?.isPivot);
+  const pivotDetection = dataSource.pivotDetection || activeSheet?.pivotDetection;
+  const pivotStructure = pivotDetection?.pivotStructure;
+
+  // ── تخصيص ذكي مباشر إن كان الملف / الشيت جدول Pivot Table تم كشفه ──
+  if (isPivotData && pivotStructure) {
+    const pivotRowCol = pivotStructure.rowDimensions[0] || primaryStr;
+    const pivotValField = pivotStructure.valueFields[0];
+    const pivotValName = pivotValField?.name || primaryNum;
+    const pivotAgg = pivotValField?.aggregation || 'SUM';
+    const questionTitle = pivotDetection?.question || `تحليل ${pivotValName} حسب ${pivotRowCol}`;
+
+    // 1. شريط الفلتر
+    if (strCols.length > 0) {
+      widgets.push({
+        id: `w-slicer-${now}-1`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'slicer',
+        title: `تصفية: ${pivotRowCol}`,
+        config: {
+          xAxisColumn: pivotRowCol,
+          activeSlicerColumn: pivotRowCol,
+          slicerColumns: [pivotRowCol, ...strCols.filter((c) => c !== pivotRowCol).slice(0, 3)],
+          slicerSelectionMode: 'multi'
+        },
+        layout: { x: 0, y: 0, w: 12, h: 2, i: `w-slicer-${now}-1` }
+      });
+    }
+
+    // 2. مؤشرات الأداء الثلاثة KPI (تستجيب مباشرة لمعايير الـ Pivot)
+    widgets.push({
+      id: `w-kpi-${now}-1`,
+      dashboardId,
+      dataSourceId: dataSource.id,
+      type: 'kpi',
+      title: `إجمالي: ${pivotValName}`,
+      config: {
+        xAxisColumn: pivotRowCol,
+        yAxisColumn: pivotValName,
+        aggregation: 'SUM',
+        numberFormat: 'compact',
+        colorTheme: 'sky'
+      },
+      layout: { x: 0, y: 2, w: 4, h: 2, i: `w-kpi-${now}-1` }
+    });
+
+    widgets.push({
+      id: `w-kpi-${now}-2`,
+      dashboardId,
+      dataSourceId: dataSource.id,
+      type: 'kpi',
+      title: `متوسط: ${pivotValName}`,
+      config: {
+        xAxisColumn: pivotRowCol,
+        yAxisColumn: pivotValName,
+        aggregation: 'AVG',
+        numberFormat: 'compact',
+        colorTheme: 'emerald'
+      },
+      layout: { x: 4, y: 2, w: 4, h: 2, i: `w-kpi-${now}-2` }
+    });
+
+    widgets.push({
+      id: `w-kpi-${now}-3`,
+      dashboardId,
+      dataSourceId: dataSource.id,
+      type: 'kpi',
+      title: `عدد تصنيفات: ${pivotRowCol}`,
+      config: {
+        xAxisColumn: pivotRowCol,
+        yAxisColumn: pivotValName,
+        aggregation: 'COUNT',
+        numberFormat: 'compact',
+        colorTheme: 'violet'
+      },
+      layout: { x: 8, y: 2, w: 4, h: 2, i: `w-kpi-${now}-3` }
+    });
+
+    // 3. جدول الـ Pivot Table الأساسي المباشر (يجيب على السؤال مباشرة)
+    widgets.push({
+      id: `w-pivot-${now}-1`,
+      dashboardId,
+      dataSourceId: dataSource.id,
+      type: 'pivot',
+      title: `🧩 ${questionTitle}`,
+      config: {
+        xAxisColumn: pivotRowCol,
+        yAxisColumn: pivotValName,
+        pivotRowColumns: pivotStructure.rowDimensions.length > 0 ? pivotStructure.rowDimensions : [pivotRowCol],
+        pivotColumnColumns: pivotStructure.columnDimensions || [],
+        pivotValues: pivotStructure.valueFields.length > 0
+          ? pivotStructure.valueFields.map((vf: any, vIdx: number) => ({
+              id: `val_${vIdx + 1}`,
+              column: vf.name,
+              aggregation: vf.aggregation,
+              customLabel: vf.name
+            }))
+          : [{ id: 'val_1', column: pivotValName, aggregation: pivotAgg, customLabel: pivotValName }],
+        sortOrder: 'desc',
+        colorTheme: 'sky'
+      },
+      layout: { x: 0, y: 4, w: 12, h: 6, i: `w-pivot-${now}-1` }
+    });
+
+    // 4. رسم بياني شريطي يمثل السؤال التحليلي للـ Pivot
+    widgets.push({
+      id: `w-bar-${now}-1`,
+      dashboardId,
+      dataSourceId: dataSource.id,
+      type: 'bar',
+      title: `مقارنة ${pivotValName} عبر ${pivotRowCol}`,
+      config: {
+        xAxisColumn: pivotRowCol,
+        yAxisColumn: pivotValName,
+        aggregation: pivotAgg,
+        numberFormat: 'compact',
+        sortOrder: 'desc',
+        showDataLabels: true,
+        colorTheme: 'sky'
+      },
+      layout: { x: 0, y: 10, w: 7, h: 4, i: `w-bar-${now}-1` }
+    });
+
+    // 5. رسم بياني دائري لنسب المساهمة
+    widgets.push({
+      id: `w-donut-${now}-1`,
+      dashboardId,
+      dataSourceId: dataSource.id,
+      type: 'donut',
+      title: `نسب مساهمة ${pivotRowCol}`,
+      config: {
+        xAxisColumn: pivotRowCol,
+        yAxisColumn: pivotValName,
+        aggregation: pivotAgg,
+        pieLabelType: 'percent',
+        showLegend: true,
+        legendPosition: 'bottom',
+        colorTheme: 'violet'
+      },
+      layout: { x: 7, y: 10, w: 5, h: 4, i: `w-donut-${now}-1` }
+    });
+
+    return widgets;
+  }
 
   // 1. Slicer Widget (Top Bar filter)
   if (strCols.length > 0) {
@@ -778,18 +926,44 @@ export const useDashboardStore = create<DashboardState>()(
 
       const isCompact = type === 'kpi' || type === 'slicer' || type === 'gauge';
       const isFullWidth = type === 'table' || type === 'pivot';
+
+      // استخراج البنية إن كان الجدول Pivot تم كشفه مسبقاً
+      const activeSheet = state.currentDataSource.sheets?.find((s) => s.id === state.currentDataSource.activeSheetId) || state.currentDataSource.sheets?.[0];
+      const pivotDet = state.currentDataSource.pivotDetection || activeSheet?.pivotDetection;
+      const pivotStruct = pivotDet?.pivotStructure;
+
+      const pivotRowCols = pivotStruct?.rowDimensions && pivotStruct.rowDimensions.length > 0
+        ? pivotStruct.rowDimensions
+        : [xCol];
+      const pivotColCols = pivotStruct?.columnDimensions || [];
+      const pivotValuesList: PivotValueMetric[] = pivotStruct?.valueFields && pivotStruct.valueFields.length > 0
+        ? pivotStruct.valueFields.map((vf: any, vIdx: number) => ({
+            id: `val_${vIdx + 1}`,
+            column: vf.name,
+            aggregation: vf.aggregation,
+            customLabel: vf.name
+          }))
+        : [{ id: 'val_1', column: yCol, aggregation: 'SUM' as const, customLabel: yCol }];
+
+      const widgetTitle = type === 'pivot' && pivotDet?.question
+        ? `🧩 ${pivotDet.question}`
+        : (typeTitles[type] || 'عنصر جديد');
+
       const newWidget: Widget = {
         id: newId,
         dashboardId: state.currentDashboard.id,
         dataSourceId: state.currentDataSource.id,
         type,
-        title: typeTitles[type] || 'عنصر جديد',
+        title: widgetTitle,
         config: {
-          xAxisColumn: xCol,
-          yAxisColumn: yCol,
+          xAxisColumn: type === 'pivot' && pivotRowCols[0] ? pivotRowCols[0] : xCol,
+          yAxisColumn: type === 'pivot' && pivotValuesList[0]?.column ? pivotValuesList[0].column : yCol,
           secondaryMetric: numCols[1]?.columnName || numCols[0]?.columnName,
           tableColumns: type === 'table' ? cleanCols.slice(0, 5) : undefined,
           tablePageSize: 8,
+          pivotRowColumns: type === 'pivot' ? pivotRowCols : undefined,
+          pivotColumnColumns: type === 'pivot' ? pivotColCols : undefined,
+          pivotValues: type === 'pivot' ? pivotValuesList : undefined,
           slicerColumns:
             type === 'slicer'
               ? strCols.length > 0
@@ -817,6 +991,54 @@ export const useDashboardStore = create<DashboardState>()(
           widgets: [...state.currentDashboard.widgets, newWidget]
         },
         selectedWidgetId: newId
+      };
+    }),
+
+  addPivotWidgetFromDetection: (pivotStructure, question) =>
+    set((state) => {
+      const newId = `w-pivot-${Date.now()}`;
+      const xCol = pivotStructure?.rowDimensions?.[0] || state.currentDataSource.columns[0]?.columnName || 'الفئة';
+      const valField = pivotStructure?.valueFields?.[0];
+      const yCol = valField?.name || state.currentDataSource.columns[1]?.columnName || 'القيمة';
+
+      const newWidget: Widget = {
+        id: newId,
+        dashboardId: state.currentDashboard.id,
+        dataSourceId: state.currentDataSource.id,
+        type: 'pivot',
+        title: question ? `🧩 ${question}` : `جدول محوري: ${yCol} حسب ${xCol}`,
+        config: {
+          xAxisColumn: xCol,
+          yAxisColumn: yCol,
+          pivotRowColumns: pivotStructure?.rowDimensions && pivotStructure.rowDimensions.length > 0 ? pivotStructure.rowDimensions : [xCol],
+          pivotColumnColumns: pivotStructure?.columnDimensions || [],
+          pivotValues: pivotStructure?.valueFields && pivotStructure.valueFields.length > 0
+            ? pivotStructure.valueFields.map((vf: any, vIdx: number) => ({
+                id: `val_${vIdx + 1}`,
+                column: vf.name,
+                aggregation: vf.aggregation,
+                customLabel: vf.name
+              }))
+            : [{ id: 'val_1', column: yCol, aggregation: 'SUM' as const, customLabel: yCol }],
+          sortOrder: 'desc',
+          colorTheme: 'sky'
+        },
+        layout: {
+          x: 0,
+          y: Infinity,
+          w: 12,
+          h: 6,
+          i: newId
+        }
+      };
+
+      return {
+        currentDashboard: {
+          ...state.currentDashboard,
+          widgets: [...state.currentDashboard.widgets, newWidget]
+        },
+        selectedWidgetId: newId,
+        lastSavedAt: new Date().toISOString()
       };
     }),
 

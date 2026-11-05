@@ -151,7 +151,10 @@ export const MultiSourceModal: React.FC<MultiSourceModalProps> = ({ isOpen, onCl
                       columns: st.columns || [],
                       rawRows: st.rawRows || [],
                       rowCount: st.rowCount || 0,
-                      uploadedAt: new Date().toISOString()
+                      uploadedAt: new Date().toISOString(),
+                      isPivot: st.isPivot,
+                      pivotDetection: st.pivotDetection,
+                      pivotQuestion: st.tableTitle || st.pivotDetection?.question
                     });
                   });
                 }
@@ -236,20 +239,50 @@ export const MultiSourceModal: React.FC<MultiSourceModalProps> = ({ isOpen, onCl
 
     try {
       const ds = await fetchGoogleSheetData(url);
-      const table: TableEntry = {
-        id: `tbl-gs-${sheetId}`,
-        name: ds.fileName || `Google Sheet ${liveSheets.length + 1}`,
-        sourceType: 'sheet',
-        columns: ds.columns || [],
-        rawRows: ds.rawRows || [],
-        rowCount: ds.rawRows?.length || 0,
-        uploadedAt: new Date().toISOString()
-      };
-      setLiveSheets((prev) =>
-        prev.map((ls) =>
-          ls.sheetId === sheetId ? { ...ls, table, status: 'ok', label: table.name } : ls
-        )
-      );
+      if (ds.sheets && ds.sheets.length > 1) {
+        // مصنف Google Sheets يحتوي أوراق متعددة
+        const createdLiveSheets: LiveSheet[] = ds.sheets.map((sh, sIdx) => ({
+          sheetId: `gs-${Date.now()}-${sIdx}`,
+          url,
+          label: sh.name,
+          table: {
+            id: `tbl-gs-${Date.now()}-${sIdx}`,
+            name: sh.name,
+            sourceType: 'sheet',
+            columns: sh.columns || [],
+            rawRows: sh.rawRows || [],
+            rowCount: sh.rowCount || 0,
+            uploadedAt: new Date().toISOString(),
+            isPivot: sh.isPivot,
+            pivotDetection: sh.pivotDetection,
+            pivotQuestion: sh.tableTitle || sh.pivotDetection?.question
+          },
+          status: 'ok'
+        }));
+        setLiveSheets((prev) => [
+          ...prev.filter((ls) => ls.sheetId !== sheetId),
+          ...createdLiveSheets
+        ]);
+      } else {
+        const firstSh = ds.sheets?.[0];
+        const table: TableEntry = {
+          id: `tbl-gs-${sheetId}`,
+          name: firstSh?.name || ds.fileName || `Google Sheet ${liveSheets.length + 1}`,
+          sourceType: 'sheet',
+          columns: ds.columns || [],
+          rawRows: ds.rawRows || [],
+          rowCount: ds.rawRows?.length || 0,
+          uploadedAt: new Date().toISOString(),
+          isPivot: firstSh?.isPivot ?? ds.isPivot,
+          pivotDetection: firstSh?.pivotDetection ?? ds.pivotDetection,
+          pivotQuestion: firstSh?.tableTitle || (firstSh?.pivotDetection ?? ds.pivotDetection)?.question
+        };
+        setLiveSheets((prev) =>
+          prev.map((ls) =>
+            ls.sheetId === sheetId ? { ...ls, table, status: 'ok', label: table.name } : ls
+          )
+        );
+      }
     } catch (err: any) {
       setLiveSheets((prev) =>
         prev.map((ls) =>
@@ -485,7 +518,19 @@ export const MultiSourceModal: React.FC<MultiSourceModalProps> = ({ isOpen, onCl
                                 {isSelected && <Check className="w-3 h-3 text-white" />}
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="text-xs font-semibold truncate">{table.name}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs font-semibold truncate">{table.name}</p>
+                                  {table.isPivot && (
+                                    <span className="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-1.5 py-0.2 rounded-full font-bold shrink-0">
+                                      🧩 Pivot مكتشف
+                                    </span>
+                                  )}
+                                </div>
+                                {table.isPivot && table.pivotQuestion && (
+                                  <p className="text-[10px] text-purple-300 mt-1 line-clamp-2 bg-purple-950/40 px-2 py-1 rounded border border-purple-800/30">
+                                    🎯 <span className="font-semibold">يجيب:</span> {table.pivotQuestion}
+                                  </p>
+                                )}
                                 <p className="text-[10px] opacity-70 mt-0.5">
                                   {table.rowCount?.toLocaleString()} صف · {table.columns?.length} عمود
                                 </p>
@@ -548,7 +593,19 @@ export const MultiSourceModal: React.FC<MultiSourceModalProps> = ({ isOpen, onCl
                         {ls.status === 'error' && <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />}
                         {ls.status === 'idle' && <Globe className="w-4 h-4 text-slate-400 shrink-0" />}
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-200 truncate">{ls.label}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-slate-200 truncate">{ls.label}</p>
+                            {ls.table?.isPivot && (
+                              <span className="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-1.5 py-0.2 rounded-full font-bold shrink-0">
+                                🧩 Pivot مكتشف
+                              </span>
+                            )}
+                          </div>
+                          {ls.table?.isPivot && ls.table?.pivotQuestion && (
+                            <p className="text-[10px] text-purple-300 mt-1 line-clamp-1 bg-purple-950/40 px-2 py-0.5 rounded border border-purple-800/30">
+                              🎯 <span className="font-semibold">يجيب:</span> {ls.table.pivotQuestion}
+                            </p>
+                          )}
                           {ls.table && (
                             <p className="text-slate-500 mt-0.5">
                               {ls.table.rowCount?.toLocaleString()} صف · {ls.table.columns?.length} عمود

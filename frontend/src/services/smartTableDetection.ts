@@ -7,6 +7,10 @@
  */
 import * as XLSX from 'xlsx';
 import type { Column, ColumnDataType } from '../types/dataSource';
+import { detectPivotSheet, detectPivotFrom2D, type PivotDetectionResult, type PivotStructure } from './pivotDetectionEngine';
+
+// إعادة تصدير أنواع الـ Pivot للاستخدام الخارجي
+export type { PivotDetectionResult, PivotStructure };
 
 export interface DetectedTable {
   headerRowIndex: number;         // رقم الصف الذي يحتوي رؤوس الأعمدة (0-indexed)
@@ -234,20 +238,79 @@ export function detectTablesInWorksheet(
 }
 
 /**
- * Parse an XLSX worksheet and return detected tables as Sheet[] compatible objects
+ * Parse an XLSX worksheet and return detected tables as Sheet[] compatible objects.
+ * يُشغّل كشف Pivot Table أولاً؛ إن كانت Pivot يُعيد كائناً خاصاً بها،
+ * وإلا يُكمل بالمنطق الاعتيادي لكشف الجداول.
  */
 export function parseWorksheetSmartTables(
   worksheet: XLSX.WorkSheet,
   sheetName: string,
   sheetIndex: number
-) {
-  // Read as raw 2D array (no automatic header extraction)
+): Array<{
+  id: string;
+  name: string;
+  rowCount: number;
+  columns: Column[];
+  previewRows: Record<string, any>[];
+  rawRows: Record<string, any>[];
+  tableTitle?: string;
+  // ── حقول Pivot اختيارية ──────────────
+  isPivot?: boolean;
+  pivotDetection?: PivotDetectionResult;
+}> | null {
+  // ── 1. قراءة الشيت كمصفوفة 2D ───────────────────────────────────────────
   const raw2D: any[][] = XLSX.utils.sheet_to_json(worksheet, {
     header: 1,
     defval: '',
     blankrows: true
   }) as any[][];
 
+  // ── 2. كشف Pivot Table أولاً ─────────────────────────────────────────────
+  const pivotResult: PivotDetectionResult = detectPivotSheet(worksheet, sheetName);
+
+  if (pivotResult.isPivot && pivotResult.pivotStructure) {
+    const ps = pivotResult.pivotStructure;
+
+    // بناء previewRows من العمود الأول + أعمدة القيم
+    const headerRow = raw2D.find((r) => r.some((c) => String(c ?? '').trim() !== '')) || [];
+    const pivotRows: Record<string, any>[] = [];
+
+    for (let i = 1; i < raw2D.length; i++) {
+      const row = raw2D[i];
+      if (!row || row.every((c) => !String(c ?? '').trim())) continue;
+      const obj: Record<string, any> = {};
+      headerRow.forEach((h: any, ci: number) => {
+        const key = String(h ?? '').trim() || `col_${ci}`;
+        obj[key] = row[ci] ?? '';
+      });
+      pivotRows.push(obj);
+    }
+
+    // بناء أعمدة بسيطة من الرأس الحقيقي
+    const pivotColumns: Column[] = headerRow
+      .filter((h: any) => String(h ?? '').trim())
+      .map((h: any, ci: number) => ({
+        id: `c-pivot-s${sheetIndex}-${ci}`,
+        columnName: String(h).trim(),
+        dataType: ci === 0 ? ('string' as const) : ('numeric' as const),
+        sampleValues: []
+      }));
+
+    return [{
+      id: `sheet-${sheetIndex}-pivot`,
+      name: sheetName,
+      rowCount: ps.dataRowCount,
+      columns: pivotColumns,
+      previewRows: pivotRows.slice(0, 50),
+      rawRows: pivotRows,
+      tableTitle: pivotResult.question,
+      // ── بيانات Pivot ──
+      isPivot: true,
+      pivotDetection: pivotResult
+    }];
+  }
+
+  // ── 3. المنطق الاعتيادي (غير Pivot) ──────────────────────────────────────
   const detected = detectTablesInWorksheet(raw2D, sheetIndex);
 
   if (detected.length === 0) {
@@ -282,12 +345,19 @@ export function parseWorksheetSmartTables(
 
 /**
  * Parse a CSV text (from Google Sheets export) and detect real table region.
- * Returns { rows, columns } with the best-quality table found.
+ * يُشغّل كشف Pivot Table أولاً ثم يُكمل بالمنطق الاعتيادي إن لم يُكتشف Pivot.
+ * Returns { rows, columns, tableTitle, isPivot, pivotDetection }
  */
 export function parseGoogleSheetCsvSmart(
   csvText: string,
   _gid?: string
-): { rows: Record<string, any>[]; columns: Column[]; tableTitle?: string } {
+): {
+  rows: Record<string, any>[];
+  columns: Column[];
+  tableTitle?: string;
+  isPivot?: boolean;
+  pivotDetection?: PivotDetectionResult;
+} {
   // Use XLSX to parse CSV into 2D
   const workbook = XLSX.read(csvText, { type: 'string', cellDates: true });
   const firstSheetName = workbook.SheetNames[0];
@@ -299,6 +369,43 @@ export function parseGoogleSheetCsvSmart(
     blankrows: true
   }) as any[][];
 
+  // ── كشف Pivot أولاً ─────────────────────────────────────────────────────
+  const pivotResult: PivotDetectionResult = detectPivotFrom2D(raw2D, firstSheetName, worksheet);
+
+  if (pivotResult.isPivot && pivotResult.pivotStructure) {
+    const headerRow = raw2D.find((r) => r.some((c) => String(c ?? '').trim() !== '')) || [];
+    const pivotRows: Record<string, any>[] = [];
+
+    for (let i = 1; i < raw2D.length; i++) {
+      const row = raw2D[i];
+      if (!row || row.every((c) => !String(c ?? '').trim())) continue;
+      const obj: Record<string, any> = {};
+      headerRow.forEach((h: any, ci: number) => {
+        const key = String(h ?? '').trim() || `col_${ci}`;
+        obj[key] = row[ci] ?? '';
+      });
+      pivotRows.push(obj);
+    }
+
+    const pivotColumns: Column[] = headerRow
+      .filter((h: any) => String(h ?? '').trim())
+      .map((h: any, ci: number) => ({
+        id: `c-pivot-gs-${ci}`,
+        columnName: String(h).trim(),
+        dataType: ci === 0 ? ('string' as const) : ('numeric' as const),
+        sampleValues: []
+      }));
+
+    return {
+      rows: pivotRows,
+      columns: pivotColumns,
+      tableTitle: pivotResult.question,
+      isPivot: true,
+      pivotDetection: pivotResult
+    };
+  }
+
+  // ── المنطق الاعتيادي ─────────────────────────────────────────────────────
   const detected = detectTablesInWorksheet(raw2D, 0);
 
   if (detected.length > 0) {

@@ -204,7 +204,9 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
       sheets,
       activeSheetId: currentSheet.id,
       columns: currentSheet.columns,
-      rawRows: currentSheet.rawRows || []
+      rawRows: currentSheet.rawRows || [],
+      isPivot: currentSheet.isPivot,
+      pivotDetection: currentSheet.pivotDetection
     };
     
     // Apply immediately to the dashboard (with smart widget auto-generation)
@@ -547,13 +549,13 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
 
               {/* Sheet Tabs */}
               {sheets.length > 1 && (
-                <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
-                  <span className="text-[11px] font-bold text-slate-500">الأوراق:</span>
+                <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
+                  <span className="text-[11px] font-bold text-slate-500 shrink-0">الأوراق:</span>
                   {sheets.map((sh, idx) => (
                     <button
                       key={sh.id}
                       onClick={() => { setActiveSheetIndex(idx); setColSearch(''); }}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0 ${
                         idx === activeSheetIndex
                           ? 'bg-sky-500 text-white shadow-sm'
                           : 'bg-slate-800 text-slate-400 hover:text-white'
@@ -561,9 +563,49 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                     >
                       <Table className="w-3.5 h-3.5" />
                       <span>{sh.name}</span>
+                      {sh.isPivot && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-purple-400/25 text-purple-200 font-bold border border-purple-300/40">
+                          🧩 Pivot
+                        </span>
+                      )}
                       <span className="text-[10px] opacity-75 font-mono">({sh.rowCount.toLocaleString()})</span>
                     </button>
                   ))}
+                </div>
+              )}
+
+              {/* Pivot Table Smart Analytical Question Card */}
+              {currentSheet?.isPivot && (
+                <div className="bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 rounded-xl p-4 shadow-md space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
+                    <span className="p-1 rounded-lg bg-purple-500/20 text-purple-300">🧩</span>
+                    <span>تم اكتشاف جدول محوري (Pivot Table) تلقائياً</span>
+                    <span className="text-[10px] bg-purple-500/20 text-purple-200 border border-purple-500/30 px-2 py-0.5 rounded-full mr-auto font-normal">
+                      ثقة التحليل: {Math.round((currentSheet.pivotDetection?.confidence || 0.8) * 100)}%
+                    </span>
+                  </div>
+
+                  {currentSheet.pivotDetection?.question && (
+                    <div className="text-xs text-purple-100 bg-purple-900/30 border border-purple-800/50 rounded-lg p-3">
+                      <div className="text-[11px] text-purple-400 font-bold flex items-center gap-1 mb-1">
+                        <span>🎯 السؤال التحليلي المباشر الذي يجيب عليه هذا الـ Pivot:</span>
+                      </div>
+                      <p className="text-sm font-bold text-white tracking-wide">
+                        {currentSheet.pivotDetection.question}
+                      </p>
+                    </div>
+                  )}
+
+                  {currentSheet.pivotDetection?.suggestedQuestions && currentSheet.pivotDetection.suggestedQuestions.length > 0 && (
+                    <div className="text-[11px] text-slate-300 space-y-1.5 pt-1 border-t border-purple-800/30">
+                      <span className="font-semibold text-purple-300">💡 أسئلة استكشافية إضافية يجيب عليها هذا الجدول:</span>
+                      <ul className="list-disc list-inside space-y-1 text-slate-300 pr-1">
+                        {currentSheet.pivotDetection.suggestedQuestions.map((q: string, qIdx: number) => (
+                          <li key={qIdx} className="text-slate-300">{q}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
 

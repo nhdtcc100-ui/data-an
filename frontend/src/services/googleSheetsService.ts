@@ -1,6 +1,7 @@
 import type { DataSource, Sheet, Column } from '../types/dataSource';
 import initialSheetRows from './googleSheetInitialData.json';
-import { parseGoogleSheetCsvSmart, inferColumnsFromRows } from './smartTableDetection';
+import { parseGoogleSheetCsvSmart, inferColumnsFromRows, parseWorksheetSmartTables } from './smartTableDetection';
+import * as XLSX from 'xlsx';
 
 export const DEFAULT_GOOGLE_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/12Jay5TtiQxxVkaAWonIWYJ62_H6uuzgUlgHRRxgm6Q0/edit?gid=891723734#gid=891723734';
@@ -55,6 +56,63 @@ export async function fetchGoogleSheetData(
   const { sheetId, gid } = parsed;
   const timestamp = Date.now();
 
+  // ── محاولة جلب مصنف العمل كاملاً كـ XLSX (يدعم جلب كافة الأوراق والشيتات مع Pivot Tables) ──
+  try {
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx&_nocache=${timestamp}`;
+    const xlsxRes = await fetch(xlsxUrl, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+
+    if (xlsxRes.ok) {
+      const buffer = await xlsxRes.arrayBuffer();
+      if (buffer.byteLength > 500) {
+        const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: true });
+        if (workbook.SheetNames && workbook.SheetNames.length > 0) {
+          const allSheets: Sheet[] = [];
+          workbook.SheetNames.forEach((sName, sIdx) => {
+            const ws = workbook.Sheets[sName];
+            const parsed = parseWorksheetSmartTables(ws, sName, sIdx);
+            if (parsed) {
+              allSheets.push(...parsed);
+            }
+          });
+
+          if (allSheets.length > 0) {
+            // تفضيل الشيت المطابق للـ gid إن وجد أو أول شيت
+            const activeSheet = allSheets.find((s) => s.id === `sheet-${gid}-0` || s.id === `sheet-${gid}-pivot`) || allSheets[0];
+            return {
+              id: `ds-gsheet-${sheetId.slice(0, 8)}`,
+              workspaceId: 'ws-main',
+              fileName: `Google Sheets (${workbook.SheetNames.length} أوراق).xlsx`,
+              fileSizeBytes: buffer.byteLength,
+              uploadedAt: new Date().toISOString(),
+              activeSheetId: activeSheet.id,
+              sheets: allSheets,
+              columns: activeSheet.columns,
+              rawRows: activeSheet.rawRows || [],
+              isPivot: activeSheet.isPivot,
+              pivotDetection: activeSheet.pivotDetection
+            };
+          }
+        }
+      }
+    } else if (xlsxRes.status === 401 || xlsxRes.status === 403) {
+      throw new Error(
+        'الملف مقيد الصلاحيات (Private). يرجى فتح ملف Google Sheet والضغط على «مشاركة» وتغيير الوصول إلى: «أي شخص لديه الرابط يمكنه العرض».'
+      );
+    }
+  } catch (xlsxErr: any) {
+    if (xlsxErr.message?.includes('مقيد الصلاحيات')) {
+      throw xlsxErr;
+    }
+    console.warn('Google Sheets XLSX multi-sheet fetch bypassed/failed, falling back to CSV:', xlsxErr);
+  }
+
+  // ── خطة بديلة: جلب ورقة واحدة بصيغة CSV ──
   // Try direct export first, then gviz endpoint
   const candidateUrls = [
     `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}&_nocache=${timestamp}`,
@@ -128,7 +186,7 @@ export async function fetchGoogleSheetData(
   }
 
   // ── Smart Table Detection: finds actual table headers ignoring filters/titles ──
-  const { rows: cleanedRows, columns, tableTitle } = parseGoogleSheetCsvSmart(csvText, gid);
+  const { rows: cleanedRows, columns, tableTitle, isPivot, pivotDetection } = parseGoogleSheetCsvSmart(csvText, gid);
 
   if (cleanedRows.length === 0) {
     throw new Error('لم يتم العثور على أي جدول بيانات صالح في ورقة Google Sheet.');
@@ -143,7 +201,10 @@ export async function fetchGoogleSheetData(
     name: sheetName,
     rowCount: cleanedRows.length,
     columns,
-    rawRows: cleanedRows
+    rawRows: cleanedRows,
+    tableTitle,
+    isPivot,
+    pivotDetection
   };
 
   return {
@@ -155,6 +216,8 @@ export async function fetchGoogleSheetData(
     activeSheetId: sheetObj.id,
     sheets: [sheetObj],
     columns,
-    rawRows: cleanedRows
+    rawRows: cleanedRows,
+    isPivot,
+    pivotDetection
   };
 }

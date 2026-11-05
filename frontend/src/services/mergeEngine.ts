@@ -433,10 +433,15 @@ export function multiModelToDataSource(
       rowCount: t.rowCount,
       columns: sanitizeColumns(t.columns || []),
       previewRows: t.rawRows?.slice(0, 50),
-      rawRows: t.rawRows
+      rawRows: t.rawRows,
+      isPivot: t.isPivot,
+      pivotDetection: t.pivotDetection,
+      tableTitle: t.pivotQuestion
     })),
     activeSheetId: model.tables[0]?.id || '',
     columns: cleanCols,
-    rawRows: result.mergedRows
+    rawRows: result.mergedRows,
+    isPivot: model.tables[0]?.isPivot,
+    pivotDetection: model.tables[0]?.pivotDetection
   };
 }
