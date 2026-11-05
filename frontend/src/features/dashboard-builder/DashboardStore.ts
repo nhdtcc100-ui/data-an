@@ -381,6 +381,8 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
         type: 'kpi',
         title: pivotAgg === 'COUNT' ? `عدد: ${pivotValName}${sheetLabel}` : `إجمالي: ${pivotValName}${sheetLabel}`,
         config: {
+          sheetId: pSheet.id,
+          sheetName: pSheet.name,
           xAxisColumn: pivotRowCol,
           yAxisColumn: pivotValName,
           aggregation: pivotAgg,
@@ -396,6 +398,8 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
         type: 'kpi',
         title: `متوسط: ${pivotValName}${sheetLabel}`,
         config: {
+          sheetId: pSheet.id,
+          sheetName: pSheet.name,
           xAxisColumn: pivotRowCol,
           yAxisColumn: pivotValName,
           aggregation: 'AVG',
@@ -411,6 +415,8 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
         type: 'kpi',
         title: `تصنيفات: ${pivotRowCol}${sheetLabel}`,
         config: {
+          sheetId: pSheet.id,
+          sheetName: pSheet.name,
           xAxisColumn: pivotRowCol,
           yAxisColumn: pivotValName,
           aggregation: 'COUNT',
@@ -433,6 +439,8 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
         type: 'pivot',
         title: `🧩 ${questionTitle}`,
         config: {
+          sheetId: pSheet.id,
+          sheetName: pSheet.name,
           xAxisColumn: pivotRowCol,
           yAxisColumn: pivotValName,
           // بنية مطابقة تماماً للـ Pivot الأصلي
@@ -462,6 +470,8 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
         type: 'bar',
         title: `مقارنة ${pivotValName} عبر ${pivotRowCol}${sheetLabel}`,
         config: {
+          sheetId: pSheet.id,
+          sheetName: pSheet.name,
           xAxisColumn: pivotRowCol,
           yAxisColumn: pivotValName,
           aggregation: pivotAgg,
@@ -481,6 +491,8 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
         type: 'donut',
         title: `نسب مساهمة ${pivotRowCol}${sheetLabel}`,
         config: {
+          sheetId: pSheet.id,
+          sheetName: pSheet.name,
           xAxisColumn: pivotRowCol,
           yAxisColumn: pivotValName,
           aggregation: pivotAgg,

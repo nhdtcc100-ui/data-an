@@ -99,6 +99,8 @@ export interface WidgetConfig {
   allowedIncomingWidgetIds?: string[];         // If set, only receives filters from these widgets
 
   // Excel / Power BI 4-Zone Pivot Table Properties
+  sheetId?: string;
+  sheetName?: string;
   pivotFilterColumns?: string[];
   pivotFilterValues?: Record<string, string>;
   pivotRowColumns?: string[];

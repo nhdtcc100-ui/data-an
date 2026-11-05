@@ -127,7 +127,15 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   const isSelected = selectedWidgetId === widget.id && isEditMode;
 
-  const rawRows = currentDataSource.rawRows || [];
+  // ربط الجدول أو الودجت بالورقة الأصلية الخاصة به إن وُجدت
+  const targetSheet = (widget.config.sheetId || widget.config.sheetName)
+    ? (currentDataSource.sheets?.find((s) => s.id === widget.config.sheetId || s.name === widget.config.sheetName) ||
+       currentDataSource.sheets?.find((s) => s.id === currentDataSource.activeSheetId) ||
+       currentDataSource.sheets?.[0])
+    : (currentDataSource.sheets?.find((s) => s.id === currentDataSource.activeSheetId) || currentDataSource.sheets?.[0]);
+
+  const rawRows = targetSheet?.rawRows || currentDataSource.rawRows || [];
+  const availableColumns = targetSheet?.columns || currentDataSource.columns || [];
 
   // Compute effective filters for this specific widget based on link settings
   const effectiveFilters = React.useMemo(() => {
@@ -180,7 +188,6 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   const currentLevelIndex = Math.min(widgetDrill.levelIndex || 0, Math.max(0, drillLevels.length - 1));
 
   // Determine active group column with smart fallback to available columns if column was deleted or mismatched
-  const availableColumns = currentDataSource.columns || [];
   const rawGroupCol = drillDownEnabled && drillLevels.length > 0
     ? (drillLevels[currentLevelIndex] || drillLevels[0])
     : (widget.config.xAxisColumn || availableColumns[0]?.columnName || 'المنطقة');
@@ -972,7 +979,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             widgetId={widget.id}
             config={widget.config}
             rows={drillFilteredRows}
-            columns={currentDataSource.columns}
+            columns={availableColumns}
             onUpdateConfig={(updates) => updateWidgetConfig(widget.id, updates)}
             groupByColumn={activeGroupCol}
             drillEnabled={drillDownEnabled}

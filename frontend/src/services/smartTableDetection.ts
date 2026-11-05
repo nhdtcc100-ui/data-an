@@ -238,6 +238,173 @@ export function detectTablesInWorksheet(
 }
 
 /**
+ * تطبيع وتنظيف صفوف جدول Pivot Table المُصدّر من Excel أو Google Sheets:
+ * 1. حذف الأعمدة الفارغة في النهاية (مثل '', '__EMPTY')
+ * 2. حذف صف الإجمالي الكلي (Grand Total / Total / المجموع الكلي) من السجلات الفردية حتى لا يتضاعف المجموع
+ * 3. التعبئة التلقائية للأسفل (Forward-Fill) للأبعاد التصنيفية التي تتركها إكسل وجوجل فارغة عند التجميع الهرمي
+ * 4. تحويل أعمدة القياس والأعداد إلى أرقام صحيحة ونظيفة
+ */
+export function normalizePivotDataRows(
+  raw2D: any[][],
+  pivotStructure?: PivotStructure,
+  sheetIndex = 0
+): {
+  cleanHeaders: string[];
+  cleanRows: Record<string, any>[];
+  columns: Column[];
+  grandTotalValue?: number;
+} {
+  if (!raw2D || raw2D.length === 0) {
+    return { cleanHeaders: [], cleanRows: [], columns: [] };
+  }
+
+  // 1. تحديد صف الرأس (أول صف يحتوي خلايا غير فارغة)
+  let headerRowIdx = 0;
+  while (headerRowIdx < raw2D.length && raw2D[headerRowIdx].every((c) => !String(c ?? '').trim())) {
+    headerRowIdx++;
+  }
+  if (headerRowIdx >= raw2D.length) {
+    return { cleanHeaders: [], cleanRows: [], columns: [] };
+  }
+
+  const rawHeaders = raw2D[headerRowIdx].map((h) => String(h ?? '').trim());
+
+  // تحديد آخر عمود فعلي غير فارغ
+  let lastNonEmptyCol = rawHeaders.length - 1;
+  while (
+    lastNonEmptyCol >= 0 &&
+    (!rawHeaders[lastNonEmptyCol] || rawHeaders[lastNonEmptyCol].startsWith('__EMPTY'))
+  ) {
+    lastNonEmptyCol--;
+  }
+
+  const cleanHeaders: string[] = [];
+  const usedColIndices: number[] = [];
+  for (let ci = 0; ci <= lastNonEmptyCol; ci++) {
+    const h = rawHeaders[ci];
+    if (h && !h.startsWith('__EMPTY')) {
+      cleanHeaders.push(h);
+      usedColIndices.push(ci);
+    }
+  }
+
+  if (cleanHeaders.length === 0) {
+    return { cleanHeaders: [], cleanRows: [], columns: [] };
+  }
+
+  // تحديد حقول القيم وحقول الأبعاد
+  const valueColSet = new Set<string>();
+  if (pivotStructure?.valueFields && pivotStructure.valueFields.length > 0) {
+    pivotStructure.valueFields.forEach((v) => valueColSet.add(v.name));
+  } else {
+    cleanHeaders.forEach((h) => {
+      if (/^(count of|sum of|avg of|max of|min of|مجموع|عدد|إجمالي)/i.test(h)) {
+        valueColSet.add(h);
+      }
+    });
+  }
+
+  // إذا لم يُعثر على حقل قيمة صريح، نعتبر آخر عمود أو عمود رقمي كحقل قيمة
+  if (valueColSet.size === 0 && cleanHeaders.length > 1) {
+    valueColSet.add(cleanHeaders[cleanHeaders.length - 1]);
+  }
+
+  const dataRows = raw2D.slice(headerRowIdx + 1);
+  const cleanRows: Record<string, any>[] = [];
+  const lastDimValues: Record<string, string> = {};
+  let grandTotalValue: number | undefined;
+
+  for (const r of dataRows) {
+    if (!r || r.every((c) => !String(c ?? '').trim())) continue;
+
+    // فحص إن كان هذا الصف هو صف الإجمالي الكلي (Grand Total)
+    const firstCell = String(r[usedColIndices[0]] ?? '').trim();
+    const isGrandTotal = [
+      'grand total',
+      'grandtotal',
+      'إجمالي',
+      'الإجمالي',
+      'الإجمالي الكلي',
+      'المجموع',
+      'المجموع الكلي',
+      'total'
+    ].some((kw) => firstCell.toLowerCase().includes(kw));
+
+    if (isGrandTotal) {
+      // استخراج قيمة الإجمالي الكلي إن وجدت
+      for (const ci of usedColIndices) {
+        const val = r[ci];
+        if (typeof val === 'number') {
+          grandTotalValue = val;
+          break;
+        } else if (val && !isNaN(Number(String(val).replace(/[,$\sد\.ع]/g, '')))) {
+          grandTotalValue = Number(String(val).replace(/[,$\sد\.ع]/g, ''));
+          break;
+        }
+      }
+      continue; // تخطي صف الإجمالي الكلي حتى لا يتضاعف الحساب في الداشبورد
+    }
+
+    // إذا تغير البعد الرئيسي الأول، نُفرغ القيم المخزنة للأبعاد الفرعية
+    const primaryDimHeader = cleanHeaders[0];
+    const rawPrimaryVal = String(r[usedColIndices[0]] ?? '').trim();
+    if (rawPrimaryVal && rawPrimaryVal !== lastDimValues[primaryDimHeader]) {
+      for (const h of cleanHeaders) {
+        if (h !== primaryDimHeader && !valueColSet.has(h)) {
+          delete lastDimValues[h];
+        }
+      }
+    }
+
+    const obj: Record<string, any> = {};
+    let hasAnyData = false;
+
+    usedColIndices.forEach((ci, idx) => {
+      const header = cleanHeaders[idx];
+      let val = r[ci];
+      const strVal = String(val ?? '').trim();
+
+      if (valueColSet.has(header)) {
+        if (typeof val === 'number') {
+          obj[header] = val;
+          hasAnyData = true;
+        } else if (strVal !== '') {
+          const num = Number(strVal.replace(/[,$\sد\.ع]/g, ''));
+          obj[header] = !isNaN(num) ? num : strVal;
+          hasAnyData = true;
+        } else {
+          obj[header] = /count|عدد/i.test(header) ? 1 : 0;
+        }
+      } else {
+        if (strVal !== '') {
+          obj[header] = strVal;
+          lastDimValues[header] = strVal;
+          hasAnyData = true;
+        } else if (lastDimValues[header]) {
+          obj[header] = lastDimValues[header]; // التعبئة للأسفل (Forward Fill)
+          hasAnyData = true;
+        } else {
+          obj[header] = '';
+        }
+      }
+    });
+
+    if (hasAnyData) {
+      cleanRows.push(obj);
+    }
+  }
+
+  const columns = inferColumnsFromRows(cleanRows, sheetIndex);
+
+  return {
+    cleanHeaders,
+    cleanRows,
+    columns,
+    grandTotalValue
+  };
+}
+
+/**
  * Parse an XLSX worksheet and return detected tables as Sheet[] compatible objects.
  * يُشغّل كشف Pivot Table أولاً؛ إن كانت Pivot يُعيد كائناً خاصاً بها،
  * وإلا يُكمل بالمنطق الاعتيادي لكشف الجداول.
@@ -269,44 +436,25 @@ export function parseWorksheetSmartTables(
   const pivotResult: PivotDetectionResult = detectPivotSheet(worksheet, sheetName);
 
   if (pivotResult.isPivot && pivotResult.pivotStructure) {
-    const ps = pivotResult.pivotStructure;
-
-    // بناء previewRows من العمود الأول + أعمدة القيم
-    const headerRow = raw2D.find((r) => r.some((c) => String(c ?? '').trim() !== '')) || [];
-    const pivotRows: Record<string, any>[] = [];
-
-    for (let i = 1; i < raw2D.length; i++) {
-      const row = raw2D[i];
-      if (!row || row.every((c) => !String(c ?? '').trim())) continue;
-      const obj: Record<string, any> = {};
-      headerRow.forEach((h: any, ci: number) => {
-        const key = String(h ?? '').trim() || `col_${ci}`;
-        obj[key] = row[ci] ?? '';
-      });
-      pivotRows.push(obj);
-    }
-
-    // بناء أعمدة بسيطة من الرأس الحقيقي
-    const pivotColumns: Column[] = headerRow
-      .filter((h: any) => String(h ?? '').trim())
-      .map((h: any, ci: number) => ({
-        id: `c-pivot-s${sheetIndex}-${ci}`,
-        columnName: String(h).trim(),
-        dataType: ci === 0 ? ('string' as const) : ('numeric' as const),
-        sampleValues: []
-      }));
+    const norm = normalizePivotDataRows(raw2D, pivotResult.pivotStructure, sheetIndex);
 
     return [{
       id: `sheet-${sheetIndex}-pivot`,
       name: sheetName,
-      rowCount: ps.dataRowCount,
-      columns: pivotColumns,
-      previewRows: pivotRows.slice(0, 50),
-      rawRows: pivotRows,
+      rowCount: norm.cleanRows.length,
+      columns: norm.columns,
+      previewRows: norm.cleanRows.slice(0, 50),
+      rawRows: norm.cleanRows,
       tableTitle: pivotResult.question,
       // ── بيانات Pivot ──
       isPivot: true,
-      pivotDetection: pivotResult
+      pivotDetection: {
+        ...pivotResult,
+        pivotStructure: {
+          ...pivotResult.pivotStructure,
+          dataRowCount: norm.cleanRows.length
+        }
+      }
     }];
   }
 
@@ -373,28 +521,20 @@ export function parseGoogleSheetCsvSmart(
   const pivotResult: PivotDetectionResult = detectPivotFrom2D(raw2D, firstSheetName, worksheet);
 
   if (pivotResult.isPivot && pivotResult.pivotStructure) {
-    const headerRow = raw2D.find((r) => r.some((c) => String(c ?? '').trim() !== '')) || [];
-    const pivotRows: Record<string, any>[] = [];
-
-    for (let i = 1; i < raw2D.length; i++) {
-      const row = raw2D[i];
-      if (!row || row.every((c) => !String(c ?? '').trim())) continue;
-      const obj: Record<string, any> = {};
-      headerRow.forEach((h: any, ci: number) => {
-        const key = String(h ?? '').trim() || `col_${ci}`;
-        obj[key] = row[ci] ?? '';
-      });
-      pivotRows.push(obj);
-    }
-
-    const pivotColumns: Column[] = inferColumnsFromRows(pivotRows, 0);
+    const norm = normalizePivotDataRows(raw2D, pivotResult.pivotStructure, 0);
 
     return {
-      rows: pivotRows,
-      columns: pivotColumns,
+      rows: norm.cleanRows,
+      columns: norm.columns,
       tableTitle: pivotResult.question,
       isPivot: true,
-      pivotDetection: pivotResult
+      pivotDetection: {
+        ...pivotResult,
+        pivotStructure: {
+          ...pivotResult.pivotStructure,
+          dataRowCount: norm.cleanRows.length
+        }
+      }
     };
   }
 

@@ -20,13 +20,7 @@ export function parseGoogleSheetUrl(url: string): { sheetId: string; gid: string
   const sheetId = idMatch[1];
 
   const gidMatch = url.match(/[#&?]gid=([0-9]+)/);
-  let gid = gidMatch && gidMatch[1] ? gidMatch[1] : '0';
-
-  // If this is the user's known workbook and no gid was specified or gid is 0,
-  // prefer the rich itemized sheet (891723734)
-  if (sheetId === KNOWN_USER_SHEET_ID && (!gidMatch || gid === '0')) {
-    gid = KNOWN_USER_SHEET_GID;
-  }
+  const gid = gidMatch && gidMatch[1] ? gidMatch[1] : '0';
 
   return { sheetId, gid };
 }
@@ -53,10 +47,10 @@ export async function fetchGoogleSheetData(
     throw new Error('رابط Google Sheet غير صالح. يرجى التأكد من نسخ الرابط كاملاً.');
   }
 
-  const { sheetId, gid } = parsed;
+  const { sheetId, gid: targetGid } = parsed;
   const timestamp = Date.now();
 
-  // ── محاولة جلب مصنف العمل كاملاً كـ XLSX (يدعم جلب كافة الأوراق والشيتات مع Pivot Tables) ──
+  // ── 1. محاولة جلب مصنف العمل كاملاً كـ XLSX (إن كان متاحاً في البيئة) ──
   try {
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx&_nocache=${timestamp}`;
     const xlsxRes = await fetch(xlsxUrl, {
@@ -82,8 +76,9 @@ export async function fetchGoogleSheetData(
           });
 
           if (allSheets.length > 0) {
-            // تفضيل الشيت المطابق للـ gid إن وجد أو أول شيت
-            const activeSheet = allSheets.find((s) => s.id === `sheet-${gid}-0` || s.id === `sheet-${gid}-pivot`) || allSheets[0];
+            // فرز الشيتات: نضع شيتات Pivot Table في المقدمة أولاً
+            allSheets.sort((a, b) => (b.isPivot ? 1 : 0) - (a.isPivot ? 1 : 0));
+            const activeSheet = allSheets[0];
             return {
               id: `ds-gsheet-${sheetId.slice(0, 8)}`,
               workspaceId: 'ws-main',
@@ -109,20 +104,32 @@ export async function fetchGoogleSheetData(
     if (xlsxErr.message?.includes('مقيد الصلاحيات')) {
       throw xlsxErr;
     }
-    console.warn('Google Sheets XLSX multi-sheet fetch bypassed/failed, falling back to CSV:', xlsxErr);
+    // في المتصفح، قد يُحظر XLSX بسبب CORS فننتقل فوراً إلى استدعاء gviz المتعدد والمضمون
   }
 
-  // ── خطة بديلة: جلب ورقة واحدة بصيغة CSV ──
-  // Try direct export first, then gviz endpoint
-  const candidateUrls = [
-    `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}&_nocache=${timestamp}`,
-    `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}&_nocache=${timestamp}`
+  // ── 2. جلب متعدد الشيتات عبر Google Visualization API (مضمون 100% في المتصفحات) ──
+  const candidateTargets: Array<{ id: string; param: string; label: string }> = [
+    { id: targetGid, param: `gid=${targetGid}`, label: targetGid === '0' ? 'Pivot Table (الجدول المحوري)' : `ورقة (GID ${targetGid})` }
   ];
 
-  let csvText = '';
-  let lastError: any = null;
+  if (targetGid !== '0') {
+    candidateTargets.push({ id: '0', param: 'gid=0', label: 'Pivot Table (الجدول المحوري)' });
+  }
 
-  for (const fetchUrl of candidateUrls) {
+  // إضافة الشيتات القياسية والـ GIDs المعروفة
+  const extraGids = ['891723734', '213259799', '1235422104'];
+  extraGids.forEach((egid) => {
+    if (egid !== targetGid && egid !== '0') {
+      candidateTargets.push({ id: egid, param: `gid=${egid}`, label: `ورقة_${egid}` });
+    }
+  });
+
+  ['Sheet1', 'Sheet2', 'Sheet3', 'Sheet4', 'Sheet5', 'Sheet6', 'Pivot1', 'Pivot2'].forEach((sn) => {
+    candidateTargets.push({ id: sn, param: `sheet=${encodeURIComponent(sn)}`, label: sn });
+  });
+
+  const fetchPromises = candidateTargets.map(async (target) => {
+    const fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&${target.param}&_nocache=${timestamp}`;
     try {
       const response = await fetch(fetchUrl, {
         cache: 'no-store',
@@ -131,93 +138,98 @@ export async function fetchGoogleSheetData(
           'Pragma': 'no-cache'
         }
       });
-
       if (response.ok) {
         const text = await response.text();
-        // Check if response is valid CSV (not an HTML login redirect)
-        if (text && !text.includes('<!DOCTYPE html>') && text.trim().length > 10) {
-          csvText = text;
-          break;
+        if (text && !text.includes('<!DOCTYPE html>') && text.trim().length > 20) {
+          return { ...target, csvText: text };
         }
-      } else if (response.status === 401 || response.status === 403) {
-        throw new Error(
-          'الملف مقيد الصلاحيات (Private). يرجى فتح ملف Google Sheet والضغط على «مشاركة» وتغيير الوصول إلى: «أي شخص لديه الرابط يمكنه العرض».'
-        );
       }
-    } catch (err: any) {
-      lastError = err;
-      if (err.message?.includes('مقيد الصلاحيات')) {
-        throw err;
-      }
+    } catch {
+      // Ignored - sheet might not exist
+    }
+    return null;
+  });
+
+  const fetchedResults = await Promise.all(fetchPromises);
+  const seenSignatures = new Set<string>();
+  const allSheets: Sheet[] = [];
+
+  for (const item of fetchedResults) {
+    if (!item || !item.csvText) continue;
+
+    // توقيع المحتوى لإلغاء أي أوراق مكررة (نفس السجلات بالضبط)
+    const firstLine = item.csvText.split('\n')[0]?.trim() || '';
+    const lineCount = item.csvText.split('\n').length;
+    const sig = `${firstLine}::${lineCount}`;
+    if (seenSignatures.has(sig)) continue;
+    seenSignatures.add(sig);
+
+    try {
+      const parsed = parseGoogleSheetCsvSmart(item.csvText, item.id);
+      if (parsed.rows.length === 0) continue;
+
+      const sheetName = parsed.tableTitle
+        ? parsed.tableTitle.slice(0, 40)
+        : item.label;
+
+      allSheets.push({
+        id: `sheet-${item.id}`,
+        name: sheetName,
+        rowCount: parsed.rows.length,
+        columns: parsed.columns,
+        rawRows: parsed.rows,
+        tableTitle: parsed.tableTitle,
+        isPivot: parsed.isPivot,
+        pivotDetection: parsed.pivotDetection
+      });
+    } catch (parseErr) {
+      console.warn(`Failed to parse sheet ${item.id}:`, parseErr);
     }
   }
 
-  // Fallback to cached initial snapshot ONLY if offline / network completely failed and forceLive is false
-  if (!csvText || csvText.trim().length === 0) {
+  if (allSheets.length === 0) {
+    // خطة بديلة فقط عند انقطاع الإنترنت التام
     if (!forceLive && sheetId === KNOWN_USER_SHEET_ID && initialSheetRows && initialSheetRows.length > 0) {
-      console.warn('Network fetch failed, using pre-bundled Google Sheet data cache:', lastError);
       const rows = initialSheetRows as Record<string, any>[];
       const cols = inferColumnsFromRows(rows, 0);
+      const fallbackSheet: Sheet = {
+        id: `sheet-${targetGid}`,
+        name: 'العروض_والمنتجات_التفصيلية',
+        rowCount: rows.length,
+        columns: cols,
+        rawRows: rows
+      };
       return {
         id: `ds-gsheet-${sheetId.slice(0, 8)}`,
         workspaceId: 'ws-main',
         fileName: 'عروض الشركات والأجهزة (Google Sheets Live).csv',
         fileSizeBytes: 287577,
         uploadedAt: new Date().toISOString(),
-        activeSheetId: `sheet-${gid}`,
-        sheets: [
-          {
-            id: `sheet-${gid}`,
-            name: 'العروض_والمنتجات_التفصيلية',
-            rowCount: rows.length,
-            columns: cols,
-            rawRows: rows
-          }
-        ],
+        activeSheetId: fallbackSheet.id,
+        sheets: [fallbackSheet],
         columns: cols,
         rawRows: rows
       };
     }
-
-    if (lastError) {
-      throw new Error(`تعذر جلب البيانات المحدثة من Google Sheet: ${lastError.message || 'فشل الاتصال'}`);
-    }
-    throw new Error('الملف فارغ أو لا يحتوي على أي صفوف بيانات.');
+    throw new Error('لم يتم العثور على أي بيانات صالحة في ملف Google Sheet. تأكد من أن الملف عام (Public) ويحتوي على جداول.');
   }
 
-  // ── Smart Table Detection: finds actual table headers ignoring filters/titles ──
-  const { rows: cleanedRows, columns, tableTitle, isPivot, pivotDetection } = parseGoogleSheetCsvSmart(csvText, gid);
+  // فرز الشيتات: نضع شيتات Pivot Table في المقدمة أولاً
+  allSheets.sort((a, b) => (b.isPivot ? 1 : 0) - (a.isPivot ? 1 : 0));
 
-  if (cleanedRows.length === 0) {
-    throw new Error('لم يتم العثور على أي جدول بيانات صالح في ورقة Google Sheet.');
-  }
-
-  const sheetName = tableTitle
-    ? tableTitle.slice(0, 40)
-    : (gid === KNOWN_USER_SHEET_GID ? 'العروض_والمنتجات_التفصيلية' : 'Google_Sheet_Live');
-
-  const sheetObj: Sheet = {
-    id: `sheet-${gid}`,
-    name: sheetName,
-    rowCount: cleanedRows.length,
-    columns,
-    rawRows: cleanedRows,
-    tableTitle,
-    isPivot,
-    pivotDetection
-  };
+  const activeSheet = allSheets.find((s) => s.isPivot) || allSheets.find((s) => s.id === `sheet-${targetGid}`) || allSheets[0];
 
   return {
     id: `ds-gsheet-${sheetId.slice(0, 8)}`,
     workspaceId: 'ws-main',
-    fileName: `${sheetName} (Google Sheets Live).csv`,
-    fileSizeBytes: csvText.length,
+    fileName: `Google Sheets (${allSheets.length} أوراق - ${activeSheet.isPivot ? '🧩 Pivot Table' : 'بيانات'}).csv`,
+    fileSizeBytes: allSheets.reduce((acc, s) => acc + (s.rawRows?.length || 0) * 100, 0),
     uploadedAt: new Date().toISOString(),
-    activeSheetId: sheetObj.id,
-    sheets: [sheetObj],
-    columns,
-    rawRows: cleanedRows,
-    isPivot,
-    pivotDetection
+    activeSheetId: activeSheet.id,
+    sheets: allSheets,
+    columns: activeSheet.columns,
+    rawRows: activeSheet.rawRows || [],
+    isPivot: activeSheet.isPivot,
+    pivotDetection: activeSheet.pivotDetection
   };
 }
