@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
 @import "tailwindcss";
+@import "./styles/theme.css";
 
 @theme {
   --font-sans: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -543,12 +544,10 @@ body.light-mode .header-3d button:hover {
 /* ══════════════════════════════════════════════════════════════════════════
    🧸 CLAYMORPHISM SECONDARY TOPBAR (شريط الإجراءات والفلاتر العلوي الثاني)
    ══════════════════════════════════════════════════════════════════════════ */
-.glass-3d,
-.sub-topbar,
-html.light .glass-3d,
-html.light .sub-topbar,
-body.light-mode .glass-3d,
-body.light-mode .sub-topbar {
+html.dark .glass-3d,
+html.dark .sub-topbar,
+body.dark .glass-3d,
+body.dark .sub-topbar {
   background: #172033 !important;
   border-bottom: 1.5px solid rgba(255, 255, 255, 0.10) !important;
   border-bottom-left-radius: 16px !important;
@@ -561,26 +560,34 @@ body.light-mode .sub-topbar {
   color: #f8fafc !important;
 }
 
-.glass-3d *,
-.sub-topbar *,
-html.light .glass-3d *,
-html.light .sub-topbar * {
-  color: #ffffff;
+html.light .glass-3d,
+html.light .sub-topbar,
+body.light-mode .glass-3d,
+body.light-mode .sub-topbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  border-bottom-left-radius: 16px !important;
+  border-bottom-right-radius: 16px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
 }
 
-.glass-3d .text-slate-400,
-.sub-topbar .text-slate-400 {
-  color: #94a3b8 !important;
+html.light .sub-topbar * {
+  color: #334155;
+}
+
+html.light .sub-topbar button {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
    🧸 CLAYMORPHISM SIDEBARS (بار البيانات وبار الرسوم والمخططات)
    ══════════════════════════════════════════════════════════════════════════ */
-.sidebar-3d,
-.clay-sidebar,
-html.light .sidebar-3d,
-body.light-mode .sidebar-3d,
-html:not(.dark) .sidebar-3d {
+html.dark .sidebar-3d,
+html.dark .clay-sidebar,
+body.dark .sidebar-3d {
   background: #0f172a !important;
   border: 2px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 22px !important;
@@ -596,25 +603,35 @@ html:not(.dark) .sidebar-3d {
   z-index: 20;
 }
 
-.sidebar-3d h2,
-.sidebar-3d h3,
-.sidebar-3d h4,
+html.light .sidebar-3d,
+html.light .clay-sidebar,
+body.light-mode .sidebar-3d {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 22px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
+  position: relative;
+  z-index: 20;
+}
+
 html.light .sidebar-3d h2,
 html.light .sidebar-3d h3,
 html.light .sidebar-3d h4 {
-  color: #ffffff !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7) !important;
+  color: #0f172a !important;
+  text-shadow: none !important;
 }
 
-.sidebar-3d span,
-.sidebar-3d label,
-.sidebar-3d div {
-  color: #e2e8f0;
+html.light .sidebar-3d p,
+html.light .sidebar-3d label {
+  color: #475569 !important;
 }
 
-.sidebar-3d .text-slate-400,
-.sidebar-3d .text-slate-500 {
-  color: #94a3b8 !important;
+html.light .sidebar-3d button {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Mini clay buttons & tiles inside sidebars (Visuals catalog & Data fields) */
@@ -877,131 +894,7 @@ html.light .sidebar-3d h4 {
   display: none;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   ❄️ SNOWY SKY / ICE BLUE THEME (ثيم ثلجي سمائي مريح وممتاز للعين مع ظلال ثلاثية الأبعاد)
-   ══════════════════════════════════════════════════════════════════════════ */
-html.light,
-body.light-mode {
-  background-color: #d8e1eb !important;
-  color: #0f172a !important;
-}
 
-html.light body,
-body.light-mode {
-  background-color: #d8e1eb !important;
-  color: #0f172a !important;
-}
-
-/* Top Bar (Header & Subtopbar) Claymorphism in Light Mode */
-html.light header,
-body.light-mode header,
-html.light .header-3d,
-body.light-mode .header-3d {
-  background: #0f172a !important;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.12) !important;
-  border-bottom-left-radius: 18px !important;
-  border-bottom-right-radius: 18px !important;
-  box-shadow:
-    0 18px 40px -6px rgba(0, 0, 0, 0.70),
-    0 8px 18px -3px rgba(0, 0, 0, 0.50),
-    0 3px 6px -1px rgba(0, 0, 0, 0.35),
-    inset 0 3px 6px rgba(255, 255, 255, 0.18),
-    inset 0 -4px 10px rgba(0, 0, 0, 0.55) !important;
-  color: #f1f5f9 !important;
-}
-
-/* Secondary Topbar / Actions Toolbar */
-html.light .glass-3d,
-body.light-mode .glass-3d,
-html.light .sub-topbar,
-body.light-mode .sub-topbar {
-  background: #172033 !important;
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.10) !important;
-  border-bottom-left-radius: 16px !important;
-  border-bottom-right-radius: 16px !important;
-  box-shadow:
-    0 12px 28px -4px rgba(0, 0, 0, 0.60),
-    0 4px 10px -2px rgba(0, 0, 0, 0.40),
-    inset 0 2px 4px rgba(255, 255, 255, 0.14),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.45) !important;
-  color: #f1f5f9 !important;
-}
-
-/* Canvas Background ("أبيض غامق" مريح بتدرج محايد) */
-html.light main,
-body.light-mode main {
-  background-color: #d5dfe9 !important;
-  background-image:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.7) 0%, transparent 55%),
-    radial-gradient(circle at 90% 90%, rgba(148, 163, 184, 0.3) 0%, transparent 50%),
-    linear-gradient(180deg, #dde5ee 0%, #cbd6e2 100%) !important;
-  color: #0f172a !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   🧸 CLAYMORPHISM BOTTOM BAR (البار السفلي - Footer وشريط التنقل السفلي)
-   ══════════════════════════════════════════════════════════════════════════ */
-footer,
-nav.safe-bottom,
-html.light footer,
-body.light-mode footer,
-html.light nav.safe-bottom,
-body.light-mode nav.safe-bottom {
-  background: #0f172a !important;
-  border-top: 2px solid rgba(255, 255, 255, 0.12) !important;
-  border-top-left-radius: 18px !important;
-  border-top-right-radius: 18px !important;
-  box-shadow:
-    0 -14px 34px -4px rgba(0, 0, 0, 0.65),
-    0 -6px 14px -2px rgba(0, 0, 0, 0.45),
-    inset 0 3px 6px rgba(255, 255, 255, 0.16),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.40) !important;
-  color: #f1f5f9 !important;
-  position: relative;
-  z-index: 30;
-}
-
-/* Header Text & Controls in Dark Top Bar */
-html.light header h1,
-body.light-mode header h1 {
-  color: #f1f5f9 !important;
-}
-html.light header .text-slate-100,
-body.light-mode header .text-slate-100 {
-  color: #f1f5f9 !important;
-}
-html.light header .text-slate-300,
-html.light header .text-slate-400,
-html.light header .text-slate-500,
-body.light-mode header .text-slate-300,
-body.light-mode header .text-slate-400,
-body.light-mode header .text-slate-500 {
-  color: #94a3b8 !important;
-}
-html.light header button.bg-slate-800,
-body.light-mode header button.bg-slate-800 {
-  background: #1e293b !important;
-  border: 1px solid #334155 !important;
-  color: #f1f5f9 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
-}
-html.light header button.bg-slate-800:hover,
-body.light-mode header button.bg-slate-800:hover {
-  background: #334155 !important;
-  color: #ffffff !important;
-}
-
-/* Secondary Topbar Text & Controls */
-html.light .sub-topbar .text-slate-100,
-html.light .sub-topbar .text-slate-200,
-body.light-mode .sub-topbar .text-slate-100,
-body.light-mode .sub-topbar .text-slate-200 {
-  color: #f1f5f9 !important;
-}
-html.light .sub-topbar .text-slate-400,
-body.light-mode .sub-topbar .text-slate-400 {
-  color: #94a3b8 !important;
-}
 
 /* ══════════════════════════════════════════════════════════════════════════
    ⭐ BAQIR'S PREMIUM DESIGN SYSTEM — LIGHT THEME (ثيم باقر الأبيض الاحترافي)

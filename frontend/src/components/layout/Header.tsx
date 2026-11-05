@@ -256,30 +256,30 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-black text-white tracking-wide block">
-                  LENS <span className="text-sky-400 font-normal">BI</span>
+                <span className="text-xs font-black text-slate-900 dark:text-white tracking-wide block">
+                  LENS <span className="text-sky-500 font-bold">BI</span>
                 </span>
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-mono hidden xs:inline shadow-3d-xs">
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300 font-mono hidden xs:inline shadow-3d-xs">
                   Enterprise
                 </span>
               </div>
-              <span className="text-[9px] text-slate-400 font-mono block truncate">DuckDB OLAP Engine</span>
+              <span className="text-[9px] text-slate-500 dark:text-slate-400 font-mono block truncate">DuckDB OLAP Engine</span>
             </div>
           </div>
 
           {/* Separator */}
-          <div className="h-5 w-px bg-slate-800 hidden sm:block" />
+          <div className="h-5 w-px bg-slate-300 dark:bg-slate-800 hidden sm:block" />
 
           {/* ── Project Switcher Dropdown ── */}
           <div ref={switcherRef} className="relative">
             <button
               onClick={() => setIsProjectSwitcherOpen(!isProjectSwitcherOpen)}
-              className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border transition cursor-pointer shrink-0 ${
-                isProjectSwitcherOpen ? 'border-sky-500/60 bg-slate-800' : 'border-slate-700/60'
+              className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 border transition cursor-pointer shrink-0 ${
+                isProjectSwitcherOpen ? 'border-sky-500/60 bg-slate-200 dark:bg-slate-800' : 'border-slate-300 dark:border-slate-700/60'
               }`}
             >
               <span className="text-base leading-none">{activeProject?.icon || '📊'}</span>
-              <span className="text-xs font-semibold text-slate-200 truncate max-w-[120px] sm:max-w-[180px]">
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[120px] sm:max-w-[180px]">
                 {activeProject?.title || currentDashboard.title}
               </span>
               <div className="flex items-center gap-1 mr-1">
@@ -294,16 +294,16 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Dropdown Panel */}
             {isProjectSwitcherOpen && (
-              <div className="absolute top-full mt-2 right-0 z-50 w-72 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="absolute top-full mt-2 right-0 z-50 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/40 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
                 {/* Header */}
-                <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-3.5 h-3.5 text-sky-400" />
-                    <span className="text-xs font-bold text-slate-200">مشاريعي ({projects.length})</span>
+                    <Layers className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-200">مشاريعي ({projects.length})</span>
                   </div>
                   <button
                     onClick={() => { onOpenWorkspaceView(); setIsProjectSwitcherOpen(false); }}
-                    className="text-[11px] text-sky-400 hover:text-sky-300 font-semibold transition"
+                    className="text-[11px] text-sky-600 dark:text-sky-400 hover:text-sky-500 font-semibold transition"
                   >
                     إدارة الكل
                   </button>
@@ -321,13 +321,13 @@ export const Header: React.FC<HeaderProps> = ({
                         tabIndex={0}
                         onClick={() => { switchProject(proj.id); setIsProjectSwitcherOpen(false); }}
                         onKeyDown={(e) => { if (e.key === 'Enter') { switchProject(proj.id); setIsProjectSwitcherOpen(false); } }}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-right transition hover:bg-slate-800 cursor-pointer ${
-                          isActive ? 'bg-slate-800/70' : ''
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-right transition hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer ${
+                          isActive ? 'bg-slate-100/80 dark:bg-slate-800/70' : ''
                         }`}
                       >
                         <span className="text-lg leading-none shrink-0">{proj.icon || '📁'}</span>
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs font-semibold text-slate-200 truncate">{proj.title}</div>
+                          <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{proj.title}</div>
                           <div className="text-[10px] text-slate-500 truncate">
                             {proj.dashboard.widgets.length} عناصر • {proj.dataSourceType === 'google_sheets' ? '🟢 Google Sheets' : '📑 ملف'}
                           </div>

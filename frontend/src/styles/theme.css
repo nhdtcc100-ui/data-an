@@ -1,0 +1,401 @@
+/* ==========================================================================
+   LENS BI — Central Theme & Color System (الملف الأساسي لتوحيد الألوان)
+   ==========================================================================
+   هذا الملف هو المصدر الموحد للثيمين:
+   1. الثيم الداكن (Dark Theme): خلفيات كحلية/بنفسجية ونصوص فاتحة مشعة.
+   2. الثيم الأبيض (Light Theme): أبيض ناصع بتصميم باقر وسكني ناعم (Slate-100)
+      مع تباين عالي لجميع النصوص يمنع اختفاء أي نص نهائياً.
+   ========================================================================== */
+
+:root,
+html.dark,
+body.dark {
+  /* Surfaces & Backgrounds */
+  --bg-app: #090d16;
+  --bg-canvas: #0b1120;
+  --bg-card: #0f172a;
+  --bg-card-hover: #1e293b;
+  --bg-header: #0f172a;
+  --bg-sidebar: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-surface-soft: #172033;
+  --bg-input: #090d16;
+  --bg-hover: #1e293b;
+  --bg-active: #334155;
+
+  /* Typography Colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  --text-heading: #ffffff;
+  --text-inverse: #0f172a;
+
+  /* Borders & Outlines */
+  --border-card: rgba(255, 255, 255, 0.10);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-input: #334155;
+
+  /* Shadows */
+  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  --shadow-clay: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 8px 18px -3px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.25);
+
+  /* Primary Accent */
+  --brand-primary: #38bdf8;
+  --brand-accent: #818cf8;
+}
+
+html.light,
+body.light-mode {
+  /* Surfaces & Backgrounds (ثيم باقر النقي) */
+  --bg-app: #f1f5f9;
+  --bg-canvas: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --bg-header: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-surface-soft: #f8fafc;
+  --bg-input: #f8fafc;
+  --bg-hover: #f1f5f9;
+  --bg-active: #e2e8f0;
+
+  /* Typography Colors (تباين عالي جداً — لا وجود لنصوص بيضاء على خلفية بيضاء) */
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-muted: #475569;
+  --text-subtle: #64748b;
+  --text-heading: #0f172a;
+  --text-inverse: #ffffff;
+
+  /* Borders & Outlines */
+  --border-card: rgba(226, 232, 240, 0.85);
+  --border-default: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --border-input: #cbd5e1;
+
+  /* Shadows (Claymorphism 2.0 من باقر) */
+  --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-clay: 8px 8px 20px rgba(162, 178, 204, 0.25), -6px -6px 16px rgba(255, 255, 255, 0.9);
+  --shadow-glow: 0 4px 14px rgba(37, 99, 235, 0.15);
+
+  /* Primary Accent */
+  --brand-primary: #2563eb;
+  --brand-accent: #4f46e5;
+}
+
+/* ==========================================================================
+   قواعد الثيم الأبيض الشاملة (Light Theme Universal Rules)
+   تضمن ظهور 100% من النصوص والأزرار والمدخلات بوضوح وتباين فائق
+   ========================================================================== */
+
+html.light body,
+body.light-mode {
+  background-color: var(--bg-app) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light main,
+body.light-mode main {
+  background-color: var(--bg-canvas) !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── 1. معالجة النصوص الفاتحة لمنع اختفائها في الثيم الأبيض ── */
+/* النصوص شديدة البياض تصبح داكنة ناصعة (إلا إذا كانت داخل زر ملون) */
+html.light :not(
+  button.bg-blue-600,
+  button.bg-blue-500,
+  button.bg-sky-500,
+  button.bg-emerald-500,
+  button.bg-emerald-600,
+  button.bg-rose-500,
+  button.bg-rose-600,
+  button.bg-indigo-600,
+  button.bg-violet-600,
+  button.bg-purple-600,
+  button.bg-amber-500,
+  button[class*="bg-gradient-to"],
+  .badge-primary,
+  .badge-danger,
+  .badge-success
+) > .text-white,
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-gray-100,
+html.light .text-gray-200,
+body.light-mode .text-slate-100,
+body.light-mode .text-slate-200 {
+  color: var(--text-primary) !important;
+}
+
+html.light .text-slate-300,
+html.light .text-gray-300,
+body.light-mode .text-slate-300 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .text-slate-400,
+html.light .text-gray-400,
+body.light-mode .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+html.light .text-slate-500,
+html.light .text-gray-500,
+body.light-mode .text-slate-500 {
+  color: var(--text-subtle) !important;
+}
+
+/* ── 2. الشريط العلوي (Topbar / Header) ── */
+html.light header,
+html.light .header-3d,
+body.light-mode header,
+body.light-mode .header-3d {
+  background: var(--bg-header) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .header-3d h1,
+html.light .header-3d h2,
+html.light .header-3d h3,
+body.light-mode .header-3d h1,
+body.light-mode .header-3d h2 {
+  color: var(--text-heading) !important;
+  text-shadow: none !important;
+}
+
+html.light .header-3d p,
+html.light .header-3d span:not([class*="bg-emerald"]):not([class*="bg-sky"]):not([class*="bg-indigo"]) {
+  color: var(--text-secondary);
+}
+
+html.light .header-3d button {
+  background: var(--bg-surface-soft) !important;
+  border: 1px solid var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+html.light .header-3d button:hover {
+  background: var(--bg-hover) !important;
+  color: var(--brand-primary) !important;
+  border-color: var(--border-input) !important;
+}
+
+/* ── 3. القوائم الجانبية (DataPanel & VisualizationsPanel) ── */
+html.light aside,
+body.light-mode aside {
+  background: var(--bg-sidebar) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light aside h1, html.light aside h2, html.light aside h3, html.light aside h4,
+body.light-mode aside h1, body.light-mode aside h2, body.light-mode aside h3 {
+  color: var(--text-heading) !important;
+}
+
+html.light aside p,
+html.light aside label,
+body.light-mode aside p,
+body.light-mode aside label {
+  color: var(--text-secondary) !important;
+  font-weight: 600;
+}
+
+html.light aside [class*="bg-slate-950"],
+html.light aside [class*="bg-slate-900"],
+body.light-mode aside [class*="bg-slate-950"],
+body.light-mode aside [class*="bg-slate-900"] {
+  background: var(--bg-surface-soft) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── 4. البطاقات وكروت الـ Widgets ── */
+html.light .widget-3d,
+html.light .widget-card,
+html.light .clay-card,
+html.light .card-3d,
+body.light-mode .widget-3d,
+body.light-mode .widget-card,
+body.light-mode .clay-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-card) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--shadow-clay) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .widget-3d:hover,
+body.light-mode .widget-3d:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 12px 12px 28px rgba(162, 178, 204, 0.35), -8px -8px 20px #ffffff !important;
+}
+
+html.light .widget-3d::before,
+body.light-mode .widget-3d::before {
+  display: none !important;
+}
+
+/* ترويسة الكارد */
+html.light .widget-header,
+html.light .widget-3d > div:first-child,
+body.light-mode .widget-3d > div:first-child {
+  background: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .widget-3d h3,
+body.light-mode .widget-3d h3 {
+  color: var(--text-heading) !important;
+  text-shadow: none !important;
+}
+
+/* الصناديق والمربعات الفرعية داخل الكروت */
+html.light .widget-3d [class*="bg-slate-950"],
+html.light .widget-3d [class*="bg-slate-900"],
+html.light .widget-3d [class*="bg-slate-800"],
+body.light-mode .widget-3d [class*="bg-slate-950"] {
+  background: var(--bg-surface-soft) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── 5. حقول الإدخال والقوائم المنسدلة (Inputs & Selects) ── */
+html.light input[type="text"],
+html.light input[type="search"],
+html.light input[type="number"],
+html.light select,
+html.light textarea,
+body.light-mode input[type="text"],
+body.light-mode input[type="search"],
+body.light-mode input[type="number"],
+body.light-mode select,
+body.light-mode textarea {
+  background: var(--bg-input) !important;
+  border: 1.5px solid var(--border-input) !important;
+  border-radius: 10px !important;
+  color: var(--text-primary) !important;
+  box-shadow: inset 2px 2px 5px rgba(162, 178, 204, 0.15), inset -2px -2px 5px rgba(255, 255, 255, 0.85) !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+body.light-mode input:focus,
+body.light-mode select:focus {
+  background: #ffffff !important;
+  border-color: var(--brand-primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  outline: none !important;
+}
+
+html.light input::placeholder {
+  color: var(--text-subtle) !important;
+}
+
+/* ── 6. الجداول وجدول المحاور (Tables & Pivot) ── */
+html.light table,
+body.light-mode table {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light thead th,
+body.light-mode thead th {
+  background: var(--bg-surface-soft) !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 2px solid var(--border-default) !important;
+  font-weight: 700 !important;
+}
+
+html.light tbody tr,
+body.light-mode tbody tr {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+html.light tbody tr:hover,
+body.light-mode tbody tr:hover {
+  background: var(--bg-surface-soft) !important;
+}
+
+html.light tbody td,
+body.light-mode tbody td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+html.light tfoot tr,
+html.light tfoot td,
+body.light-mode tfoot tr,
+body.light-mode tfoot td {
+  background: var(--bg-surface-soft) !important;
+  color: var(--text-primary) !important;
+  border-top: 2px solid var(--border-default) !important;
+  font-weight: 800 !important;
+}
+
+/* ── 7. النوافذ المنبثقة والقوائم المنسدلة (Modals & Popups) ── */
+html.light [class*="bg-slate-900"][class*="rounded-2xl"],
+html.light [class*="bg-slate-950"][class*="rounded-2xl"],
+html.light [class*="bg-slate-900"][class*="rounded-3xl"],
+html.light [class*="bg-slate-950"][class*="rounded-3xl"],
+body.light-mode [class*="bg-slate-900"][class*="rounded-2xl"],
+body.light-mode [class*="bg-slate-950"][class*="rounded-2xl"],
+body.light-mode [class*="bg-slate-900"][class*="rounded-3xl"],
+body.light-mode [class*="bg-slate-950"][class*="rounded-3xl"],
+html.light [class*="fixed inset-0"] > div,
+body.light-mode [class*="fixed inset-0"] > div {
+  background: #ffffff !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light [class*="fixed inset-0"] h1,
+html.light [class*="fixed inset-0"] h2,
+html.light [class*="fixed inset-0"] h3,
+body.light-mode [class*="fixed inset-0"] h1,
+body.light-mode [class*="fixed inset-0"] h2,
+body.light-mode [class*="fixed inset-0"] h3 {
+  color: var(--text-heading) !important;
+}
+
+html.light [class*="fixed inset-0"] p,
+body.light-mode [class*="fixed inset-0"] p {
+  color: var(--text-secondary) !important;
+}
+
+/* ── 8. الحدود العامة في الثيم الأبيض ── */
+html.light .border-slate-800,
+html.light .border-slate-700,
+html.light .border-slate-900,
+body.light-mode .border-slate-800,
+body.light-mode .border-slate-700 {
+  border-color: var(--border-default) !important;
+}
+
+/* ── 9. السلايسر وأزرار التصفية ── */
+html.light [class*="bg-slate-800/90"],
+body.light-mode [class*="bg-slate-800/90"] {
+  background: var(--bg-surface-soft) !important;
+  border: 1px solid var(--border-default) !important;
+  color: var(--text-secondary) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light [class*="bg-slate-800/90"]:hover,
+body.light-mode [class*="bg-slate-800/90"]:hover {
+  background: var(--bg-hover) !important;
+  color: var(--brand-primary) !important;
+  border-color: var(--border-input) !important;
+}

@@ -1114,8 +1114,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
         {/* Quick Size Controls in Header (Edit Mode) */}
         {isEditMode && (
-          <div className="hidden sm:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono shrink-0 text-white">
-            <span className="text-slate-300 px-1 text-[9px]">العرض:</span>
+          <div className={`hidden sm:flex items-center gap-1 p-0.5 rounded-lg border text-[10px] font-mono shrink-0 ${
+            isDarkThemeCard ? 'bg-slate-950/80 border-slate-800 text-white' : 'bg-slate-100 border-slate-300 text-slate-800'
+          }`}>
+            <span className={`${isDarkThemeCard ? 'text-slate-300' : 'text-slate-600'} px-1 text-[9px]`}>العرض:</span>
             {[3, 4, 6, 8, 12].map((colSpan) => (
               <button
                 key={colSpan}
@@ -1127,14 +1129,16 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
                   (widget.layout?.w ?? 6) === colSpan
                     ? 'bg-sky-500 text-white font-bold'
-                    : 'text-slate-200 hover:text-white hover:bg-slate-800'
+                    : isDarkThemeCard
+                    ? 'text-slate-200 hover:text-white hover:bg-slate-800'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'
                 }`}
               >
                 {colSpan === 12 ? '100%' : colSpan === 6 ? '50%' : colSpan === 4 ? '33%' : colSpan === 3 ? '25%' : `${colSpan}`}
               </button>
             ))}
 
-            <div className="w-px h-3 bg-slate-800 mx-0.5" />
+            <div className={`w-px h-3 ${isDarkThemeCard ? 'bg-slate-800' : 'bg-slate-300'} mx-0.5`} />
 
             {/* Height Step Controls */}
             <button
@@ -1143,25 +1147,33 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 setWidgetHeight(widget.id, Math.max(2, (widget.layout?.h || 4) - 1));
               }}
               title="تقليل الارتفاع"
-              className="px-1 text-slate-200 hover:text-white hover:bg-slate-800 rounded cursor-pointer font-bold"
+              className={`px-1 rounded cursor-pointer font-bold ${
+                isDarkThemeCard
+                  ? 'text-slate-200 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'
+              }`}
             >
               -
             </button>
-            <span className="text-slate-300 text-[9px]">H{widget.layout?.h || 4}</span>
+            <span className={`${isDarkThemeCard ? 'text-slate-300' : 'text-slate-600'} text-[9px]`}>H{widget.layout?.h || 4}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setWidgetHeight(widget.id, Math.min(8, (widget.layout?.h || 4) + 1));
               }}
               title="زيادة الارتفاع"
-              className="px-1 text-slate-200 hover:text-white hover:bg-slate-800 rounded cursor-pointer font-bold"
+              className={`px-1 rounded cursor-pointer font-bold ${
+                isDarkThemeCard
+                  ? 'text-slate-200 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'
+              }`}
             >
               +
             </button>
           </div>
         )}
 
-        <div className="flex items-center gap-1 text-slate-400 shrink-0">
+        <div className={`flex items-center gap-1 shrink-0 ${isDarkThemeCard ? 'text-slate-400' : 'text-slate-600'}`}>
           {/* Interaction Linking Button */}
           <button
             onClick={(e) => {

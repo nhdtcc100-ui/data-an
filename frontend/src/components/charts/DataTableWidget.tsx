@@ -423,7 +423,7 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
             </tr>
           </thead>
 
-          <tbody className="text-slate-200">
+          <tbody className={isDarkCard ? 'text-slate-200' : 'text-slate-900'}>
             {paginatedRows.map((row, idx) => {
               const rowIndex = (validPage - 1) * pageSize + idx + 1;
               const isEvenRow = idx % 2 === 0;
@@ -438,8 +438,8 @@ export const DataTableWidget: React.FC<DataTableWidgetProps> = ({
                     isSelected
                       ? 'border-r-4 font-medium shadow-md'
                       : zebraOn && !isEvenRow
-                      ? 'bg-slate-900/40 hover:bg-white/5'
-                      : 'hover:bg-white/5'
+                      ? isDarkCard ? 'bg-slate-900/40 hover:bg-white/5' : 'bg-slate-50 hover:bg-slate-100'
+                      : isDarkCard ? 'hover:bg-white/5' : 'hover:bg-slate-50'
                   }`}
                   style={
                     isSelected

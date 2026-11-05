@@ -449,7 +449,7 @@ export const PublicReportViewer: React.FC<PublicReportViewerProps> = ({
       {/* ── Canvas (Widgets only, no edit controls) ─────────────────────────── */}
       <main
         className={`flex-1 overflow-y-auto p-4 sm:p-5 custom-scrollbar transition-colors duration-300 ${
-          theme === 'dark' ? 'bg-slate-950' : 'bg-[#d5dfe9]'
+          theme === 'dark' ? 'bg-slate-950' : 'bg-[#f1f5f9]'
         }`}
       >
         {/* Dedicated Landscape Print Paper Header (visible ONLY during print / PDF) */}

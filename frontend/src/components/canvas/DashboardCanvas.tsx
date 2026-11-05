@@ -77,7 +77,7 @@ export const DashboardCanvas: React.FC = () => {
 
   return (
     <main className={`flex-1 overflow-y-auto p-5 custom-scrollbar relative transition-colors duration-300 rounded-2xl ${
-      theme === 'light' ? 'bg-[#d5dfe9]' : 'bg-slate-950/60'
+      theme === 'light' ? 'bg-[#f1f5f9]' : 'bg-slate-950/60'
     }`}>
       {/* Background Grid Accent */}
       <div className={`absolute inset-0 pointer-events-none ${

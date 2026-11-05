@@ -476,7 +476,7 @@ export const App: React.FC = () => {
   // ─── PUBLIC VIEW ────────────────────────────────────────────────────────────
   if (currentView === 'public') {
     return (
-      <div dir="rtl" className={`font-sans transition-colors duration-300 ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'light-mode bg-slate-50 text-slate-800'}`}>
+      <div dir="rtl" className={`font-sans transition-colors duration-300 ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'light-mode bg-[#f1f5f9] text-slate-900'}`}>
         <PublicReportViewer
           isOwner={!isPublicView}
           onBackToApp={handleAdminUnlock}
@@ -493,7 +493,7 @@ export const App: React.FC = () => {
     <div
       dir="rtl"
       className={`h-[100dvh] flex flex-col overflow-hidden font-sans transition-colors duration-300 ${
-        theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'light-mode bg-slate-50 text-slate-800'
+        theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'light-mode bg-[#f1f5f9] text-slate-900'
       }`}
     >
       {/* ── Unified Header (responsive) ── */}
