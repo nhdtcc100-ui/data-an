@@ -25,6 +25,8 @@ export interface PivotStructure {
   rowDimensions: string[];
   /** أعمدة الأعمدة (Column Labels) — عادةً الصف الأول */
   columnDimensions: string[];
+  /** أعمدة الفلاتر (Filter Labels) — التصفية */
+  filterDimensions?: string[];
   /** حقول القيم (Values area) */
   valueFields: ValueField[];
   /** هل يوجد صف "الإجمالي الكلي" (Grand Total)؟ */
@@ -418,6 +420,20 @@ export function detectPivotFrom2D(
   const isPivot = confidence >= 0.5;
 
   if (!isPivot) {
+    // ── محاولة ثانية ذكية: تحليل الشيت كجدول مجمع (Tabular Pivot) ────────
+    // يستنتج المناطق: صف (Row) / عمود (Column) / فلتر (Filter) / فاليو (Value) (SUM أو COUNT)
+    const headers = headerRow.map(norm).filter(Boolean);
+    const rowsObj: Record<string, any>[] = [];
+    for (const r of dataRows.slice(0, 100)) {
+      if (isGrandTotalRow(r)) continue;
+      const obj: Record<string, any> = {};
+      headers.forEach((h, ci) => { obj[h] = r[ci] ?? ''; });
+      rowsObj.push(obj);
+    }
+    const zoneResult = inferPivotZonesFromColumnsAndRows(headers, rowsObj, sheetName);
+    if (zoneResult.isPivot) {
+      return zoneResult;
+    }
     return { isPivot: false, confidence, signals };
   }
 
@@ -431,6 +447,160 @@ export function detectPivotFrom2D(
     confidence,
     signals,
     pivotStructure,
+    question,
+    suggestedQuestions
+  };
+}
+
+/**
+ * يستنتج توزيع الحقول الذكي إلى 4 مناطق Pivot:
+ * - الصف (Row)
+ * - العمود (Column)
+ * - الفلتر (Filter)
+ * - القيمة (Value) مع تحديد ما إذا كانت SUM أم COUNT
+ */
+export function inferPivotZonesFromColumnsAndRows(
+  columnNames: string[],
+  rows: Record<string, any>[],
+  sheetName = 'Google_Sheet'
+): PivotDetectionResult {
+  const cleanCols = columnNames.filter((c) => c && !c.startsWith('__EMPTY') && c.trim() !== '');
+  if (cleanCols.length < 2 || rows.length === 0) {
+    return { isPivot: false, confidence: 0, signals: ['أعمدة أو صفوف غير كافية'] };
+  }
+
+  const sampleRows = rows.slice(0, Math.min(100, rows.length));
+
+  // 1. فحص حقول القيم (Values) ونوع التجميع (SUM أم COUNT)
+  let bestValueCol: string | null = null;
+  let bestAgg: 'SUM' | 'COUNT' = 'SUM';
+  let isExplicitPivotVal = false;
+
+  // فحص صريح لـ Count of أو Sum of أو مجموع أو عدد
+  for (const col of cleanCols) {
+    const lower = col.toLowerCase().trim();
+    if (lower.startsWith('count of') || lower.startsWith('count_of') || lower.startsWith('عدد ') || lower.includes('عدد')) {
+      bestValueCol = col;
+      bestAgg = 'COUNT';
+      isExplicitPivotVal = true;
+      break;
+    }
+    if (lower.startsWith('sum of') || lower.startsWith('sum_of') || lower.startsWith('مجموع ') || lower.startsWith('إجمالي ') || lower.includes('مجموع')) {
+      bestValueCol = col;
+      bestAgg = 'SUM';
+      isExplicitPivotVal = true;
+      break;
+    }
+  }
+
+  // إذا لم نجد اسماً صريحاً، نفحص كل عمود لمعرفة نسبة الأرقام
+  if (!bestValueCol) {
+    const numScores = cleanCols.map((col) => {
+      let numCount = 0;
+      let nonNull = 0;
+      for (const r of sampleRows) {
+        const v = r[col];
+        if (v !== undefined && v !== null && v !== '') {
+          nonNull++;
+          if (isNumericVal(v)) numCount++;
+        }
+      }
+      return { col, ratio: nonNull > 0 ? numCount / nonNull : 0 };
+    });
+
+    const numericCols = numScores.filter((s) => s.ratio >= 0.5).map((s) => s.col);
+    if (numericCols.length > 0) {
+      // تفضيل الكمية، المبيعات، السعر، المبلغ، الإيرادات
+      const preferred = numericCols.find((c) =>
+        /كمية|مبيعات|سعر|مبلغ|أرباح|إيرادات|إجمالي|amount|qty|quantity|sales|price|revenue|total/i.test(c)
+      );
+      bestValueCol = preferred || numericCols[0];
+      if (/count|عدد|مرات|تكرار/i.test(bestValueCol)) {
+        bestAgg = 'COUNT';
+      } else {
+        bestAgg = 'SUM';
+      }
+    } else {
+      bestValueCol = cleanCols[cleanCols.length - 1];
+      bestAgg = 'COUNT';
+    }
+  }
+
+  // 2. فحص الأبعاد الفئوية (Categorical Dimensions) لتوزيعها: صف (Row) / عمود (Column) / فلتر (Filter)
+  const candidateDims = cleanCols.filter((c) => c !== bestValueCol);
+
+  // حساب عدد القيم الفريدة (Cardinality) لكل بعد
+  const dimStats = candidateDims.map((col) => {
+    const distinct = new Set<string>();
+    for (const r of sampleRows) {
+      const v = norm(r[col]);
+      if (v) distinct.add(v);
+    }
+    const isDate = /تاريخ|date|time|year|سنة|شهر|أسبوع/i.test(col);
+    const isFilterKeyword = /زبون|عميل|customer|مدينة|منطقة|فرع|موقع|location|حالة|status|ضمان/i.test(col);
+    const isRowKeyword = /مركز|كلفة|شركة|مادة|منتج|صنف|فئة|item|product|category|center|اسم/i.test(col);
+    const isColKeyword = /مجموعة|قسم|نوع|group|department|type|segment/i.test(col);
+
+    return {
+      col,
+      distinctCount: distinct.size,
+      isDate,
+      isFilterKeyword,
+      isRowKeyword,
+      isColKeyword
+    };
+  });
+
+  // تحديد بعد الصف (Row Labels):
+  let rowCol = dimStats.find((d) => d.isRowKeyword && !d.isDate)?.col;
+  if (!rowCol) {
+    const sortedByCard = [...dimStats].filter((d) => !d.isDate).sort((a, b) => b.distinctCount - a.distinctCount);
+    rowCol = sortedByCard[0]?.col || candidateDims[0] || 'الفئة';
+  }
+
+  // تحديد بعد العمود (Column Labels):
+  const remainingForCol = dimStats.filter((d) => d.col !== rowCol);
+  let colCol = remainingForCol.find((d) => d.isColKeyword && !d.isDate)?.col;
+  if (!colCol) {
+    const lowCard = remainingForCol.find((d) => d.distinctCount >= 2 && d.distinctCount <= 15 && !d.isDate);
+    colCol = lowCard?.col;
+  }
+
+  // تحديد حقول الفلتر (Filter):
+  const filterCols = candidateDims.filter((c) => c !== rowCol && c !== colCol);
+
+  const valueFields: ValueField[] = [{
+    name: bestValueCol,
+    aggregation: bestAgg,
+    isNumeric: bestAgg === 'SUM'
+  }];
+
+  const structure: PivotStructure = {
+    rowDimensions: [rowCol],
+    columnDimensions: colCol ? [colCol] : [],
+    filterDimensions: filterCols,
+    valueFields,
+    hasGrandTotal: false,
+    sheetName,
+    dataRowCount: rows.length,
+    dataColCount: cleanCols.length
+  };
+
+  const question = inferPivotQuestion(structure);
+  const suggestedQuestions = buildSuggestedQuestions(structure);
+
+  const confidence = isExplicitPivotVal ? 0.95 : 0.85;
+
+  return {
+    isPivot: true,
+    confidence,
+    signals: [
+      isExplicitPivotVal ? `✓ تم اكتشاف حقل Pivot صريح: "${bestValueCol}" (${bestAgg})` : `✓ تم استنتاج حقل القيمة: "${bestValueCol}" (${bestAgg})`,
+      `✓ تم تعيين الصف (Row): "${rowCol}"`,
+      colCol ? `✓ تم تعيين العمود (Column): "${colCol}"` : `✓ بعد عمود أحادي`,
+      filterCols.length > 0 ? `✓ تم تعيين الفلاتر (Filters): ${filterCols.slice(0, 3).join('، ')}` : ''
+    ].filter(Boolean),
+    pivotStructure: structure,
     question,
     suggestedQuestions
   };

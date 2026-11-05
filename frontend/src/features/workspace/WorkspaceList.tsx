@@ -42,7 +42,8 @@ interface NewProjectModalProps {
 }
 
 const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated }) => {
-  const { createProject } = useDashboardStore();
+  const { createProject, theme } = useDashboardStore();
+  const isDark = theme === 'dark';
   const [step, setStep] = useState<'type' | 'form'>('type');
   const [selectedType, setSelectedType] = useState<'google_sheets' | 'excel_csv' | 'empty' | null>(null);
   const [form, setForm] = useState<Partial<CreateProjectOptions>>({ colorAccent: 'sky', icon: '📊' });
@@ -74,23 +75,41 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className={`fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm ${
+        isDark ? 'bg-black/70' : 'bg-slate-900/40'
+      }`}
+      onClick={onClose}
+    >
       <div
-        className="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden"
+        className={`w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border transition-colors ${
+          isDark
+            ? 'bg-slate-900 border-slate-700 text-slate-100 shadow-black/80'
+            : 'bg-white border-slate-200 text-slate-800 shadow-xl shadow-slate-200/50'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-slate-900 to-slate-900/80">
+        <div className={`px-6 py-5 border-b flex items-center justify-between ${
+          isDark
+            ? 'border-slate-800 bg-gradient-to-r from-slate-900 to-slate-900/80'
+            : 'border-slate-200 bg-slate-50/80'
+        }`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
-              <Plus className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white">
+              <Plus className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-black text-slate-100">إنشاء مشروع جديد</h2>
-              <p className="text-xs text-slate-400 mt-0.5">كل مشروع مستقل ببياناته ولوحاته ورابطه الخاص</p>
+              <h2 className={`text-base font-black ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>إنشاء مشروع جديد</h2>
+              <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>كل مشروع مستقل ببياناته ولوحاته ورابطه الخاص</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer">
+          <button
+            onClick={onClose}
+            className={`p-2 rounded-xl transition cursor-pointer ${
+              isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-700'
+            }`}
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -99,7 +118,9 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
           <div className="p-6 space-y-6">
             {/* Source Type Selection */}
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">اختر مصدر البيانات</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                اختر مصدر البيانات
+              </p>
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { type: 'google_sheets' as const, icon: '🟢', label: 'Google Sheets', sub: 'مزامنة حية ومباشرة' },
@@ -109,11 +130,17 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
                   <button
                     key={opt.type}
                     onClick={() => { setSelectedType(opt.type); setStep('form'); }}
-                    className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-sky-500/60 transition group cursor-pointer"
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition group cursor-pointer ${
+                      isDark
+                        ? 'bg-slate-800/80 hover:bg-slate-800 border-slate-700 hover:border-sky-500/60'
+                        : 'bg-slate-50 hover:bg-white border-slate-200 hover:border-sky-500 shadow-xs hover:shadow-md'
+                    }`}
                   >
                     <span className="text-3xl">{opt.icon}</span>
-                    <span className="text-xs font-bold text-slate-200 group-hover:text-sky-300 transition">{opt.label}</span>
-                    <span className="text-[10px] text-slate-500">{opt.sub}</span>
+                    <span className={`text-xs font-bold transition ${
+                      isDark ? 'text-slate-200 group-hover:text-sky-300' : 'text-slate-800 group-hover:text-sky-600'
+                    }`}>{opt.label}</span>
+                    <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{opt.sub}</span>
                   </button>
                 ))}
               </div>
@@ -121,8 +148,10 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
 
             {/* Quick Templates */}
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <p className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}>
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                 قوالب جاهزة
               </p>
               <div className="grid grid-cols-1 gap-2">
@@ -132,12 +161,18 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
                     <button
                       key={tpl.title}
                       onClick={() => handleTemplate(tpl)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-sky-500/40 text-right transition cursor-pointer group"
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-right transition cursor-pointer group ${
+                        isDark
+                          ? 'bg-slate-800/60 hover:bg-slate-800 border-slate-700/60 hover:border-sky-500/40'
+                          : 'bg-slate-50 hover:bg-white border-slate-200 hover:border-sky-500/50 shadow-xs'
+                      }`}
                     >
                       <span className="text-2xl">{tpl.icon}</span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-slate-200 group-hover:text-sky-300 transition">{tpl.title}</div>
-                        <div className="text-[10px] text-slate-500 truncate">{tpl.description}</div>
+                        <div className={`text-xs font-bold transition ${
+                          isDark ? 'text-slate-200 group-hover:text-sky-300' : 'text-slate-800 group-hover:text-sky-600'
+                        }`}>{tpl.title}</div>
+                        <div className={`text-[10px] truncate ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{tpl.description}</div>
                       </div>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${accent.bg} ${accent.text} border ${accent.border}`}>
                         قالب
@@ -150,46 +185,61 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
           </div>
         ) : (
           <div className="p-6 space-y-5">
-            <button onClick={() => setStep('type')} className="text-xs text-sky-400 hover:text-sky-300 transition font-semibold flex items-center gap-1">
+            <button
+              onClick={() => setStep('type')}
+              className="text-xs text-sky-500 hover:text-sky-600 transition font-semibold flex items-center gap-1 cursor-pointer"
+            >
               <ChevronLeft className="w-3.5 h-3.5 rotate-180" />
               رجوع
             </button>
 
             {/* Project Name */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-2">اسم المشروع *</label>
+              <label className={`text-xs font-bold block mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>اسم المشروع *</label>
               <input
                 autoFocus
                 type="text"
                 placeholder="مثال: تحليل مبيعات 2026"
                 value={form.title || ''}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full bg-slate-800 border border-slate-700 focus:border-sky-500/60 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none transition"
+                className={`w-full rounded-xl px-4 py-3 text-sm outline-none transition border ${
+                  isDark
+                    ? 'bg-slate-800 border-slate-700 focus:border-sky-500/60 text-slate-100 placeholder-slate-500'
+                    : 'bg-slate-50 border-slate-300 focus:border-sky-500 focus:bg-white text-slate-800 placeholder-slate-400'
+                }`}
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-2">الوصف (اختياري)</label>
+              <label className={`text-xs font-bold block mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>الوصف (اختياري)</label>
               <input
                 type="text"
                 placeholder="وصف مختصر للمشروع..."
                 value={form.description || ''}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full bg-slate-800 border border-slate-700 focus:border-sky-500/60 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none transition"
+                className={`w-full rounded-xl px-4 py-3 text-sm outline-none transition border ${
+                  isDark
+                    ? 'bg-slate-800 border-slate-700 focus:border-sky-500/60 text-slate-100 placeholder-slate-500'
+                    : 'bg-slate-50 border-slate-300 focus:border-sky-500 focus:bg-white text-slate-800 placeholder-slate-400'
+                }`}
               />
             </div>
 
             {/* Google Sheet URL (conditional) */}
             {selectedType === 'google_sheets' && (
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-2">رابط Google Sheet</label>
+                <label className={`text-xs font-bold block mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>رابط Google Sheet</label>
                 <input
                   type="url"
                   placeholder="https://docs.google.com/spreadsheets/d/..."
                   value={form.googleSheetUrl || ''}
                   onChange={(e) => setForm({ ...form, googleSheetUrl: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 focus:border-emerald-500/60 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none transition font-mono text-xs"
+                  className={`w-full rounded-xl px-4 py-3 text-sm outline-none transition font-mono text-xs border ${
+                    isDark
+                      ? 'bg-slate-800 border-slate-700 focus:border-emerald-500/60 text-slate-100 placeholder-slate-500'
+                      : 'bg-slate-50 border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-800 placeholder-slate-400'
+                  }`}
                 />
               </div>
             )}
@@ -197,13 +247,19 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
             {/* Icon + Color */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-2">أيقونة المشروع</label>
+                <label className={`text-xs font-bold block mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>أيقونة المشروع</label>
                 <div className="grid grid-cols-5 gap-1.5">
                   {['📊', '💰', '📢', '👥', '⚙️', '🔒', '📑', '🌐', '🏭', '📈'].map((emoji) => (
                     <button
                       key={emoji}
                       onClick={() => setForm({ ...form, icon: emoji })}
-                      className={`p-2 rounded-xl text-lg transition cursor-pointer border ${form.icon === emoji ? 'bg-sky-500/20 border-sky-500/60' : 'bg-slate-800 border-slate-700 hover:border-slate-600'}`}
+                      className={`p-2 rounded-xl text-lg transition cursor-pointer border ${
+                        form.icon === emoji
+                          ? 'bg-sky-500/20 border-sky-500 text-sky-600'
+                          : isDark
+                          ? 'bg-slate-800 border-slate-700 hover:border-slate-600'
+                          : 'bg-slate-100 border-slate-200 hover:bg-slate-200'
+                      }`}
                     >
                       {emoji}
                     </button>
@@ -211,13 +267,19 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ onClose, onCreated })
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-2">لون الهوية</label>
+                <label className={`text-xs font-bold block mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>لون الهوية</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {PROJECT_COLOR_ACCENTS.map((accent) => (
                     <button
                       key={accent.name}
                       onClick={() => setForm({ ...form, colorAccent: accent.name })}
-                      className={`py-2 rounded-xl text-[10px] font-bold transition cursor-pointer border ${form.colorAccent === accent.name ? `${accent.bg} ${accent.text} ${accent.border}` : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                      className={`py-2 rounded-xl text-[10px] font-bold transition cursor-pointer border ${
+                        form.colorAccent === accent.name
+                          ? `${accent.bg} ${accent.text} ${accent.border}`
+                          : isDark
+                          ? 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
+                          : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                      }`}
                     >
                       {accent.label}
                     </button>
@@ -253,8 +315,10 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
     duplicateProject,
     deleteProject,
     updateProjectMeta,
-    setProjectGoogleSheetUrl
+    setProjectGoogleSheetUrl,
+    theme
   } = useDashboardStore();
+  const isDark = theme === 'dark';
 
   const [showNewModal, setShowNewModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -323,46 +387,73 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
       )}
 
       {sheetModalProj && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSheetModalProj(null)}>
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl space-y-5" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div
+          className={`fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm ${
+            isDark ? 'bg-black/70' : 'bg-slate-900/40'
+          }`}
+          onClick={() => setSheetModalProj(null)}
+        >
+          <div
+            className={`w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-5 border transition-colors ${
+              isDark
+                ? 'bg-slate-900 border-slate-700 text-slate-100 shadow-black'
+                : 'bg-white border-slate-200 text-slate-800 shadow-xl shadow-slate-200/50'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={`flex items-center justify-between border-b pb-4 ${
+              isDark ? 'border-slate-800' : 'border-slate-200'
+            }`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-500">
                   <Link2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-100">رابط Google Sheet الخاص بالمشروع</h3>
-                  <p className="text-xs text-slate-400 font-semibold text-emerald-400">{sheetModalProj.title}</p>
+                  <h3 className={`text-sm font-bold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>رابط Google Sheet الخاص بالمشروع</h3>
+                  <p className="text-xs font-semibold text-emerald-500">{sheetModalProj.title}</p>
                 </div>
               </div>
-              <button onClick={() => setSheetModalProj(null)} className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer">
+              <button
+                onClick={() => setSheetModalProj(null)}
+                className={`p-1.5 rounded-xl transition cursor-pointer ${
+                  isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                }`}
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3">
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-xs text-emerald-300 leading-relaxed">
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-xs text-emerald-600 leading-relaxed font-medium">
                 ✨ هذا الرابط مخصص حصرياً لهذا المشروع، ولن يتداخل مع أي مشروع آخر.
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-2">رابط ملف Google Sheet</label>
+                <label className={`text-xs font-bold block mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>رابط ملف Google Sheet</label>
                 <input
                   type="url"
                   value={sheetModalUrl}
                   onChange={(e) => setSheetModalUrl(e.target.value)}
                   placeholder="https://docs.google.com/spreadsheets/d/..."
-                  className="w-full bg-slate-800 border border-slate-700 focus:border-emerald-500/60 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 outline-none transition font-mono"
+                  className={`w-full rounded-xl px-4 py-3 text-xs outline-none transition font-mono border ${
+                    isDark
+                      ? 'bg-slate-800 border-slate-700 focus:border-emerald-500/60 text-slate-100 placeholder-slate-500'
+                      : 'bg-slate-50 border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-800 placeholder-slate-400'
+                  }`}
                 />
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 💡 تأكد من اختيار: «أي شخص لديه الرابط يمكنه العرض» في إعدادات مشاركة الشيت.
               </p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+            <div className={`flex items-center justify-end gap-3 pt-3 border-t ${
+              isDark ? 'border-slate-800' : 'border-slate-200'
+            }`}>
               <button
                 onClick={() => setSheetModalProj(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-800'
+                }`}
               >
                 إلغاء
               </button>
@@ -377,21 +468,27 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto p-6 bg-slate-950/70 select-none custom-scrollbar">
+      <div className={`flex-1 overflow-y-auto p-6 select-none custom-scrollbar ${
+        isDark ? 'bg-slate-950/70 text-slate-100' : 'bg-[#f8fafc] text-slate-800'
+      }`}>
         <div className="max-w-6xl mx-auto space-y-6">
 
           {/* ── Workspace Banner ── */}
-          <div className="bg-gradient-to-r from-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+          <div className={`border rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors ${
+            isDark
+              ? 'bg-gradient-to-r from-slate-900 to-slate-900/90 border-slate-800 shadow-xl'
+              : 'bg-white border-slate-200 shadow-xs'
+          }`}>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
                 <FolderKanban className="w-7 h-7" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-black text-slate-100">مساحة العمل الرئيسية</h1>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">Owner</span>
+                  <h1 className={`text-xl font-black ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>مساحة العمل الرئيسية</h1>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold">Owner</span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {projects.length} مشاريع مستقلة • {totalWidgets} عنصر مرئي • {totalRecords.toLocaleString()} سجل
                 </p>
               </div>
@@ -400,9 +497,13 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
             <div className="flex items-center gap-3">
               <button
                 onClick={onOpenUpload}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 text-xs font-bold transition cursor-pointer"
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                  isDark
+                    ? 'bg-slate-800 hover:bg-slate-750 text-slate-200 border-slate-700'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+                }`}
               >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+                <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
                 <span>رفع بيانات Excel</span>
               </button>
 
@@ -419,8 +520,10 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
           {/* ── Projects Grid ── */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                <LayoutDashboard className="w-4 h-4 text-sky-400" />
+              <h2 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${
+                isDark ? 'text-slate-200' : 'text-slate-700'
+              }`}>
+                <LayoutDashboard className="w-4 h-4 text-sky-500" />
                 <span>المشاريع والتقارير ({projects.length})</span>
               </h2>
             </div>
@@ -435,17 +538,21 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                 return (
                   <div
                     key={proj.id}
-                    className={`group bg-slate-900/90 hover:bg-slate-900 border rounded-2xl p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 shadow-lg ${
-                      isActive
-                        ? `border-sky-500/60 shadow-sky-500/10`
-                        : 'border-slate-800 hover:border-slate-700'
+                    className={`group border rounded-2xl p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 ${
+                      isDark
+                        ? isActive
+                          ? 'bg-slate-900/90 border-sky-500/60 shadow-sky-500/10 shadow-lg'
+                          : 'bg-slate-900/90 hover:bg-slate-900 border-slate-800 hover:border-slate-700 shadow-lg'
+                        : isActive
+                        ? 'bg-white border-sky-500 shadow-md ring-1 ring-sky-500/30'
+                        : 'bg-white hover:bg-slate-50/80 border-slate-200 hover:border-slate-300 shadow-xs'
                     }`}
                   >
                     {/* Top row: icon + status */}
                     <div>
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${accent.from} ${accent.to} flex items-center justify-center text-xl shadow-md`}>
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${accent.from} ${accent.to} flex items-center justify-center text-xl shadow-md text-white`}>
                             {proj.icon || '📊'}
                           </div>
                           <div>
@@ -456,12 +563,20 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                                 onChange={(e) => setEditTitle(e.target.value)}
                                 onBlur={handleRenameCommit}
                                 onKeyDown={(e) => { if (e.key === 'Enter') handleRenameCommit(); if (e.key === 'Escape') setEditingId(null); }}
-                                className="text-xs font-bold bg-slate-800 border border-sky-500/60 rounded-lg px-2 py-1 text-slate-100 outline-none w-36"
+                                className={`text-xs font-bold border rounded-lg px-2 py-1 outline-none w-36 ${
+                                  isDark ? 'bg-slate-800 border-sky-500/60 text-slate-100' : 'bg-slate-50 border-sky-500 text-slate-800'
+                                }`}
                                 onClick={(e) => e.stopPropagation()}
                               />
                             ) : (
                               <h3
-                                className={`text-sm font-bold transition-colors ${isActive ? 'text-sky-300' : 'text-slate-100 group-hover:text-sky-300'}`}
+                                className={`text-sm font-bold transition-colors ${
+                                  isActive
+                                    ? 'text-sky-500'
+                                    : isDark
+                                    ? 'text-slate-100 group-hover:text-sky-300'
+                                    : 'text-slate-800 group-hover:text-sky-600'
+                                }`}
                               >
                                 {proj.title}
                               </h3>
@@ -474,15 +589,17 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
 
                         <div className="flex items-center gap-1.5">
                           {isActive && (
-                            <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/25 font-bold">
+                            <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-500 border border-sky-500/25 font-bold">
                               <CheckCircle2 className="w-3 h-3" />
                               نشط
                             </span>
                           )}
                           <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1 border ${
                             proj.isPublic
-                              ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
-                              : 'bg-slate-800 text-slate-400 border-slate-700'
+                              ? 'bg-sky-500/10 text-sky-500 border-sky-500/20'
+                              : isDark
+                              ? 'bg-slate-800 text-slate-400 border-slate-700'
+                              : 'bg-slate-100 text-slate-500 border-slate-200'
                           }`}>
                             {proj.isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                           </span>
@@ -490,7 +607,7 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                       </div>
 
                       {proj.description && (
-                        <p className="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">{proj.description}</p>
+                        <p className={`text-xs mb-3 line-clamp-2 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{proj.description}</p>
                       )}
 
                       {/* Stats */}
@@ -499,12 +616,16 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                           <div className={`text-sm font-black ${accent.text}`}>{proj.dashboard.widgets.length}</div>
                           <div className="text-[9px] text-slate-500">عنصر</div>
                         </div>
-                        <div className="p-2 rounded-xl text-center bg-slate-800/80 border border-slate-700">
-                          <div className="text-sm font-black text-slate-300">{recordCount.toLocaleString()}</div>
+                        <div className={`p-2 rounded-xl text-center border ${
+                          isDark ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <div className={`text-sm font-black ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{recordCount.toLocaleString()}</div>
                           <div className="text-[9px] text-slate-500">سجل</div>
                         </div>
-                        <div className="p-2 rounded-xl text-center bg-slate-800/80 border border-slate-700">
-                          <div className="text-[9px] font-bold text-slate-300 mt-1">
+                        <div className={`p-2 rounded-xl text-center border ${
+                          isDark ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <div className="text-[9px] font-bold text-slate-500 mt-1">
                             {proj.dataSourceType === 'google_sheets' ? '🟢' : '📑'}
                           </div>
                           <div className="text-[9px] text-slate-500">
@@ -515,9 +636,11 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                     </div>
 
                     {/* Footer: time + actions */}
-                    <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-[10px] text-slate-400 font-sans" title={formatDateAr(proj.updatedAt, true)}>
-                        <Clock className="w-3 h-3 text-slate-500" />
+                    <div className={`pt-4 border-t flex items-center justify-between ${
+                      isDark ? 'border-slate-800/80' : 'border-slate-200'
+                    }`}>
+                      <div className={`flex items-center gap-1 text-[10px] font-sans ${isDark ? 'text-slate-400' : 'text-slate-500'}`} title={formatDateAr(proj.updatedAt, true)}>
+                        <Clock className="w-3 h-3 text-slate-400" />
                         <span>{formatDateAr(proj.updatedAt, true)}</span>
                       </div>
 
@@ -526,7 +649,9 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                         <button
                           onClick={() => handleRenameStart(proj.id, proj.title)}
                           title="إعادة تسمية"
-                          className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-slate-200 transition cursor-pointer opacity-0 group-hover:opacity-100"
+                          className={`p-1.5 rounded-lg transition cursor-pointer opacity-0 group-hover:opacity-100 ${
+                            isDark ? 'hover:bg-slate-800 text-slate-500 hover:text-slate-200' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-700'
+                          }`}
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
@@ -540,8 +665,10 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                           title={proj.googleSheetUrl ? "تعديل رابط Google Sheet المخصص لهذا المشروع" : "ربط Google Sheet بهذا المشروع"}
                           className={`p-1.5 rounded-lg transition cursor-pointer ${
                             proj.googleSheetUrl
-                              ? 'text-emerald-400 hover:bg-emerald-500/20'
-                              : 'text-slate-500 hover:bg-slate-800 hover:text-slate-300 opacity-0 group-hover:opacity-100'
+                              ? 'text-emerald-500 hover:bg-emerald-500/20'
+                              : isDark
+                              ? 'text-slate-500 hover:bg-slate-800 hover:text-slate-300 opacity-0 group-hover:opacity-100'
+                              : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 opacity-0 group-hover:opacity-100'
                           }`}
                         >
                           <Link2 className="w-3.5 h-3.5" />
@@ -550,14 +677,18 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                         <button
                           onClick={() => handleDuplicate(proj.id)}
                           title="تكرار المشروع"
-                          className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-slate-200 transition cursor-pointer opacity-0 group-hover:opacity-100"
+                          className={`p-1.5 rounded-lg transition cursor-pointer opacity-0 group-hover:opacity-100 ${
+                            isDark ? 'hover:bg-slate-800 text-slate-500 hover:text-slate-200' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-700'
+                          }`}
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
                         {/* View (public) */}
                         <button
                           title="عرض التقرير"
-                          className="p-1.5 rounded-lg hover:bg-emerald-500/20 text-slate-500 hover:text-emerald-400 transition cursor-pointer opacity-0 group-hover:opacity-100"
+                          className={`p-1.5 rounded-lg transition cursor-pointer opacity-0 group-hover:opacity-100 ${
+                            isDark ? 'hover:bg-emerald-500/20 text-slate-500 hover:text-emerald-400' : 'hover:bg-emerald-50 text-slate-400 hover:text-emerald-600'
+                          }`}
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -565,7 +696,9 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                         <button
                           onClick={() => handleDelete(proj.id, proj.title)}
                           title="حذف المشروع نهائياً"
-                          className="p-1.5 rounded-lg hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition cursor-pointer opacity-0 group-hover:opacity-100"
+                          className={`p-1.5 rounded-lg transition cursor-pointer opacity-0 group-hover:opacity-100 ${
+                            isDark ? 'hover:bg-rose-500/20 text-slate-500 hover:text-rose-400' : 'hover:bg-rose-50 text-slate-400 hover:text-rose-600'
+                          }`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -575,7 +708,9 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                             isActive
                               ? `bg-gradient-to-r ${accent.from} ${accent.to} text-white shadow-md`
-                              : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                              : isDark
+                              ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                           }`}
                         >
                           <span>{isActive ? 'متابعة' : 'فتح'}</span>
@@ -590,14 +725,24 @@ export const WorkspaceList: React.FC<WorkspaceListProps> = ({
               {/* Add New Project Card */}
               <button
                 onClick={() => setShowNewModal(true)}
-                className="group border-2 border-dashed border-slate-700 hover:border-sky-500/60 rounded-2xl p-5 flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:-translate-y-1 cursor-pointer min-h-[200px]"
+                className={`group border-2 border-dashed rounded-2xl p-5 flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:-translate-y-1 cursor-pointer min-h-[200px] ${
+                  isDark
+                    ? 'border-slate-700 hover:border-sky-500/60 bg-transparent'
+                    : 'border-slate-300 hover:border-sky-500 bg-white/60 hover:bg-white shadow-xs'
+                }`}
               >
-                <div className="w-12 h-12 rounded-2xl bg-slate-800 group-hover:bg-sky-500/10 border border-slate-700 group-hover:border-sky-500/40 flex items-center justify-center transition">
-                  <Plus className="w-6 h-6 text-slate-500 group-hover:text-sky-400 transition" />
+                <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition ${
+                  isDark
+                    ? 'bg-slate-800 group-hover:bg-sky-500/10 border-slate-700 group-hover:border-sky-500/40 text-slate-500 group-hover:text-sky-400'
+                    : 'bg-slate-100 group-hover:bg-sky-50 border-slate-200 group-hover:border-sky-300 text-slate-400 group-hover:text-sky-600'
+                }`}>
+                  <Plus className="w-6 h-6 transition" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-slate-400 group-hover:text-sky-400 transition">إنشاء مشروع جديد</p>
-                  <p className="text-xs text-slate-600 mt-1">Google Sheets, Excel, أو قالب جاهز</p>
+                  <p className={`text-sm font-bold transition ${
+                    isDark ? 'text-slate-400 group-hover:text-sky-400' : 'text-slate-600 group-hover:text-sky-600'
+                  }`}>إنشاء مشروع جديد</p>
+                  <p className={`text-xs mt-1 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>Google Sheets, Excel, أو قالب جاهز</p>
                 </div>
               </button>
             </div>

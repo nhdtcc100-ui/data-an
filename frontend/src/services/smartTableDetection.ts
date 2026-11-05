@@ -387,14 +387,7 @@ export function parseGoogleSheetCsvSmart(
       pivotRows.push(obj);
     }
 
-    const pivotColumns: Column[] = headerRow
-      .filter((h: any) => String(h ?? '').trim())
-      .map((h: any, ci: number) => ({
-        id: `c-pivot-gs-${ci}`,
-        columnName: String(h).trim(),
-        dataType: ci === 0 ? ('string' as const) : ('numeric' as const),
-        sampleValues: []
-      }));
+    const pivotColumns: Column[] = inferColumnsFromRows(pivotRows, 0);
 
     return {
       rows: pivotRows,

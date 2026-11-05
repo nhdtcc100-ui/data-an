@@ -333,18 +333,23 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
     const pivotAgg = pivotValField?.aggregation || 'SUM';
     const questionTitle = pivotDetection?.question || `تحليل ${pivotValName} حسب ${pivotRowCol}`;
 
-    // 1. شريط الفلتر
-    if (strCols.length > 0) {
+    // 1. شريط الفلتر (الفلاتر المستنتجة)
+    const filterList = (pivotStructure.filterDimensions && pivotStructure.filterDimensions.length > 0)
+      ? pivotStructure.filterDimensions
+      : strCols.filter((c) => c !== pivotRowCol);
+
+    if (filterList.length > 0 || strCols.length > 0) {
+      const activeFilter = filterList[0] || pivotRowCol;
       widgets.push({
         id: `w-slicer-${now}-1`,
         dashboardId,
         dataSourceId: dataSource.id,
         type: 'slicer',
-        title: `تصفية: ${pivotRowCol}`,
+        title: `تصفية: ${activeFilter}`,
         config: {
-          xAxisColumn: pivotRowCol,
-          activeSlicerColumn: pivotRowCol,
-          slicerColumns: [pivotRowCol, ...strCols.filter((c) => c !== pivotRowCol).slice(0, 3)],
+          xAxisColumn: activeFilter,
+          activeSlicerColumn: activeFilter,
+          slicerColumns: filterList.length > 0 ? filterList.slice(0, 4) : [pivotRowCol],
           slicerSelectionMode: 'multi'
         },
         layout: { x: 0, y: 0, w: 12, h: 2, i: `w-slicer-${now}-1` }
@@ -357,11 +362,11 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
       dashboardId,
       dataSourceId: dataSource.id,
       type: 'kpi',
-      title: `إجمالي: ${pivotValName}`,
+      title: pivotAgg === 'COUNT' ? `عدد: ${pivotValName}` : `إجمالي: ${pivotValName}`,
       config: {
         xAxisColumn: pivotRowCol,
         yAxisColumn: pivotValName,
-        aggregation: 'SUM',
+        aggregation: pivotAgg,
         numberFormat: 'compact',
         colorTheme: 'sky'
       },
@@ -412,6 +417,7 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
         yAxisColumn: pivotValName,
         pivotRowColumns: pivotStructure.rowDimensions.length > 0 ? pivotStructure.rowDimensions : [pivotRowCol],
         pivotColumnColumns: pivotStructure.columnDimensions || [],
+        pivotFilterColumns: filterList,
         pivotValues: pivotStructure.valueFields.length > 0
           ? pivotStructure.valueFields.map((vf: any, vIdx: number) => ({
               id: `val_${vIdx + 1}`,
@@ -1943,6 +1949,20 @@ export const useDashboardStore = create<DashboardState>()(
     // Persist new project to PostgreSQL + sync data source rows in background
     saveAllProjectsToDb(allProjects, newId).catch(() => {});
     syncDataSourceToSupabase(dataSource, { sourceName: `[${options.title}] ${dataSource.fileName}` }).catch(() => {});
+
+    // إذا كان المشروع من نوع Google Sheets وتم تزويد الرابط، يتم الجلب الذكي المباشر وتوليد البافت تايبل فوراً
+    if (options.dataSourceType === 'google_sheets' && options.googleSheetUrl) {
+      const gUrl = options.googleSheetUrl;
+      setTimeout(async () => {
+        try {
+          const { fetchGoogleSheetData } = await import('../../services/googleSheetsService');
+          const gDs = await fetchGoogleSheetData(gUrl);
+          get().setDataSource(gDs, true);
+        } catch (e) {
+          console.warn('Auto-fetching Google Sheet for new project deferred:', e);
+        }
+      }, 50);
+    }
 
     return newId;
   },
