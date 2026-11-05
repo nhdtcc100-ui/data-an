@@ -45,7 +45,8 @@ const TYPE_ICONS: Record<ColumnDataType, React.ReactNode> = {
 };
 
 export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose }) => {
-  const { setDataSource, currentProjectId, projects, setProjectGoogleSheetUrl } = useDashboardStore();
+  const { setDataSource, currentProjectId, projects, setProjectGoogleSheetUrl, theme } = useDashboardStore();
+  const isDark = theme === 'dark';
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activeProject = projects?.find((p) => p.id === currentProjectId);
@@ -246,8 +247,8 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden select-none flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+      <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden select-none flex flex-col max-h-[92vh]`}>
         {/* Hidden File Input */}
         <input
           ref={fileInputRef}
@@ -258,43 +259,43 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
         />
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-950/70 shrink-0">
+        <div className={`flex items-center justify-between p-5 border-b ${isDark ? 'border-slate-800 bg-slate-950/70' : 'border-slate-200 bg-slate-50'} shrink-0`}>
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+              <h3 className={`text-sm font-bold ${isDark ? 'text-slate-100' : 'text-slate-800'} flex items-center gap-2`}>
                 <span>استيراد وتغيير ملفات البيانات (Excel / CSV)</span>
-                <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[10px] bg-emerald-500/15 text-emerald-600 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
                   Power BI Engine
                 </span>
               </h3>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-0.5`}>
                 ارفع أي ملف Excel من جهازك أو اختر نموذجاً تجريبياً — يتم استخراج الحقول وتوليد لوحة مؤشرات ذكية تلقائياً
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            className={`${isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'} p-1.5 rounded-lg transition cursor-pointer`}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* ── Body ── */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-5">
+        <div className={`p-6 overflow-y-auto flex-1 space-y-5 ${isDark ? '' : 'bg-slate-50/50'}`}>
           {step === 'upload' ? (
             <>
               {/* Tabs */}
-              <div className="flex border-b border-slate-800 gap-4 text-xs font-bold">
+              <div className={`flex border-b ${isDark ? 'border-slate-800' : 'border-slate-200'} gap-4 text-xs font-bold`}>
                 <button
                   onClick={() => { setImportType('file'); setUploadError(null); }}
                   className={`flex items-center gap-1.5 pb-2.5 border-b-2 transition cursor-pointer ${
                     importType === 'file'
-                      ? 'border-sky-500 text-sky-400'
-                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                      ? 'border-sky-500 text-sky-500'
+                      : `border-transparent ${isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'}`
                   }`}
                 >
                   <UploadCloud className="w-4 h-4" />
@@ -305,21 +306,21 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                   onClick={() => { setImportType('presets'); setUploadError(null); }}
                   className={`flex items-center gap-1.5 pb-2.5 border-b-2 transition cursor-pointer ${
                     importType === 'presets'
-                      ? 'border-indigo-500 text-indigo-400'
-                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                      ? 'border-indigo-500 text-indigo-500'
+                      : `border-transparent ${isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'}`
                   }`}
                 >
                   <Layers className="w-4 h-4" />
                   <span>نماذج بيانات متنوعة جاهزة</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-normal">تبديل فوري</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-500 font-normal">تبديل فوري</span>
                 </button>
 
                 <button
                   onClick={() => { setImportType('googlesheet'); setUploadError(null); }}
                   className={`flex items-center gap-1.5 pb-2.5 border-b-2 transition cursor-pointer ${
                     importType === 'googlesheet'
-                      ? 'border-emerald-500 text-emerald-400'
-                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                      ? 'border-emerald-500 text-emerald-500'
+                      : `border-transparent ${isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'}`
                   }`}
                 >
                   <Globe className="w-4 h-4" />
@@ -334,21 +335,21 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-slate-700 hover:border-sky-500 bg-slate-950/60 hover:bg-slate-900/40 rounded-2xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer group"
+                    className={`border-2 border-dashed ${isDark ? 'border-slate-700 hover:border-sky-500 bg-slate-950/60 hover:bg-slate-900/40' : 'border-slate-300 hover:border-sky-400 bg-white hover:bg-sky-50/50'} rounded-2xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer group`}
                   >
-                    <div className="p-4 rounded-full bg-slate-900 border border-slate-800 group-hover:scale-110 group-hover:border-sky-500/50 transition-all mb-3 text-sky-400 shadow-inner">
+                    <div className={`p-4 rounded-full ${isDark ? 'bg-slate-900 border-slate-800 group-hover:border-sky-500/50' : 'bg-slate-100 border-slate-200 group-hover:border-sky-400/60'} border group-hover:scale-110 transition-all mb-3 text-sky-500 shadow-inner`}>
                       <UploadCloud className="w-8 h-8" />
                     </div>
-                    <h4 className="text-sm font-bold text-slate-200 group-hover:text-sky-300">
+                    <h4 className={`text-sm font-bold ${isDark ? 'text-slate-200 group-hover:text-sky-300' : 'text-slate-700 group-hover:text-sky-600'}`}>
                       اسحب وأفلت أي ملف Excel أو CSV هنا
                     </h4>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-1`}>
                       أو انقر لاختيار الملف من حاسوبك (يدعم جداول المبيعات، الرواتب، الفواتير، المخزون، وغيرها)
                     </p>
                     <div className="mt-4 flex gap-2">
                       {['.XLSX', '.CSV', '.XLS'].map((ext, i) => (
-                        <span key={ext} className={`text-[10px] px-2.5 py-1 rounded font-mono border border-slate-700 bg-slate-800 ${
-                          i === 0 ? 'text-sky-300' : i === 1 ? 'text-emerald-300' : 'text-amber-300'
+                        <span key={ext} className={`text-[10px] px-2.5 py-1 rounded font-mono border ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'} ${
+                          i === 0 ? 'text-sky-500' : i === 1 ? 'text-emerald-500' : 'text-amber-500'
                         }`}>{ext}</span>
                       ))}
                     </div>
@@ -356,35 +357,35 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
 
                   {isUploading && (
                     <div className="space-y-1.5">
-                      <p className="text-xs text-slate-400">جارٍ قراءة الملف واستخراج الأعمدة والأنواع...</p>
-                      <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                      <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>جارٍ قراءة الملف واستخراج الأعمدة والأنواع...</p>
+                      <div className={`w-full ${isDark ? 'bg-slate-800' : 'bg-slate-200'} h-1.5 rounded-full overflow-hidden`}>
                         <div className="bg-sky-500 h-full w-full animate-pulse" />
                       </div>
                     </div>
                   )}
 
                   {/* Ready Sample Excel Download Buttons */}
-                  <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className={`${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'} border rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3`}>
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                      <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
                         <Download className="w-4 h-4" />
                       </div>
                       <div>
-                        <h5 className="text-xs font-bold text-slate-200">تحميل نماذج تجريبية بصيغة Excel (.xlsx)</h5>
-                        <p className="text-[11px] text-slate-400 mt-0.5">حمّل نموذجاً واملأه ببياناتك أو ارفعه مباشرة لتجربة المنصة</p>
+                        <h5 className={`text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>تحميل نماذج تجريبية بصيغة Excel (.xlsx)</h5>
+                        <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-0.5`}>حمّل نموذجاً واملأه ببياناتك أو ارفعه مباشرة لتجربة المنصة</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDownloadSample('sales'); }}
-                        className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
+                        className={`px-3 py-1.5 rounded-lg ${isDark ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-slate-100 hover:bg-sky-50 border-slate-200'} text-sky-500 border text-xs font-semibold transition cursor-pointer flex items-center gap-1.5`}
                       >
                         <Download className="w-3 h-3" />
                         <span>نموذج المبيعات (.xlsx)</span>
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDownloadSample('hr'); }}
-                        className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
+                        className={`px-3 py-1.5 rounded-lg ${isDark ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-slate-100 hover:bg-emerald-50 border-slate-200'} text-emerald-500 border text-xs font-semibold transition cursor-pointer flex items-center gap-1.5`}
                       >
                         <Download className="w-3 h-3" />
                         <span>نموذج الموظفين (.xlsx)</span>
@@ -397,7 +398,7 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
               {/* ── 2. Preset Datasets Tab ── */}
               {importType === 'presets' && (
                 <div className="space-y-3">
-                  <p className="text-xs text-slate-400">
+                  <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                     اختر أي مجموعة بيانات لتغيير بيانات المنصة وإنشاء لوحة مؤشرات فورية دون الحاجة لرفع ملف خارجي:
                   </p>
                   <div className="grid grid-cols-1 gap-3">
@@ -405,32 +406,32 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                       <div
                         key={preset.id}
                         onClick={() => handleSelectPreset(preset.dataSource)}
-                        className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900/60 transition cursor-pointer flex items-center justify-between group shadow-sm"
+                        className={`p-4 rounded-xl ${isDark ? 'bg-slate-950/70 border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900/60' : 'bg-white border-slate-200 hover:border-indigo-400/60 hover:bg-indigo-50/30'} border transition cursor-pointer flex items-center justify-between group shadow-sm`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition">
+                          <div className={`w-10 h-10 rounded-xl ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'} border flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition`}>
                             {preset.icon}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <h4 className="text-xs font-bold text-slate-100 group-hover:text-indigo-300 transition truncate">
+                              <h4 className={`text-xs font-bold ${isDark ? 'text-slate-100 group-hover:text-indigo-300' : 'text-slate-700 group-hover:text-indigo-600'} transition truncate`}>
                                 {preset.title}
                               </h4>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full ${isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-slate-100 text-slate-500 border-slate-200'} border shrink-0`}>
                                 {preset.tag}
                               </span>
                             </div>
-                            <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
+                            <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-1 line-clamp-1`}>
                               {preset.subtitle}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-[11px] text-slate-500 font-mono">
+                          <span className={`text-[11px] ${isDark ? 'text-slate-500' : 'text-slate-400'} font-mono`}>
                             {preset.rowCount.toLocaleString()} سجل
                           </span>
-                          <button className="px-3 py-1.5 rounded-lg bg-indigo-600/20 group-hover:bg-indigo-600 group-hover:text-white text-indigo-300 border border-indigo-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                          <button className="px-3 py-1.5 rounded-lg bg-indigo-600/20 group-hover:bg-indigo-600 group-hover:text-white text-indigo-500 border border-indigo-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
                             <span>اختيار ومعاينة</span>
                             <ArrowRight className="w-3.5 h-3.5" />
                           </button>
@@ -444,10 +445,10 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
               {/* ── 3. Google Sheets Panel ── */}
               {importType === 'googlesheet' && (
                 <div className="space-y-4">
-                  <div className="p-5 rounded-2xl bg-slate-950/80 border border-emerald-500/30 space-y-4">
+                  <div className={`p-5 rounded-2xl ${isDark ? 'bg-slate-950/80 border-emerald-500/30' : 'bg-white border-emerald-400/40'} border space-y-4`}>
                     <div>
-                      <label className="block text-xs font-bold text-slate-200 mb-2 flex items-center gap-2">
-                        <Link2 className="w-4 h-4 text-emerald-400" />
+                      <label className={`block text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-700'} mb-2 flex items-center gap-2`}>
+                        <Link2 className="w-4 h-4 text-emerald-500" />
                         <span>رابط ملف Google Sheets:</span>
                       </label>
                       <div className="flex items-stretch gap-2">
@@ -458,7 +459,7 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                           onChange={(e) => { setGoogleSheetUrlInput(e.target.value); setUploadError(null); }}
                           onKeyDown={(e) => e.key === 'Enter' && handleFetchGoogleSheet()}
                           placeholder="https://docs.google.com/spreadsheets/d/..."
-                          className="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-xl px-3.5 py-2.5 text-xs text-emerald-300 font-mono focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 outline-none transition"
+                          className={`flex-1 ${isDark ? 'bg-slate-900 border-slate-700 hover:border-slate-600 text-emerald-300' : 'bg-slate-50 border-slate-300 hover:border-slate-400 text-emerald-700'} border rounded-xl px-3.5 py-2.5 text-xs font-mono focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 outline-none transition`}
                         />
                         <button
                           onClick={handleFetchGoogleSheet}
@@ -480,19 +481,19 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                         { n: '2', title: 'انسخ رابط الملف', body: 'من شريط العنوان أو زر «مشاركة» ▶ «نسخ الرابط»' },
                         { n: '3', title: 'الصق الرابط هنا', body: 'أدرج الرابط في المربع أعلاه ثم اضغط «جلب وتحليل البيانات»' },
                       ].map((s) => (
-                        <div key={s.n} className="bg-slate-900/80 border border-slate-800 rounded-xl p-3 flex flex-col gap-1.5">
-                          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black flex items-center justify-center shrink-0">{s.n}</div>
-                          <span className="font-bold text-slate-200">{s.title}</span>
-                          <span className="text-slate-400 leading-relaxed">{s.body}</span>
+                        <div key={s.n} className={`${isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-slate-50 border-slate-200'} border rounded-xl p-3 flex flex-col gap-1.5`}>
+                          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-600 text-xs font-black flex items-center justify-center shrink-0">{s.n}</div>
+                          <span className={`font-bold ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{s.title}</span>
+                          <span className={`${isDark ? 'text-slate-400' : 'text-slate-500'} leading-relaxed`}>{s.body}</span>
                         </div>
                       ))}
                     </div>
 
                     <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3.5 flex gap-2.5 text-[11px]">
-                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <div className="space-y-0.5 text-slate-400">
-                        <span className="font-bold text-amber-300 block">يجب أن يكون الملف مشتركاً بشكل عام:</span>
-                        <span>في شيت جوجل: اضغط <span className="text-emerald-300 font-bold">«مشاركة (Share)»</span> ← <span className="text-emerald-300 font-bold">«أي شخص لديه الرابط — يمكنه العرض»</span>.</span>
+                      <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                      <div className={`space-y-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <span className="font-bold text-amber-600 block">يجب أن يكون الملف مشتركاً بشكل عام:</span>
+                        <span>في شيت جوجل: اضغط <span className="text-emerald-600 font-bold">«مشاركة (Share)»</span> ← <span className="text-emerald-600 font-bold">«أي شخص لديه الرابط — يمكنه العرض»</span>.</span>
                       </div>
                     </div>
                   </div>
@@ -501,8 +502,8 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
 
               {/* Error Alert */}
               {uploadError && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-500 mt-0.5" />
                   <span className="leading-relaxed">{uploadError}</span>
                 </div>
               )}
@@ -512,19 +513,19 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
             <div className="space-y-4">
               {/* Success Banner */}
               <div className="bg-emerald-500/8 border border-emerald-500/25 rounded-xl p-3.5 flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-emerald-300">
+                  <div className="text-xs font-bold text-emerald-600">
                     ✅ تم استخراج المخطط بنجاح — {currentSheet?.columns.length} عمود · {(currentSheet?.rowCount ?? 0).toLocaleString()} سجل
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5 truncate">
+                  <div className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-0.5 truncate`}>
                     {fileName || 'ملف البيانات'} — راجع الأعمدة وعدّل أنواعها إذا لزم ثم اضغط «تأكيد»
                   </div>
                 </div>
               </div>
 
               {/* Smart Auto-Generate Dashboard Option */}
-              <label className="flex items-center gap-3.5 p-3.5 bg-gradient-to-r from-sky-950/70 via-indigo-950/50 to-slate-900 border border-sky-500/30 rounded-xl cursor-pointer hover:border-sky-400/60 transition select-none shadow-md">
+              <label className={`flex items-center gap-3.5 p-3.5 ${isDark ? 'bg-gradient-to-r from-sky-950/70 via-indigo-950/50 to-slate-900 border-sky-500/30' : 'bg-gradient-to-r from-sky-50 via-indigo-50 to-white border-sky-300/60'} border rounded-xl cursor-pointer hover:border-sky-400/60 transition select-none shadow-md`}>
                 <input
                   type="checkbox"
                   checked={autoGenerateSmartDashboard}
@@ -532,14 +533,14 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                   className="w-4 h-4 rounded text-sky-500 accent-sky-500 cursor-pointer shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-sky-200 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-sky-400 shrink-0" />
+                  <div className={`text-xs font-bold ${isDark ? 'text-sky-200' : 'text-sky-700'} flex items-center gap-2`}>
+                    <Sparkles className="w-4 h-4 text-sky-500 shrink-0" />
                     <span>توليد لوحة مؤشرات وتحليلات ذكية تلقائياً لهذا الملف (Power BI Style)</span>
-                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold border border-sky-500/30">
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-600 font-bold border border-sky-500/30">
                       موصى به
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                  <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-1 leading-relaxed`}>
                     {autoGenerateSmartDashboard
                       ? 'سيتم استبدال الرسوم الثابتة ببطاقات KPI ومخططات بيانية وجدول تفصيلي وفلاتر مخصصة تماماً لأعمدة هذا الملف'
                       : 'سيتم الاحتفاظ بالرسوم الحالية ومحاولة ربطها بأعمدة الملف الجديد'}
@@ -549,8 +550,8 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
 
               {/* Sheet Tabs */}
               {sheets.length > 1 && (
-                <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
-                  <span className="text-[11px] font-bold text-slate-500 shrink-0">الأوراق:</span>
+                <div className={`flex items-center gap-2 border-b ${isDark ? 'border-slate-800' : 'border-slate-200'} pb-2 overflow-x-auto`}>
+                  <span className={`text-[11px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'} shrink-0`}>الأوراق:</span>
                   {sheets.map((sh, idx) => (
                     <button
                       key={sh.id}
@@ -558,17 +559,17 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0 ${
                         idx === activeSheetIndex
                           ? 'bg-sky-500 text-white shadow-sm'
-                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                          : `${isDark ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700 hover:bg-slate-200'}`
                       }`}
                     >
                       <Table className="w-3.5 h-3.5" />
                       <span>{sh.name}</span>
                       {sh.isPivot && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-purple-400/25 text-purple-200 font-bold border border-purple-300/40">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-purple-400/25 text-purple-600 font-bold border border-purple-300/40">
                           🧩 Pivot
                         </span>
                       )}
-                      <span className="text-[10px] opacity-75 font-mono">({sh.rowCount.toLocaleString()})</span>
+                      <span className={`text-[10px] opacity-75 font-mono`}>({sh.rowCount.toLocaleString()})</span>
                     </button>
                   ))}
                 </div>
@@ -576,32 +577,32 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
 
               {/* Pivot Table Smart Analytical Question Card */}
               {currentSheet?.isPivot && (
-                <div className="bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 rounded-xl p-4 shadow-md space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
-                    <span className="p-1 rounded-lg bg-purple-500/20 text-purple-300">🧩</span>
+                <div className={`${isDark ? 'bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border-purple-500/30' : 'bg-gradient-to-r from-purple-50 via-white to-indigo-50 border-purple-300/60'} border rounded-xl p-4 shadow-md space-y-3`}>
+                  <div className={`flex items-center gap-2 text-xs font-bold ${isDark ? 'text-purple-300' : 'text-purple-700'}`}>
+                    <span className="p-1 rounded-lg bg-purple-500/20 text-purple-600">🧩</span>
                     <span>تم اكتشاف جدول محوري (Pivot Table) تلقائياً</span>
-                    <span className="text-[10px] bg-purple-500/20 text-purple-200 border border-purple-500/30 px-2 py-0.5 rounded-full mr-auto font-normal">
+                    <span className={`text-[10px] ${isDark ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' : 'bg-purple-100 text-purple-600 border-purple-300/50'} border px-2 py-0.5 rounded-full mr-auto font-normal`}>
                       ثقة التحليل: {Math.round((currentSheet.pivotDetection?.confidence || 0.8) * 100)}%
                     </span>
                   </div>
 
                   {currentSheet.pivotDetection?.question && (
-                    <div className="text-xs text-purple-100 bg-purple-900/30 border border-purple-800/50 rounded-lg p-3">
-                      <div className="text-[11px] text-purple-400 font-bold flex items-center gap-1 mb-1">
+                    <div className={`text-xs ${isDark ? 'text-purple-100 bg-purple-900/30 border-purple-800/50' : 'text-purple-800 bg-purple-50 border-purple-200'} border rounded-lg p-3`}>
+                      <div className={`text-[11px] ${isDark ? 'text-purple-400' : 'text-purple-600'} font-bold flex items-center gap-1 mb-1`}>
                         <span>🎯 السؤال التحليلي المباشر الذي يجيب عليه هذا الـ Pivot:</span>
                       </div>
-                      <p className="text-sm font-bold text-white tracking-wide">
+                      <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-purple-900'} tracking-wide`}>
                         {currentSheet.pivotDetection.question}
                       </p>
                     </div>
                   )}
 
                   {currentSheet.pivotDetection?.suggestedQuestions && currentSheet.pivotDetection.suggestedQuestions.length > 0 && (
-                    <div className="text-[11px] text-slate-300 space-y-1.5 pt-1 border-t border-purple-800/30">
-                      <span className="font-semibold text-purple-300">💡 أسئلة استكشافية إضافية يجيب عليها هذا الجدول:</span>
-                      <ul className="list-disc list-inside space-y-1 text-slate-300 pr-1">
+                    <div className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-600'} space-y-1.5 pt-1 border-t ${isDark ? 'border-purple-800/30' : 'border-purple-200'}`}>
+                      <span className={`font-semibold ${isDark ? 'text-purple-300' : 'text-purple-600'}`}>💡 أسئلة استكشافية إضافية يجيب عليها هذا الجدول:</span>
+                      <ul className="list-disc list-inside space-y-1 pr-1">
                         {currentSheet.pivotDetection.suggestedQuestions.map((q: string, qIdx: number) => (
-                          <li key={qIdx} className="text-slate-300">{q}</li>
+                          <li key={qIdx}>{q}</li>
                         ))}
                       </ul>
                     </div>
@@ -616,12 +617,12 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                   value={colSearch}
                   onChange={(e) => setColSearch(e.target.value)}
                   placeholder="ابحث عن عمود..."
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 outline-none"
+                  className={`w-full ${isDark ? 'bg-slate-950 border-slate-800 text-slate-200 placeholder-slate-500 focus:border-sky-500' : 'bg-white border-slate-200 text-slate-700 placeholder-slate-400 focus:border-sky-400'} border rounded-xl px-4 py-2 text-xs focus:ring-1 focus:ring-sky-500/20 outline-none`}
                 />
                 {colSearch && (
                   <button
                     onClick={() => setColSearch('')}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-700'}`}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -629,33 +630,33 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
               </div>
 
               {/* Columns Table */}
-              <div className="border border-slate-800 rounded-xl overflow-hidden">
+              <div className={`border ${isDark ? 'border-slate-800' : 'border-slate-200'} rounded-xl overflow-hidden`}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-right text-xs">
-                    <thead className="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
+                    <thead className={`${isDark ? 'bg-slate-950 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-500 border-slate-200'} font-bold border-b`}>
                       <tr>
                         <th className="p-3 text-right">اسم العمود</th>
                         <th className="p-3">نوع البيانات</th>
                         <th className="p-3">عينة من القيم</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
+                    <tbody className={`divide-y ${isDark ? 'divide-slate-800/60' : 'divide-slate-100'}`}>
                       {filteredCols.length === 0 && (
                         <tr>
-                          <td colSpan={3} className="p-6 text-center text-slate-500 text-xs">
+                          <td colSpan={3} className={`p-6 text-center ${isDark ? 'text-slate-500' : 'text-slate-400'} text-xs`}>
                             لا توجد أعمدة مطابقة للبحث
                           </td>
                         </tr>
                       )}
                       {filteredCols.map((col) => (
-                        <tr key={col.id} className="hover:bg-slate-800/30 transition group">
+                        <tr key={col.id} className={`${isDark ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50'} transition group`}>
                           {/* Column Name */}
                           <td className="p-3">
                             <div className="flex items-center gap-2">
-                              <span className="p-1 rounded bg-slate-800 group-hover:bg-slate-700 transition">
+                              <span className={`p-1 rounded ${isDark ? 'bg-slate-800 group-hover:bg-slate-700' : 'bg-slate-100 group-hover:bg-slate-200'} transition`}>
                                 {TYPE_ICONS[col.dataType]}
                               </span>
-                              <span className="font-semibold text-slate-100">{col.columnName}</span>
+                              <span className={`font-semibold ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>{col.columnName}</span>
                             </div>
                           </td>
 
@@ -664,14 +665,14 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                             <select
                               value={col.dataType}
                               onChange={(e) => changeColumnType(col.id, e.target.value as ColumnDataType)}
-                              className={`bg-slate-900 border rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 transition ${
+                              className={`${isDark ? 'bg-slate-900 border' : 'bg-white border'} rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 transition ${
                                 col.dataType === 'numeric'
-                                  ? 'border-sky-700/60 text-sky-300 focus:ring-sky-500/30 focus:border-sky-500'
+                                  ? `${isDark ? 'border-sky-700/60 text-sky-300' : 'border-sky-400/60 text-sky-600'} focus:ring-sky-500/30 focus:border-sky-500`
                                   : col.dataType === 'date'
-                                  ? 'border-amber-700/60 text-amber-300 focus:ring-amber-500/30 focus:border-amber-500'
+                                  ? `${isDark ? 'border-amber-700/60 text-amber-300' : 'border-amber-400/60 text-amber-600'} focus:ring-amber-500/30 focus:border-amber-500`
                                   : col.dataType === 'boolean'
-                                  ? 'border-violet-700/60 text-violet-300 focus:ring-violet-500/30 focus:border-violet-500'
-                                  : 'border-emerald-700/60 text-emerald-300 focus:ring-emerald-500/30 focus:border-emerald-500'
+                                  ? `${isDark ? 'border-violet-700/60 text-violet-300' : 'border-violet-400/60 text-violet-600'} focus:ring-violet-500/30 focus:border-violet-500`
+                                  : `${isDark ? 'border-emerald-700/60 text-emerald-300' : 'border-emerald-400/60 text-emerald-600'} focus:ring-emerald-500/30 focus:border-emerald-500`
                               }`}
                             >
                               <option value="string">نص / فئة (Text)</option>
@@ -685,12 +686,12 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                           <td className="p-3">
                             <div className="flex flex-wrap gap-1">
                               {(col.sampleValues ?? []).slice(0, 3).map((v, i) => (
-                                <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono border border-slate-700/60 max-w-[120px] truncate">
+                                <span key={i} className={`text-[10px] px-2 py-0.5 rounded ${isDark ? 'bg-slate-800 text-slate-300 border-slate-700/60' : 'bg-slate-100 text-slate-600 border-slate-200'} font-mono border max-w-[120px] truncate`}>
                                   {String(v)}
                                 </span>
                               ))}
                               {(!col.sampleValues || col.sampleValues.length === 0) && (
-                                <span className="text-slate-600">—</span>
+                                <span className={isDark ? 'text-slate-600' : 'text-slate-400'}>—</span>
                               )}
                             </div>
                           </td>
@@ -701,7 +702,7 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
                 </div>
 
                 {/* Column Count Footer */}
-                <div className="bg-slate-950/80 border-t border-slate-800 px-4 py-2 flex items-center justify-between text-[11px] text-slate-500">
+                <div className={`${isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-50 border-slate-200'} border-t px-4 py-2 flex items-center justify-between text-[11px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                   <span>{filteredCols.length} عمود{colSearch ? ` (فلترة من ${currentSheet?.columns.length})` : ''}</span>
                   <span>{(currentSheet?.rowCount ?? 0).toLocaleString()} سجل</span>
                 </div>
@@ -711,23 +712,23 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* ── Footer ── */}
-        <div className="p-4 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between shrink-0">
+        <div className={`p-4 ${isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-50 border-slate-200'} border-t flex items-center justify-between shrink-0`}>
           {step === 'schema' ? (
             <button
               onClick={() => { setStep('upload'); setUploadError(null); setSyncStatus(null); }}
-              className="text-xs text-slate-400 hover:text-slate-200 transition cursor-pointer flex items-center gap-1.5"
+              className={`text-xs ${isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'} transition cursor-pointer flex items-center gap-1.5`}
             >
               <ArrowRight className="w-3.5 h-3.5 rotate-180" />
               الرجوع لاختيار مصدر آخر
             </button>
           ) : (
-            <span className="text-xs text-slate-500 font-mono">LENS BI — DuckDB OLAP Engine</span>
+            <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'} font-mono`}>LENS BI — DuckDB OLAP Engine</span>
           )}
 
           <div className="flex flex-col items-end gap-2">
             {/* Sync status message */}
             {syncStatus && (
-              <div className={`text-[11px] px-3 py-1.5 rounded-lg font-medium ${syncStatus.success ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'}`}>
+              <div className={`text-[11px] px-3 py-1.5 rounded-lg font-medium ${syncStatus.success ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'}`}>
                 {syncStatus.message}
               </div>
             )}
@@ -735,7 +736,7 @@ export const DropzoneModal: React.FC<DropzoneModalProps> = ({ isOpen, onClose })
             <div className="flex gap-2">
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition cursor-pointer"
+                className={`px-4 py-2 rounded-xl ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-200 hover:bg-slate-300 text-slate-600'} text-xs font-semibold transition cursor-pointer`}
               >
                 إلغاء
               </button>

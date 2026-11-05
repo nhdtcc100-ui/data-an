@@ -298,7 +298,8 @@ function getConnectedWidgetIds(startWidgetId: string, allWidgets: Widget[]): str
 }
 
 /**
- * Intelligently generates tailored Power-BI style widgets for any uploaded Excel or CSV data source
+ * Intelligently generates tailored Power-BI style widgets for any uploaded Excel or CSV data source.
+ * إذا كان الملف يحتوي على شيتات متعددة بها Pivot Tables، يتم توليد Widget مستقل لكل Pivot Table.
  */
 export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId: string): Widget[] {
   const cols = (dataSource.columns || [])
@@ -320,6 +321,183 @@ export function createSmartDashboardWidgets(dataSource: DataSource, dashboardId:
   const now = Date.now();
   const widgets: Widget[] = [];
 
+  // ── كشف جميع الشيتات التي تحتوي Pivot Tables ──
+  const allSheets = dataSource.sheets || [];
+  const pivotSheets = allSheets.filter((s) => s.isPivot && s.pivotDetection?.pivotStructure);
+
+  // ── إن وُجدت Pivot Tables: نولّد Widget مستقل لكل واحدة ──
+  if (pivotSheets.length > 0) {
+    // لون مميز لكل Pivot Table
+    const PIVOT_THEMES: Array<'sky' | 'violet' | 'emerald' | 'amber' | 'rose' | 'cyan'> = ['sky', 'violet', 'emerald', 'amber', 'rose', 'cyan'];
+
+    // شريط فلاتر موحد للمشروع (من أول Pivot)
+    const firstPivot = pivotSheets[0];
+    const firstPS = firstPivot.pivotDetection!.pivotStructure!;
+    const firstStrCols = (firstPivot.columns || []).filter((c) => c.dataType === 'string').map((c) => c.columnName);
+    const firstFilterList = (firstPS.filterDimensions && firstPS.filterDimensions.length > 0)
+      ? firstPS.filterDimensions
+      : firstStrCols.filter((c) => c !== firstPS.rowDimensions[0]);
+    if (firstFilterList.length > 0) {
+      const activeFilter = firstFilterList[0] || firstPS.rowDimensions[0] || primaryStr;
+      widgets.push({
+        id: `w-slicer-${now}-0`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'slicer',
+        title: `تصفية: ${activeFilter}`,
+        config: {
+          xAxisColumn: activeFilter,
+          activeSlicerColumn: activeFilter,
+          slicerColumns: firstFilterList.slice(0, 5),
+          slicerSelectionMode: 'multi'
+        },
+        layout: { x: 0, y: 0, w: 12, h: 2, i: `w-slicer-${now}-0` }
+      });
+    }
+
+    let yOffset = firstFilterList.length > 0 ? 2 : 0;
+
+    // لكل Pivot Table: نولد مجموعة Widget كاملة (KPI + Pivot + Bar + Donut)
+    pivotSheets.forEach((pSheet, pIdx) => {
+      const pivotDetection = pSheet.pivotDetection!;
+      const pivotStructure = pivotDetection.pivotStructure!;
+      const sheetStrCols = (pSheet.columns || []).filter((c) => c.dataType === 'string').map((c) => c.columnName);
+      const sheetNumCols = (pSheet.columns || []).filter((c) => c.dataType === 'numeric').map((c) => c.columnName);
+
+      const pivotRowCol = pivotStructure.rowDimensions[0] || sheetStrCols[0] || primaryStr;
+      const pivotValField = pivotStructure.valueFields[0];
+      const pivotValName = pivotValField?.name || sheetNumCols[0] || primaryNum;
+      const pivotAgg = pivotValField?.aggregation || 'SUM';
+      const questionTitle = pivotDetection.question || `تحليل ${pivotValName} حسب ${pivotRowCol}`;
+      const colorTheme = PIVOT_THEMES[pIdx % PIVOT_THEMES.length];
+      const sheetLabel = pSheet.name ? ` (${pSheet.name})` : '';
+      const tStamp = now + pIdx * 1000;
+
+      // ── KPI للـ Pivot هذا ──
+      widgets.push({
+        id: `w-kpi-${tStamp}-1`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'kpi',
+        title: pivotAgg === 'COUNT' ? `عدد: ${pivotValName}${sheetLabel}` : `إجمالي: ${pivotValName}${sheetLabel}`,
+        config: {
+          xAxisColumn: pivotRowCol,
+          yAxisColumn: pivotValName,
+          aggregation: pivotAgg,
+          numberFormat: 'compact',
+          colorTheme
+        },
+        layout: { x: 0, y: yOffset, w: 4, h: 2, i: `w-kpi-${tStamp}-1` }
+      });
+      widgets.push({
+        id: `w-kpi-${tStamp}-2`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'kpi',
+        title: `متوسط: ${pivotValName}${sheetLabel}`,
+        config: {
+          xAxisColumn: pivotRowCol,
+          yAxisColumn: pivotValName,
+          aggregation: 'AVG',
+          numberFormat: 'compact',
+          colorTheme: 'emerald'
+        },
+        layout: { x: 4, y: yOffset, w: 4, h: 2, i: `w-kpi-${tStamp}-2` }
+      });
+      widgets.push({
+        id: `w-kpi-${tStamp}-3`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'kpi',
+        title: `تصنيفات: ${pivotRowCol}${sheetLabel}`,
+        config: {
+          xAxisColumn: pivotRowCol,
+          yAxisColumn: pivotValName,
+          aggregation: 'COUNT',
+          numberFormat: 'compact',
+          colorTheme: 'violet'
+        },
+        layout: { x: 8, y: yOffset, w: 4, h: 2, i: `w-kpi-${tStamp}-3` }
+      });
+      yOffset += 2;
+
+      // ── Pivot Table Widget مطابق تماماً لبنية الـ Pivot الأصلي ──
+      const filterList = (pivotStructure.filterDimensions && pivotStructure.filterDimensions.length > 0)
+        ? pivotStructure.filterDimensions
+        : sheetStrCols.filter((c) => c !== pivotRowCol);
+
+      widgets.push({
+        id: `w-pivot-${tStamp}-1`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'pivot',
+        title: `🧩 ${questionTitle}`,
+        config: {
+          xAxisColumn: pivotRowCol,
+          yAxisColumn: pivotValName,
+          // بنية مطابقة تماماً للـ Pivot الأصلي
+          pivotRowColumns: pivotStructure.rowDimensions.length > 0 ? pivotStructure.rowDimensions : [pivotRowCol],
+          pivotColumnColumns: pivotStructure.columnDimensions || [],
+          pivotFilterColumns: filterList,
+          pivotValues: pivotStructure.valueFields.length > 0
+            ? pivotStructure.valueFields.map((vf: any, vIdx: number) => ({
+                id: `val_${vIdx + 1}`,
+                column: vf.name,
+                aggregation: vf.aggregation,
+                customLabel: vf.name
+              }))
+            : [{ id: 'val_1', column: pivotValName, aggregation: pivotAgg, customLabel: pivotValName }],
+          sortOrder: 'desc',
+          colorTheme
+        },
+        layout: { x: 0, y: yOffset, w: 12, h: 6, i: `w-pivot-${tStamp}-1` }
+      });
+      yOffset += 6;
+
+      // ── رسم بياني شريطي مطابق للسؤال التحليلي ──
+      widgets.push({
+        id: `w-bar-${tStamp}-1`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'bar',
+        title: `مقارنة ${pivotValName} عبر ${pivotRowCol}${sheetLabel}`,
+        config: {
+          xAxisColumn: pivotRowCol,
+          yAxisColumn: pivotValName,
+          aggregation: pivotAgg,
+          numberFormat: 'compact',
+          sortOrder: 'desc',
+          showDataLabels: true,
+          colorTheme
+        },
+        layout: { x: 0, y: yOffset, w: 7, h: 4, i: `w-bar-${tStamp}-1` }
+      });
+
+      // ── رسم دائري لنسب المساهمة ──
+      widgets.push({
+        id: `w-donut-${tStamp}-1`,
+        dashboardId,
+        dataSourceId: dataSource.id,
+        type: 'donut',
+        title: `نسب مساهمة ${pivotRowCol}${sheetLabel}`,
+        config: {
+          xAxisColumn: pivotRowCol,
+          yAxisColumn: pivotValName,
+          aggregation: pivotAgg,
+          pieLabelType: 'percent',
+          showLegend: true,
+          legendPosition: 'bottom',
+          colorTheme: 'violet'
+        },
+        layout: { x: 7, y: yOffset, w: 5, h: 4, i: `w-donut-${tStamp}-1` }
+      });
+      yOffset += 4;
+    });
+
+    return widgets;
+  }
+
+  // ── إن لم توجد Pivot Tables: تحقق من الشيت الفعّال فقط ──
   const activeSheet = dataSource.sheets?.find((s) => s.id === dataSource.activeSheetId) || dataSource.sheets?.[0];
   const isPivotData = Boolean(dataSource.isPivot || activeSheet?.isPivot);
   const pivotDetection = dataSource.pivotDetection || activeSheet?.pivotDetection;
