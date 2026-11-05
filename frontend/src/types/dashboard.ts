@@ -39,6 +39,8 @@ export interface WidgetConfig {
   colorTheme?: 'sky' | 'emerald' | 'violet' | 'amber' | 'rose' | 'cyan' | 'slate';
   numberFormat?: 'currency' | 'percent' | 'compact' | 'standard';
   comparisonDelta?: number;
+  kpiIcon?: 'dollar' | 'users' | 'shopping-bag' | 'trending' | 'package' | 'target' | 'percent';
+  kpiGradient?: string;
   sortOrder?: 'desc' | 'asc' | 'none';
   topN?: number;
   gaugeMax?: number;

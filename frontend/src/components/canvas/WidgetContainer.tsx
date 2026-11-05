@@ -97,8 +97,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   const activeMotionTheme = getMotionTheme(motionTheme || currentDashboard?.motionTheme || 'wps-professional');
 
-  // Charts & table cards always maintain their original dark styling regardless of page theme
-  const isDarkThemeCard = true;
+  // Card headers and backgrounds sync with light/dark theme
+  const isDarkThemeCard = theme === 'dark';
 
 
   const [isFullscreen, setIsFullscreen] = useState(false);

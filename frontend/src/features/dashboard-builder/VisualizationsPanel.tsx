@@ -1064,6 +1064,128 @@ export const VisualizationsPanel: React.FC<VisualizationsPanelProps> = ({
                     </select>
                   </div>
                 </div>
+              ) : selectedWidget.type === 'kpi' ? (
+                <div className="space-y-3.5">
+                  {/* KPI Quantitative Metric: Y-Axis */}
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                      <span>الحقل الحسابي للرقم القياسي (Metric)</span>
+                      <span className="text-[10px] text-emerald-400 font-normal">قيم وأرقام</span>
+                    </label>
+                    <select
+                      value={selectedWidget.config.yAxisColumn || ''}
+                      onChange={(e) => onUpdateWidgetConfig(selectedWidget.id, { yAxisColumn: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs font-mono"
+                    >
+                      <option value="">-- اختر حقل الحساب --</option>
+                      <optgroup label="الحقول الرقمية (جمع / متوسط)">
+                        {numericColumns.map((col) => (
+                          <option key={col.id} value={col.columnName}>
+                            {col.columnName} (رقمي)
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="كافة الحقول (عد السجلات COUNT)">
+                        {stringColumns.map((col) => (
+                          <option key={col.id} value={col.columnName}>
+                            {col.columnName} ({col.dataType === 'date' ? 'تاريخ' : 'نص'})
+                          </option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
+
+                  {/* Aggregation */}
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                      <span>نوع العملية الحسابية (Aggregation)</span>
+                      <span className="text-[10px] text-amber-400 font-mono">
+                        {selectedWidget.config.aggregation || 'SUM'}
+                      </span>
+                    </label>
+                    <select
+                      value={selectedWidget.config.aggregation || 'SUM'}
+                      onChange={(e) =>
+                        onUpdateWidgetConfig(selectedWidget.id, {
+                          aggregation: e.target.value as AggregationType
+                        })
+                      }
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                    >
+                      <option value="SUM">جمع الأرقام الإجمالية (SUM)</option>
+                      <option value="COUNT">عد السجلات والتكرارات (COUNT)</option>
+                      <option value="AVG">حساب المتوسط الحسابي (AVG)</option>
+                      <option value="MAX">الحد الأقصى (MAX)</option>
+                      <option value="MIN">الحد الأدنى (MIN)</option>
+                    </select>
+                  </div>
+
+                  {/* KPI Icon Selector */}
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold text-xs">
+                      أيقونة البطاقة الزجاجية (Glass Card Icon)
+                    </label>
+                    <select
+                      value={selectedWidget.config.kpiIcon || 'trending'}
+                      onChange={(e) =>
+                        onUpdateWidgetConfig(selectedWidget.id, {
+                          kpiIcon: e.target.value as any
+                        })
+                      }
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                    >
+                      <option value="trending">📈 سهم نمو وتوجه (Trending)</option>
+                      <option value="dollar">💲 عملة وأموال (Dollar / Revenue)</option>
+                      <option value="shopping-bag">🛍️ حقيبة تسوق ومبيعات (Shopping Bag)</option>
+                      <option value="users">👥 عملاء ومستخدمين (Users / Clients)</option>
+                      <option value="package">📦 شحنات ومنتجات (Package / Orders)</option>
+                      <option value="target">🎯 أهداف ومستهدفات (Target / Goal)</option>
+                      <option value="percent">% نسبة مئوية (Percentage / Rate)</option>
+                    </select>
+                  </div>
+
+                  {/* Color Theme / Glass Gradient */}
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold text-xs">
+                      تدرج الزجاج والألوان (Modern Purple Glassmorphism)
+                    </label>
+                    <select
+                      value={selectedWidget.config.colorTheme || 'violet'}
+                      onChange={(e) =>
+                        onUpdateWidgetConfig(selectedWidget.id, {
+                          colorTheme: e.target.value as any
+                        })
+                      }
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                    >
+                      <option value="violet">🟣 بنفسجي أرجواني حديث (Modern Purple - ثيم الفيديو)</option>
+                      <option value="sky">🔵 أزرق سماوي زجاجي (Sky Glass)</option>
+                      <option value="emerald">🟢 زمردي أخضر زجاجي (Emerald Glass)</option>
+                      <option value="amber">🟠 عنبري دافئ (Amber Glass)</option>
+                      <option value="rose">🔴 وردي قرمزي (Rose Glass)</option>
+                      <option value="cyan">🩵 سيان متلألئ (Cyan Glass)</option>
+                    </select>
+                  </div>
+
+                  {/* Comparison Delta */}
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold flex items-center justify-between text-xs">
+                      <span>نسبة التغير ومقارنة الفترة (%)</span>
+                      <span className="text-[10px] text-slate-400">مثال: 12.5 أو -5</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={selectedWidget.config.comparisonDelta ?? 12.5}
+                      onChange={(e) =>
+                        onUpdateWidgetConfig(selectedWidget.id, {
+                          comparisonDelta: parseFloat(e.target.value) || 0
+                        })
+                      }
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-sky-500 outline-none text-xs"
+                    />
+                  </div>
+                </div>
               ) : (
                 <>
                   {/* Categorical Dimension: X-Axis / Slices */}
