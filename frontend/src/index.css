@@ -153,12 +153,16 @@ button, a {
    ══════════════════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════════════════
-   10 أنماط UI Design Styles - الحالة الطبيعية (base)
+   10 أنماط UI Design Styles - الوضعين الداكن والأبيض المريح للعينين
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* 1. السكيومورفزم (Skeuomorphism) */
-.theme-skeuomorphism {
-  background: linear-gradient(145deg, #1e293b, #0f172a);
+/* ── 1. السكيومورفزم (Skeuomorphism) ── */
+/* Dark Mode */
+html.dark .theme-skeuomorphism,
+body.dark .theme-skeuomorphism,
+html.dark [data-theme="skeuomorphism"],
+body.dark [data-theme="skeuomorphism"] {
+  background: linear-gradient(145deg, #1e293b, #0f172a) !important;
   border: 2px solid #334155 !important;
   border-top-color: #475569 !important;
   border-bottom-color: #020617 !important;
@@ -168,7 +172,8 @@ button, a {
     inset 0 -2px 4px rgba(0, 0, 0, 0.6) !important;
   transition: box-shadow 0.35s ease, transform 0.25s ease !important;
 }
-.theme-skeuomorphism:hover {
+html.dark .theme-skeuomorphism:hover,
+body.dark .theme-skeuomorphism:hover {
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.85),
     0 0 28px rgba(217, 119, 6, 0.28),
@@ -176,24 +181,104 @@ button, a {
     inset 0 -3px 6px rgba(0, 0, 0, 0.7) !important;
   transform: translateY(-2px) !important;
 }
+/* Light Mode (محاكاة واقعية بملمس معدني ناعم ومريح للعينين) */
+html.light .theme-skeuomorphism,
+body.light-mode .theme-skeuomorphism,
+html:not(.dark) .theme-skeuomorphism,
+html.light [data-theme="skeuomorphism"],
+body.light-mode [data-theme="skeuomorphism"],
+html:not(.dark) [data-theme="skeuomorphism"] {
+  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 45%, #eef2f6 100%) !important;
+  border: 2px solid #cbd5e1 !important;
+  border-top-color: #ffffff !important;
+  border-left-color: #e2e8f0 !important;
+  border-right-color: #cbd5e1 !important;
+  border-bottom-color: #94a3b8 !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 10px 24px -4px rgba(100, 116, 139, 0.18),
+    0 3px 6px -1px rgba(100, 116, 139, 0.10),
+    inset 0 2px 2px #ffffff,
+    inset 0 -2px 3px rgba(148, 163, 184, 0.25) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.35s ease, transform 0.25s ease !important;
+}
+html.light .theme-skeuomorphism:hover,
+body.light-mode .theme-skeuomorphism:hover,
+html:not(.dark) .theme-skeuomorphism:hover {
+  box-shadow:
+    0 16px 32px -4px rgba(100, 116, 139, 0.24),
+    0 0 20px rgba(217, 119, 6, 0.18),
+    inset 0 2px 3px #ffffff,
+    inset 0 -3px 4px rgba(148, 163, 184, 0.35) !important;
+  transform: translateY(-2px) !important;
+}
+html.light .theme-skeuomorphism > div:first-child,
+body.light-mode .theme-skeuomorphism > div:first-child,
+html:not(.dark) .theme-skeuomorphism > div:first-child {
+  background: linear-gradient(180deg, #ffffff, #f1f5f9) !important;
+  border-bottom: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
 
-/* 2. النيومورفزم (Neumorphism - Soft UI) */
-.theme-neumorphism {
+/* ── 2. النيومورفزم (Neumorphism - Soft UI) ── */
+/* Dark Mode */
+html.dark .theme-neumorphism,
+body.dark .theme-neumorphism,
+html.dark [data-theme="neumorphism"],
+body.dark [data-theme="neumorphism"] {
   background: #0f172a !important;
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
   box-shadow: 10px 10px 22px #060b14, -10px -10px 22px #182542 !important;
   transition: box-shadow 0.35s ease, transform 0.25s ease !important;
 }
-.theme-neumorphism:hover {
+html.dark .theme-neumorphism:hover,
+body.dark .theme-neumorphism:hover {
   box-shadow:
     14px 14px 30px #040810,
     -14px -14px 30px #1e3050,
     0 0 20px rgba(96, 165, 250, 0.18) !important;
   transform: translateY(-2px) !important;
 }
+/* Light Mode (بروز ناعم هادئ مندمج مع الخلفية بدون وهج مؤذٍ) */
+html.light .theme-neumorphism,
+body.light-mode .theme-neumorphism,
+html:not(.dark) .theme-neumorphism,
+html.light [data-theme="neumorphism"],
+body.light-mode [data-theme="neumorphism"],
+html:not(.dark) [data-theme="neumorphism"] {
+  background: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  border-radius: 26px !important;
+  box-shadow:
+    9px 9px 20px rgba(166, 180, 200, 0.35),
+    -9px -9px 20px rgba(255, 255, 255, 0.95) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.35s ease, transform 0.25s ease !important;
+}
+html.light .theme-neumorphism:hover,
+body.light-mode .theme-neumorphism:hover,
+html:not(.dark) .theme-neumorphism:hover {
+  box-shadow:
+    13px 13px 26px rgba(166, 180, 200, 0.42),
+    -11px -11px 24px #ffffff,
+    0 0 16px rgba(96, 165, 250, 0.15) !important;
+  transform: translateY(-2px) !important;
+}
+html.light .theme-neumorphism > div:first-child,
+body.light-mode .theme-neumorphism > div:first-child,
+html:not(.dark) .theme-neumorphism > div:first-child {
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+  color: #0f172a !important;
+}
 
-/* 3. الجلاس مورفزم (Glassmorphism) */
-.theme-glassmorphism {
+/* ── 3. الجلاس مورفزم (Glassmorphism) ── */
+/* Dark Mode */
+html.dark .theme-glassmorphism,
+body.dark .theme-glassmorphism,
+html.dark [data-theme="glassmorphism"],
+body.dark [data-theme="glassmorphism"] {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   background: rgba(15, 23, 42, 0.62) !important;
@@ -201,16 +286,57 @@ button, a {
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45) !important;
   transition: box-shadow 0.35s ease, transform 0.25s ease !important;
 }
-.theme-glassmorphism:hover {
+html.dark .theme-glassmorphism:hover,
+body.dark .theme-glassmorphism:hover {
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.6),
     0 0 30px rgba(56, 189, 248, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
   transform: translateY(-3px) !important;
 }
+/* Light Mode (زجاج بلوري أبيض ناعم مع ضبابية متطورة) */
+html.light .theme-glassmorphism,
+body.light-mode .theme-glassmorphism,
+html:not(.dark) .theme-glassmorphism,
+html.light [data-theme="glassmorphism"],
+body.light-mode [data-theme="glassmorphism"],
+html:not(.dark) [data-theme="glassmorphism"] {
+  background: rgba(255, 255, 255, 0.70) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 12px 30px -4px rgba(100, 116, 139, 0.12),
+    0 4px 10px -2px rgba(100, 116, 139, 0.06),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95),
+    0 0 20px rgba(56, 189, 248, 0.08) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.35s ease, transform 0.25s ease !important;
+}
+html.light .theme-glassmorphism:hover,
+body.light-mode .theme-glassmorphism:hover,
+html:not(.dark) .theme-glassmorphism:hover {
+  box-shadow:
+    0 18px 40px -4px rgba(100, 116, 139, 0.18),
+    0 0 25px rgba(56, 189, 248, 0.20),
+    inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+  transform: translateY(-3px) !important;
+}
+html.light .theme-glassmorphism > div:first-child,
+body.light-mode .theme-glassmorphism > div:first-child,
+html:not(.dark) .theme-glassmorphism > div:first-child {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7) !important;
+  color: #0f172a !important;
+}
 
-/* 4. الكلاي مورفزم (Claymorphism - كبسولي مجسم ثلاثي الأبعاد) */
-.theme-claymorphism {
+/* ── 4. الكلاي مورفزم (Claymorphism - كبسولي مجسم ثلاثي الأبعاد) ── */
+/* Dark Mode */
+html.dark .theme-claymorphism,
+body.dark .theme-claymorphism,
+html.dark [data-theme="claymorphism"],
+body.dark [data-theme="claymorphism"] {
   background: #181b34 !important;
   border-radius: 26px !important;
   border: 2px solid rgba(167, 139, 250, 0.35) !important;
@@ -222,7 +348,8 @@ button, a {
     inset -6px -6px 16px rgba(0, 0, 0, 0.55) !important;
   transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
-.theme-claymorphism:hover {
+html.dark .theme-claymorphism:hover,
+body.dark .theme-claymorphism:hover {
   box-shadow:
     0 32px 64px -8px rgba(0, 0, 0, 0.75),
     0 18px 32px -4px rgba(0, 0, 0, 0.55),
@@ -232,23 +359,99 @@ button, a {
     inset -8px -8px 20px rgba(0, 0, 0, 0.65) !important;
   transform: translateY(-6px) scale(1.008) !important;
 }
+/* Light Mode (صلصال أبيض منتفخ ثلاثي الأبعاد بظلال باستيل ناعمة) */
+html.light .theme-claymorphism,
+body.light-mode .theme-claymorphism,
+html:not(.dark) .theme-claymorphism,
+html.light [data-theme="claymorphism"],
+body.light-mode [data-theme="claymorphism"],
+html:not(.dark) [data-theme="claymorphism"] {
+  background: #ffffff !important;
+  border-radius: 28px !important;
+  border: 2.5px solid rgba(196, 181, 253, 0.45) !important;
+  box-shadow:
+    0 16px 32px -4px rgba(168, 85, 247, 0.12),
+    0 6px 14px -2px rgba(100, 116, 139, 0.08),
+    inset 4px 4px 10px rgba(255, 255, 255, 0.95),
+    inset -5px -5px 14px rgba(196, 181, 253, 0.25) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+html.light .theme-claymorphism:hover,
+body.light-mode .theme-claymorphism:hover,
+html:not(.dark) .theme-claymorphism:hover {
+  box-shadow:
+    0 24px 48px -6px rgba(168, 85, 247, 0.20),
+    0 0 25px rgba(236, 72, 153, 0.22),
+    inset 4px 4px 12px rgba(255, 255, 255, 1),
+    inset -7px -7px 18px rgba(196, 181, 253, 0.35) !important;
+  transform: translateY(-5px) scale(1.008) !important;
+}
+html.light .theme-claymorphism > div:first-child,
+body.light-mode .theme-claymorphism > div:first-child,
+html:not(.dark) .theme-claymorphism > div:first-child {
+  background: rgba(250, 245, 255, 0.7) !important;
+  border-bottom: 1px solid rgba(233, 213, 255, 0.6) !important;
+  color: #0f172a !important;
+}
 
-/* 5. المينيماليزم البارز (Minimalism) */
-.theme-minimalism {
+/* ── 5. المينيماليزم البارز (Minimalism) ── */
+/* Dark Mode */
+html.dark .theme-minimalism,
+body.dark .theme-minimalism,
+html.dark [data-theme="minimalism"],
+body.dark [data-theme="minimalism"] {
   background: #080d1a !important;
   border: 1px solid #1e293b !important;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
   transition: box-shadow 0.25s ease, border-color 0.25s ease !important;
 }
-.theme-minimalism:hover {
+html.dark .theme-minimalism:hover,
+body.dark .theme-minimalism:hover {
   border-color: #38bdf8 !important;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4),
     0 0 16px rgba(56, 189, 248, 0.15) !important;
 }
+/* Light Mode (بساطة ونقاء مطلقان مع راحة فائقة للعينين) */
+html.light .theme-minimalism,
+body.light-mode .theme-minimalism,
+html:not(.dark) .theme-minimalism,
+html.light [data-theme="minimalism"],
+body.light-mode [data-theme="minimalism"],
+html:not(.dark) [data-theme="minimalism"] {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 2px 6px -1px rgba(100, 116, 139, 0.06),
+    0 1px 3px rgba(100, 116, 139, 0.04) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease !important;
+}
+html.light .theme-minimalism:hover,
+body.light-mode .theme-minimalism:hover,
+html:not(.dark) .theme-minimalism:hover {
+  border-color: #0284c7 !important;
+  box-shadow:
+    0 8px 20px -3px rgba(2, 132, 199, 0.12),
+    0 2px 6px rgba(100, 116, 139, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+html.light .theme-minimalism > div:first-child,
+body.light-mode .theme-minimalism > div:first-child,
+html:not(.dark) .theme-minimalism > div:first-child {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  color: #0f172a !important;
+}
 
-/* 6. الماكسيماليزم (Maximalism) */
-.theme-maximalism {
+/* ── 6. الماكسيماليزم (Maximalism) ── */
+/* Dark Mode */
+html.dark .theme-maximalism,
+body.dark .theme-maximalism,
+html.dark [data-theme="maximalism"],
+body.dark [data-theme="maximalism"] {
   background: #0a0515 !important;
   border: 2px solid #ec4899 !important;
   box-shadow:
@@ -256,29 +459,100 @@ button, a {
     inset 0 0 15px rgba(6, 182, 212, 0.18) !important;
   transition: box-shadow 0.3s ease, transform 0.25s ease !important;
 }
-.theme-maximalism:hover {
+html.dark .theme-maximalism:hover,
+body.dark .theme-maximalism:hover {
   box-shadow:
     0 0 40px rgba(236, 72, 153, 0.65),
     0 0 25px rgba(0, 229, 255, 0.35),
     inset 0 0 25px rgba(6, 182, 212, 0.28) !important;
   transform: translateY(-3px) !important;
 }
+/* Light Mode (حيوية مبهجة بتباين متوازن لا يؤذي العين) */
+html.light .theme-maximalism,
+body.light-mode .theme-maximalism,
+html:not(.dark) .theme-maximalism,
+html.light [data-theme="maximalism"],
+body.light-mode [data-theme="maximalism"],
+html:not(.dark) [data-theme="maximalism"] {
+  background: linear-gradient(145deg, #ffffff 0%, #fff1f2 60%, #fdf2f8 100%) !important;
+  border: 2.5px solid #ec4899 !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 10px 28px -2px rgba(236, 72, 153, 0.18),
+    0 4px 12px rgba(6, 182, 212, 0.12),
+    inset 0 0 12px rgba(236, 72, 153, 0.05) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.3s ease, transform 0.25s ease !important;
+}
+html.light .theme-maximalism:hover,
+body.light-mode .theme-maximalism:hover,
+html:not(.dark) .theme-maximalism:hover {
+  box-shadow:
+    0 18px 40px -4px rgba(236, 72, 153, 0.30),
+    0 0 25px rgba(6, 182, 212, 0.22),
+    inset 0 0 18px rgba(236, 72, 153, 0.10) !important;
+  transform: translateY(-3px) !important;
+}
+html.light .theme-maximalism > div:first-child,
+body.light-mode .theme-maximalism > div:first-child,
+html:not(.dark) .theme-maximalism > div:first-child {
+  background: linear-gradient(90deg, rgba(254, 226, 226, 0.6), rgba(252, 231, 243, 0.6)) !important;
+  border-bottom: 2px solid rgba(236, 72, 153, 0.3) !important;
+  color: #be185d !important;
+}
 
-/* 7. البروتاليزم (Brutalism) */
-.theme-brutalism {
+/* ── 7. البروتاليزم (Brutalism) ── */
+/* Dark Mode */
+html.dark .theme-brutalism,
+body.dark .theme-brutalism,
+html.dark [data-theme="brutalism"],
+body.dark [data-theme="brutalism"] {
   background: #09090b !important;
   border: 3px solid #38bdf8 !important;
   border-radius: 4px !important;
   box-shadow: 6px 6px 0px #38bdf8 !important;
   transition: box-shadow 0.15s ease, transform 0.15s ease !important;
 }
-.theme-brutalism:hover {
+html.dark .theme-brutalism:hover,
+body.dark .theme-brutalism:hover {
   box-shadow: 10px 10px 0px #38bdf8, 4px 4px 0px #facc15 !important;
   transform: translate(-2px, -2px) !important;
 }
+/* Light Mode (نيوبروتاليزم كلاسيكي صلب بحدود وظلال هندسية بارزة) */
+html.light .theme-brutalism,
+body.light-mode .theme-brutalism,
+html:not(.dark) .theme-brutalism,
+html.light [data-theme="brutalism"],
+body.light-mode [data-theme="brutalism"],
+html:not(.dark) [data-theme="brutalism"] {
+  background: #ffffff !important;
+  border: 3px solid #0f172a !important;
+  border-radius: 4px !important;
+  box-shadow: 5px 5px 0px #0ea5e9, 2px 2px 0px #0f172a !important;
+  color: #0f172a !important;
+  transition: box-shadow 0.15s ease, transform 0.15s ease !important;
+}
+html.light .theme-brutalism:hover,
+body.light-mode .theme-brutalism:hover,
+html:not(.dark) .theme-brutalism:hover {
+  box-shadow: 8px 8px 0px #0ea5e9, 4px 4px 0px #facc15 !important;
+  transform: translate(-3px, -3px) !important;
+}
+html.light .theme-brutalism > div:first-child,
+body.light-mode .theme-brutalism > div:first-child,
+html:not(.dark) .theme-brutalism > div:first-child {
+  background: #f8fafc !important;
+  border-bottom: 3px solid #0f172a !important;
+  border-radius: 0 !important;
+  color: #0f172a !important;
+}
 
-/* 8. الزجاج السائل (Liquid Glass) */
-.theme-liquid-glass {
+/* ── 8. الزجاج السائل (Liquid Glass) ── */
+/* Dark Mode */
+html.dark .theme-liquid-glass,
+body.dark .theme-liquid-glass,
+html.dark [data-theme="liquid-glass"],
+body.dark [data-theme="liquid-glass"] {
   background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(59, 130, 246, 0.08), rgba(15, 23, 42, 0.85)) !important;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -286,31 +560,108 @@ button, a {
   box-shadow: 0 16px 40px rgba(6, 182, 212, 0.22) !important;
   transition: box-shadow 0.4s ease, transform 0.3s ease !important;
 }
-.theme-liquid-glass:hover {
+html.dark .theme-liquid-glass:hover,
+body.dark .theme-liquid-glass:hover {
   box-shadow:
     0 24px 60px rgba(6, 182, 212, 0.38),
     0 0 40px rgba(59, 130, 246, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   transform: translateY(-4px) !important;
 }
+/* Light Mode (زجاج سائل انسيابي بلمسات ماء زمردي وسماوي هادئ) */
+html.light .theme-liquid-glass,
+body.light-mode .theme-liquid-glass,
+html:not(.dark) .theme-liquid-glass,
+html.light [data-theme="liquid-glass"],
+body.light-mode [data-theme="liquid-glass"],
+html:not(.dark) [data-theme="liquid-glass"] {
+  background: linear-gradient(135deg, rgba(240, 249, 255, 0.85) 0%, rgba(236, 254, 255, 0.75) 50%, rgba(245, 243, 255, 0.80) 100%) !important;
+  backdrop-filter: blur(26px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(170%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 12px 32px -4px rgba(6, 182, 212, 0.15),
+    0 4px 10px rgba(59, 130, 246, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.4s ease, transform 0.3s ease !important;
+}
+html.light .theme-liquid-glass:hover,
+body.light-mode .theme-liquid-glass:hover,
+html:not(.dark) .theme-liquid-glass:hover {
+  box-shadow:
+    0 20px 48px -6px rgba(6, 182, 212, 0.28),
+    0 0 30px rgba(59, 130, 246, 0.18),
+    inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+  transform: translateY(-4px) !important;
+}
+html.light .theme-liquid-glass > div:first-child,
+body.light-mode .theme-liquid-glass > div:first-child,
+html:not(.dark) .theme-liquid-glass > div:first-child {
+  background: rgba(224, 242, 254, 0.45) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important;
+  color: #0369a1 !important;
+}
 
-/* 9. البينتو جرايد (Bento Grid) */
-.theme-bento-grid {
+/* ── 9. البينتو جرايد (Bento Grid) ── */
+/* Dark Mode */
+html.dark .theme-bento-grid,
+body.dark .theme-bento-grid,
+html.dark [data-theme="bento-grid"],
+body.dark [data-theme="bento-grid"] {
   background: rgba(15, 23, 42, 0.9) !important;
   border: 1.5px solid rgba(71, 85, 105, 0.6) !important;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38) !important;
   transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.25s ease !important;
 }
-.theme-bento-grid:hover {
+html.dark .theme-bento-grid:hover,
+body.dark .theme-bento-grid:hover {
   border-color: rgba(2, 132, 199, 0.5) !important;
   box-shadow:
     0 20px 45px rgba(0, 0, 0, 0.55),
     0 0 22px rgba(2, 132, 199, 0.22) !important;
   transform: translateY(-2px) !important;
 }
+/* Light Mode (بطاقات بينتو خزفية مقسمة بأسلوب آبل فائق الترتيب) */
+html.light .theme-bento-grid,
+body.light-mode .theme-bento-grid,
+html:not(.dark) .theme-bento-grid,
+html.light [data-theme="bento-grid"],
+body.light-mode [data-theme="bento-grid"],
+html:not(.dark) [data-theme="bento-grid"] {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 6px 20px -3px rgba(100, 116, 139, 0.08),
+    0 2px 6px -1px rgba(100, 116, 139, 0.04) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.25s ease !important;
+}
+html.light .theme-bento-grid:hover,
+body.light-mode .theme-bento-grid:hover,
+html:not(.dark) .theme-bento-grid:hover {
+  border-color: #0284c7 !important;
+  box-shadow:
+    0 14px 30px -4px rgba(2, 132, 199, 0.16),
+    0 0 16px rgba(2, 132, 199, 0.12) !important;
+  transform: translateY(-2px) !important;
+}
+html.light .theme-bento-grid > div:first-child,
+body.light-mode .theme-bento-grid > div:first-child,
+html:not(.dark) .theme-bento-grid > div:first-child {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
 
-/* 10. السباتيشل ثلاثي الأبعاد (Spatial UI) */
-.theme-spatial-ui {
+/* ── 10. السباتيشل ثلاثي الأبعاد (Spatial UI) ── */
+/* Dark Mode */
+html.dark .theme-spatial-ui,
+body.dark .theme-spatial-ui,
+html.dark [data-theme="spatial-ui"],
+body.dark [data-theme="spatial-ui"] {
   background: rgba(30, 27, 75, 0.38) !important;
   backdrop-filter: blur(36px);
   -webkit-backdrop-filter: blur(36px);
@@ -320,57 +671,242 @@ button, a {
     0 0 30px rgba(129, 140, 248, 0.28) !important;
   transition: box-shadow 0.4s ease, transform 0.3s ease !important;
 }
-.theme-spatial-ui:hover {
+html.dark .theme-spatial-ui:hover,
+body.dark .theme-spatial-ui:hover {
   box-shadow:
     0 35px 80px -15px rgba(0, 0, 0, 0.9),
     0 0 50px rgba(129, 140, 248, 0.48),
     inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   transform: translateY(-5px) !important;
 }
+/* Light Mode (واجهات عائمة شفافة مستوحاة من VisionOS) */
+html.light .theme-spatial-ui,
+body.light-mode .theme-spatial-ui,
+html:not(.dark) .theme-spatial-ui,
+html.light [data-theme="spatial-ui"],
+body.light-mode [data-theme="spatial-ui"],
+html:not(.dark) [data-theme="spatial-ui"] {
+  background: rgba(255, 255, 255, 0.80) !important;
+  backdrop-filter: blur(36px) !important;
+  -webkit-backdrop-filter: blur(36px) !important;
+  border: 1.5px solid rgba(167, 139, 250, 0.40) !important;
+  border-radius: 28px !important;
+  box-shadow:
+    0 20px 45px -10px rgba(129, 140, 248, 0.16),
+    0 8px 18px -4px rgba(100, 116, 139, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.4s ease, transform 0.3s ease !important;
+}
+html.light .theme-spatial-ui:hover,
+body.light-mode .theme-spatial-ui:hover,
+html:not(.dark) .theme-spatial-ui:hover {
+  box-shadow:
+    0 28px 60px -10px rgba(129, 140, 248, 0.28),
+    0 0 35px rgba(129, 140, 248, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+  transform: translateY(-5px) !important;
+}
+html.light .theme-spatial-ui > div:first-child,
+body.light-mode .theme-spatial-ui > div:first-child,
+html:not(.dark) .theme-spatial-ui > div:first-child {
+  background: rgba(238, 242, 255, 0.5) !important;
+  border-bottom: 1px solid rgba(199, 210, 254, 0.5) !important;
+  color: #4338ca !important;
+}
 
-/* ── تأثيرات Neon المكملة ── */
-.theme-cyber-neon:hover {
+/* ── 11. احترافي WPS (WPS Professional) ── */
+/* Dark Mode */
+html.dark .theme-wps-professional,
+body.dark .theme-wps-professional,
+html.dark [data-theme="wps-professional"],
+body.dark [data-theme="wps-professional"] {
+  background: #0f172a !important;
+  border: 1.5px solid rgba(20, 184, 166, 0.35) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+  transition: box-shadow 0.3s ease, transform 0.25s ease !important;
+}
+html.dark .theme-wps-professional:hover,
+body.dark .theme-wps-professional:hover {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(20, 184, 166, 0.25) !important;
+  transform: translateY(-2px) !important;
+}
+/* Light Mode (تنفيذي مكتبي هادئ برأس زمردي ناعم) */
+html.light .theme-wps-professional,
+body.light-mode .theme-wps-professional,
+html:not(.dark) .theme-wps-professional,
+html.light [data-theme="wps-professional"],
+body.light-mode [data-theme="wps-professional"],
+html:not(.dark) [data-theme="wps-professional"] {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(13, 148, 136, 0.25) !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 8px 24px -4px rgba(13, 148, 136, 0.10),
+    0 2px 6px rgba(100, 116, 139, 0.05) !important;
+  color: #1e293b !important;
+  transition: box-shadow 0.3s ease, transform 0.25s ease !important;
+}
+html.light .theme-wps-professional:hover,
+body.light-mode .theme-wps-professional:hover,
+html:not(.dark) .theme-wps-professional:hover {
+  border-color: rgba(13, 148, 136, 0.45) !important;
+  box-shadow:
+    0 14px 30px -4px rgba(13, 148, 136, 0.18),
+    0 0 16px rgba(20, 184, 166, 0.12) !important;
+  transform: translateY(-2px) !important;
+}
+html.light .theme-wps-professional > div:first-child,
+body.light-mode .theme-wps-professional > div:first-child,
+html:not(.dark) .theme-wps-professional > div:first-child {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%) !important;
+  border-bottom: 1px solid rgba(20, 184, 166, 0.3) !important;
+  color: #0f766e !important;
+}
+
+/* ── 12. الثيمات الحركية الإضافية ── */
+/* Cyber Neon */
+html.dark .theme-cyber-neon {
+  background: #09090b !important;
+  border: 1.5px solid rgba(0, 243, 255, 0.5) !important;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.22) !important;
+}
+html.dark .theme-cyber-neon:hover {
   box-shadow:
     0 0 40px rgba(0, 243, 255, 0.45),
     0 0 20px rgba(255, 0, 127, 0.25) !important;
   transform: translateY(-2px) !important;
 }
-.theme-minimal-luxury:hover {
+html.light .theme-cyber-neon,
+body.light-mode .theme-cyber-neon,
+html:not(.dark) .theme-cyber-neon {
+  background: #ffffff !important;
+  border: 2px solid #06b6d4 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.18), 0 4px 12px rgba(236, 72, 153, 0.10) !important;
+  color: #1e293b !important;
+}
+html.light .theme-cyber-neon:hover,
+body.light-mode .theme-cyber-neon:hover,
+html:not(.dark) .theme-cyber-neon:hover {
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.28), 0 0 16px rgba(236, 72, 153, 0.18) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Minimal Luxury */
+html.dark .theme-minimal-luxury {
+  background: #0c0a09 !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8) !important;
+}
+html.dark .theme-minimal-luxury:hover {
   box-shadow:
     0 14px 40px rgba(0, 0, 0, 0.9),
     0 0 30px rgba(212, 175, 55, 0.3) !important;
   transform: translateY(-2px) !important;
 }
-.theme-orbit-cosmic:hover {
+html.light .theme-minimal-luxury,
+body.light-mode .theme-minimal-luxury,
+html:not(.dark) .theme-minimal-luxury {
+  background: linear-gradient(165deg, #ffffff 0%, #fffdfa 50%, #fefce8 100%) !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 28px -4px rgba(217, 119, 6, 0.12), inset 0 1px 2px #ffffff !important;
+  color: #1e293b !important;
+}
+html.light .theme-minimal-luxury:hover,
+body.light-mode .theme-minimal-luxury:hover,
+html:not(.dark) .theme-minimal-luxury:hover {
+  box-shadow: 0 16px 36px -4px rgba(217, 119, 6, 0.20), 0 0 20px rgba(212, 175, 55, 0.25) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Orbit Cosmic */
+html.dark .theme-orbit-cosmic {
+  background: #090614 !important;
+  border: 1.5px solid rgba(139, 92, 246, 0.35) !important;
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.2) !important;
+}
+html.dark .theme-orbit-cosmic:hover {
   box-shadow:
     0 0 50px rgba(139, 92, 246, 0.42),
     0 20px 60px rgba(0, 0, 0, 0.7) !important;
   transform: translateY(-3px) !important;
 }
-.theme-glass-capsule:hover {
+html.light .theme-orbit-cosmic,
+body.light-mode .theme-orbit-cosmic,
+html:not(.dark) .theme-orbit-cosmic {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1.5px solid rgba(139, 92, 246, 0.35) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 12px 32px -4px rgba(139, 92, 246, 0.14) !important;
+  color: #1e293b !important;
+}
+html.light .theme-orbit-cosmic:hover,
+body.light-mode .theme-orbit-cosmic:hover,
+html:not(.dark) .theme-orbit-cosmic:hover {
+  box-shadow: 0 18px 40px -4px rgba(139, 92, 246, 0.25), 0 0 25px rgba(139, 92, 246, 0.2) !important;
+  transform: translateY(-3px) !important;
+}
+
+/* Glass Capsule & Liquid Floating */
+html.dark .theme-glass-capsule {
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+html.dark .theme-glass-capsule:hover {
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.55),
     0 0 28px rgba(129, 140, 248, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   transform: translateY(-3px) !important;
 }
-.theme-liquid-floating:hover {
+html.light .theme-glass-capsule,
+body.light-mode .theme-glass-capsule,
+html:not(.dark) .theme-glass-capsule {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 10px 25px rgba(100, 116, 139, 0.1) !important;
+  color: #1e293b !important;
+}
+
+html.dark .theme-liquid-floating {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1.5px solid rgba(6, 182, 212, 0.3) !important;
+  box-shadow: 0 12px 32px rgba(6, 182, 212, 0.18) !important;
+}
+html.dark .theme-liquid-floating:hover {
   box-shadow:
     0 24px 55px rgba(6, 182, 212, 0.3),
     0 0 35px rgba(59, 130, 246, 0.2) !important;
   transform: translateY(-3px) !important;
+}
+html.light .theme-liquid-floating,
+body.light-mode .theme-liquid-floating,
+html:not(.dark) .theme-liquid-floating {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(240, 249, 255, 0.78)) !important;
+  border: 1.5px solid rgba(6, 182, 212, 0.3) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 30px rgba(6, 182, 212, 0.12) !important;
+  color: #1e293b !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
    🔘 Professional Slate Gray Theme (ثيم رمادي رصاصي متناسق وفاخر ومحايد 100%)
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Base Page & Background: Pristine Baqir Slate-100 Off-White */
+/* Base Page & Background: Soft Warm Porcelain & Eye-Friendly Slate-50 Off-White */
 html:not(.dark),
 html.light,
 .light-mode,
 body.light-mode {
-  background-color: #f1f5f9 !important;
+  background-color: #f8fafc !important;
   background-image: none !important;
   color: #1e293b !important;
 }
@@ -903,36 +1439,36 @@ html.light .sidebar-3d button {
    Topbar Layout | Arabic RTL | Claymorphism 2.0 | Pristine White & Soft Slate
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* 1. Surfaces & Canvas Widgets (كروت الكلايمورفزم البيضاء الناصعة بظلال ناعمة) */
-html.light .widget-3d,
-body.light-mode .widget-3d,
-html.light .widget-card,
-body.light-mode .widget-card,
-html.light .card-3d,
-body.light-mode .card-3d,
-html.light .clay-card,
-body.light-mode .clay-card,
-html.light .card,
-body.light-mode .card {
+/* 1. Surfaces & Canvas Widgets (كروت بيضاء ناعمة مريحة للعينين بدون وهج) */
+html.light .widget-3d:not([class*="theme-"]),
+body.light-mode .widget-3d:not([class*="theme-"]),
+html.light .widget-card:not([class*="theme-"]),
+body.light-mode .widget-card:not([class*="theme-"]),
+html.light .card-3d:not([class*="theme-"]),
+body.light-mode .card-3d:not([class*="theme-"]),
+html.light .clay-card:not([class*="theme-"]),
+body.light-mode .clay-card:not([class*="theme-"]),
+html.light .card:not([class*="theme-"]),
+body.light-mode .card:not([class*="theme-"]) {
   background: #ffffff !important;
   border-radius: 20px !important;
-  border: 1px solid rgba(226, 232, 240, 0.8) !important;
-  box-shadow: 8px 8px 20px rgba(162, 178, 204, 0.25), -6px -6px 16px rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 16px -2px rgba(100, 116, 139, 0.08), 0 2px 4px rgba(100, 116, 139, 0.04) !important;
   color: #1e293b !important;
 }
 
-html.light .widget-3d:hover,
-body.light-mode .widget-3d:hover,
-html.light .widget-card:hover,
-body.light-mode .widget-card:hover,
-html.light .card-3d:hover,
-body.light-mode .card-3d:hover,
-html.light .clay-card:hover,
-body.light-mode .clay-card:hover,
-html.light .card:hover,
-body.light-mode .card:hover {
+html.light .widget-3d:not([class*="theme-"]):hover,
+body.light-mode .widget-3d:not([class*="theme-"]):hover,
+html.light .widget-card:not([class*="theme-"]):hover,
+body.light-mode .widget-card:not([class*="theme-"]):hover,
+html.light .card-3d:not([class*="theme-"]):hover,
+body.light-mode .card-3d:not([class*="theme-"]):hover,
+html.light .clay-card:not([class*="theme-"]):hover,
+body.light-mode .clay-card:not([class*="theme-"]):hover,
+html.light .card:not([class*="theme-"]):hover,
+body.light-mode .card:not([class*="theme-"]):hover {
   transform: translateY(-2px) !important;
-  box-shadow: 12px 12px 28px rgba(162, 178, 204, 0.35), -8px -8px 20px #ffffff !important;
+  box-shadow: 0 10px 24px -4px rgba(100, 116, 139, 0.12), 0 4px 10px -2px rgba(100, 116, 139, 0.06) !important;
 }
 
 /* Remove dark pseudo-overlay in light theme */
@@ -1401,7 +1937,7 @@ body.light-mode .border-slate-700 {
     inset 0 1px 2px rgba(255, 255, 255, 0.25);
 }
 
-/* الوضع الفاتح الأبيض (Light Mode Frosted Glass - Baqir Design) */
+/* الوضع الفاتح الأبيض (Light Mode Frosted Glass - مريح للعينين وناعم) */
 html.light .glass-card,
 body.light-mode .glass-card,
 html:not(.dark) .glass-card {
@@ -1410,8 +1946,8 @@ html:not(.dark) .glass-card {
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid rgba(226, 232, 240, 0.9) !important;
   box-shadow:
-    8px 8px 24px rgba(162, 178, 204, 0.22),
-    -6px -6px 18px rgba(255, 255, 255, 0.95),
+    0 8px 24px -4px rgba(100, 116, 139, 0.10),
+    0 2px 6px -1px rgba(100, 116, 139, 0.05),
     inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
 }
 
@@ -1420,8 +1956,8 @@ body.light-mode .glass-card:hover,
 html:not(.dark) .glass-card:hover {
   border-color: rgba(147, 51, 234, 0.35) !important;
   box-shadow:
-    12px 12px 30px rgba(162, 178, 204, 0.32),
-    -8px -8px 20px #ffffff,
+    0 12px 28px -4px rgba(147, 51, 234, 0.15),
+    0 4px 10px -2px rgba(100, 116, 139, 0.08),
     inset 0 1px 2px rgba(255, 255, 255, 0.95) !important;
 }
 

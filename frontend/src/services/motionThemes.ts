@@ -444,7 +444,7 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
       easing: 'cubicOut',
       delayStep: 55
     },
-    cardWrapperClass: 'theme-wps-professional rounded-2xl border border-teal-800/40 bg-slate-900/95 transition-all duration-300',
+    cardWrapperClass: 'theme-wps-professional rounded-2xl transition-all duration-300',
     badgeStyle: {
       bg: 'bg-teal-500/20',
       border: 'border-teal-400/40',
@@ -480,7 +480,7 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
       easing: 'cubicOut',
       delayStep: 60
     },
-    cardWrapperClass: 'theme-cyber-neon bg-slate-950 border border-cyan-400/50 rounded-xl shadow-[0_0_20px_rgba(0,243,255,0.18)] transition-all duration-300',
+    cardWrapperClass: 'theme-cyber-neon rounded-xl transition-all duration-300',
     badgeStyle: {
       bg: 'bg-cyan-500/20',
       border: 'border-cyan-400',
@@ -513,7 +513,7 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
       easing: 'quarticOut',
       delayStep: 70
     },
-    cardWrapperClass: 'theme-glass-capsule backdrop-blur-2xl bg-slate-900/60 border border-white/15 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300',
+    cardWrapperClass: 'theme-glass-capsule rounded-2xl transition-all duration-300',
     badgeStyle: {
       bg: 'bg-indigo-500/15',
       border: 'border-indigo-400/30',
@@ -546,7 +546,7 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
       easing: 'quarticOut',
       delayStep: 70
     },
-    cardWrapperClass: 'theme-minimal-luxury bg-stone-950 border border-amber-500/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] transition-all duration-300',
+    cardWrapperClass: 'theme-minimal-luxury rounded-2xl transition-all duration-300',
     badgeStyle: {
       bg: 'bg-amber-500/15',
       border: 'border-amber-400/30',
@@ -579,7 +579,7 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
       easing: 'cubicInOut',
       delayStep: 80
     },
-    cardWrapperClass: 'theme-liquid-floating backdrop-blur-md bg-slate-900/85 border border-cyan-500/30 rounded-2xl shadow-[0_12px_32px_rgba(6,182,212,0.12)] transition-all duration-300',
+    cardWrapperClass: 'theme-liquid-floating rounded-2xl transition-all duration-300',
     badgeStyle: {
       bg: 'bg-cyan-500/15',
       border: 'border-cyan-500/30',
@@ -612,7 +612,7 @@ export const MOTION_THEMES: MotionThemeConfig[] = [
       easing: 'circularOut',
       delayStep: 90
     },
-    cardWrapperClass: 'theme-orbit-cosmic bg-slate-950 border border-purple-500/30 rounded-2xl shadow-[0_0_25px_rgba(139,92,246,0.15)] transition-all duration-300',
+    cardWrapperClass: 'theme-orbit-cosmic rounded-2xl transition-all duration-300',
     badgeStyle: {
       bg: 'bg-purple-500/20',
       border: 'border-purple-400/40',

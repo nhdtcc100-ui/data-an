@@ -49,9 +49,9 @@ body.dark {
 
 html.light,
 body.light-mode {
-  /* Surfaces & Backgrounds (ثيم باقر النقي) */
-  --bg-app: #f1f5f9;
-  --bg-canvas: #f1f5f9;
+  /* Surfaces & Backgrounds (ثيم أبيض ناعم ومريح للعينين بنقاء دافئ وبدون وهج) */
+  --bg-app: #f8fafc;
+  --bg-canvas: #f8fafc;
   --bg-card: #ffffff;
   --bg-card-hover: #ffffff;
   --bg-header: #ffffff;
@@ -62,28 +62,28 @@ body.light-mode {
   --bg-hover: #f1f5f9;
   --bg-active: #e2e8f0;
 
-  /* Typography Colors (تباين عالي جداً — لا وجود لنصوص بيضاء على خلفية بيضاء) */
-  --text-primary: #0f172a;
-  --text-secondary: #1e293b;
-  --text-muted: #475569;
-  --text-subtle: #64748b;
+  /* Typography Colors (تباين عالي مريح للعينين لا يسبب إجهاداً بصرياً) */
+  --text-primary: #1e293b;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
   --text-heading: #0f172a;
   --text-inverse: #ffffff;
 
   /* Borders & Outlines */
-  --border-card: rgba(226, 232, 240, 0.85);
+  --border-card: rgba(226, 232, 240, 0.9);
   --border-default: #e2e8f0;
-  --border-subtle: #f1f5f9;
+  --border-subtle: #f8fafc;
   --border-input: #cbd5e1;
 
-  /* Shadows (Claymorphism 2.0 من باقر) */
-  --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --shadow-clay: 8px 8px 20px rgba(162, 178, 204, 0.25), -6px -6px 16px rgba(255, 255, 255, 0.9);
-  --shadow-glow: 0 4px 14px rgba(37, 99, 235, 0.15);
+  /* Shadows (ظلال ناعمة منتشرة ومريحة للعينين خالية من الوهج الحاد) */
+  --shadow-card: 0 4px 16px -2px rgba(100, 116, 139, 0.08), 0 2px 4px rgba(100, 116, 139, 0.04);
+  --shadow-clay: 0 8px 24px -4px rgba(100, 116, 139, 0.10), 0 2px 6px -1px rgba(100, 116, 139, 0.05);
+  --shadow-glow: 0 4px 14px rgba(37, 99, 235, 0.12);
 
   /* Primary Accent */
-  --brand-primary: #2563eb;
-  --brand-accent: #4f46e5;
+  --brand-primary: #0284c7;
+  --brand-accent: #6366f1;
 }
 
 /* ==========================================================================
@@ -219,13 +219,13 @@ body.light-mode aside [class*="bg-slate-900"] {
 }
 
 /* ── 4. البطاقات وكروت الـ Widgets ── */
-html.light .widget-3d,
-html.light .widget-card,
-html.light .clay-card,
-html.light .card-3d,
-body.light-mode .widget-3d,
-body.light-mode .widget-card,
-body.light-mode .clay-card {
+html.light .widget-3d:not([class*="theme-"]),
+html.light .widget-card:not([class*="theme-"]),
+html.light .clay-card:not([class*="theme-"]),
+html.light .card-3d:not([class*="theme-"]),
+body.light-mode .widget-3d:not([class*="theme-"]),
+body.light-mode .widget-card:not([class*="theme-"]),
+body.light-mode .clay-card:not([class*="theme-"]) {
   background: var(--bg-card) !important;
   border: 1px solid var(--border-card) !important;
   border-radius: 20px !important;
@@ -233,10 +233,12 @@ body.light-mode .clay-card {
   color: var(--text-primary) !important;
 }
 
-html.light .widget-3d:hover,
-body.light-mode .widget-3d:hover {
+html.light .widget-3d:not([class*="theme-"]):hover,
+body.light-mode .widget-3d:not([class*="theme-"]):hover,
+html.light .clay-card:not([class*="theme-"]):hover,
+body.light-mode .clay-card:not([class*="theme-"]):hover {
   transform: translateY(-2px) !important;
-  box-shadow: 12px 12px 28px rgba(162, 178, 204, 0.35), -8px -8px 20px #ffffff !important;
+  box-shadow: 0 10px 24px -4px rgba(100, 116, 139, 0.12), 0 4px 10px -2px rgba(100, 116, 139, 0.06) !important;
 }
 
 html.light .widget-3d::before,

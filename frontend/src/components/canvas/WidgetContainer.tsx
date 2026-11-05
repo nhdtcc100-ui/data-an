@@ -1044,20 +1044,20 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           ? 'none'
           : undefined
       }}
-      className={`relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden widget-3d clay-card group/card cursor-default ${
+      className={`relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden widget-card widget-3d group/card cursor-default ${
         activeMotionTheme.cardWrapperClass
       } ${
         isSelected
           ? '!border-sky-500 ring-2 ring-sky-500/30 glow-sky'
           : ''
       } ${
-        isDarkThemeCard ? 'text-white' : 'text-gray-900'
+        isDarkThemeCard ? 'text-white' : 'text-slate-800'
       }`}
       data-theme={activeMotionTheme.id}
     >
       {/* Widget Header */}
-      <div className={`flex items-center justify-between px-3.5 py-2.5 border-b select-none gap-2 rounded-t-[22px] ${
-        isDarkThemeCard ? 'border-slate-800 bg-slate-900/90 text-white' : 'border-slate-200 bg-white/95 text-slate-950'
+      <div className={`flex items-center justify-between px-3.5 py-2.5 border-b select-none gap-2 rounded-t-[22px] transition-colors ${
+        isDarkThemeCard ? 'border-slate-800 bg-slate-900/90 text-white' : 'border-slate-200/90 bg-white/95 text-slate-800'
       }`}>
         <div className={`flex items-center gap-2 overflow-hidden flex-1 ${
           widget.config.titleAlign === 'center'
