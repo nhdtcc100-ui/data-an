@@ -3595,7 +3595,7 @@ ${embeddedPackageJsonSafe}
 
       // Root button (الكل)
       const isRootActive = path.length === 0;
-      crumbsHtml += '<button class="drill-btn-root ' + (isRootActive ? 'active' : '') + '" data-wid="' + w.id + '" onclick="resetWidgetDrill(this.getAttribute(\'data-wid\'))" title="العودة للمستوى الرئيسي (الكل)"><span>⌂ الكل</span></button>';
+      crumbsHtml += '<button class="drill-btn-root ' + (isRootActive ? 'active' : '') + '" data-wid="' + w.id + '" onclick="resetWidgetDrill(this.getAttribute(\\'data-wid\\'))" title="العودة للمستوى الرئيسي (الكل)"><span>⌂ الكل</span></button>';
 
       // Breadcrumb steps
       path.forEach((step) => {
@@ -3614,7 +3614,7 @@ ${embeddedPackageJsonSafe}
       crumbsHtml += '<div class="drill-actions">';
       crumbsHtml += '<span class="drill-level-badge">مستوى ' + (path.length + 1) + '/' + drillLevels.length + '</span>';
       if (path.length > 0) {
-        crumbsHtml += '<button class="drill-btn-back" data-wid="' + w.id + '" onclick="drillUpWidget(this.getAttribute(\'data-wid\'))" title="رجوع مستوى واحد للخلف"><span>⮌ رجوع</span></button>';
+        crumbsHtml += '<button class="drill-btn-back" data-wid="' + w.id + '" onclick="drillUpWidget(this.getAttribute(\\'data-wid\\'))" title="رجوع مستوى واحد للخلف"><span>⮌ رجوع</span></button>';
       }
       crumbsHtml += '</div>';
 
