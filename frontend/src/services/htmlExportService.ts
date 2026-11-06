@@ -217,23 +217,23 @@ export function generateInteractiveHtml(
     }
 
     body.light {
-      --bg: #f8fafc;
+      --bg: #f1f5f9;
       --surface: #ffffff;
-      --surface-border: #e2e8f0;
-      --surface-header: #f1f5f9;
+      --surface-border: #cbd5e1;
+      --surface-header: #f8fafc;
       --text: #0f172a;
       --text-muted: #64748b;
-      --chrome-bar-1: #ffffffe6;
-      --chrome-bar-2: #f8fafcf2;
-      --chrome-border: #cbd5e1;
+      --chrome-bar-1: #ffffff;
+      --chrome-bar-2: #ffffff;
+      --chrome-border: #e2e8f0;
       --chrome-text: #0f172a;
-      --chrome-text-muted: #475569;
-      --chrome-btn-bg: #ffffff;
+      --chrome-text-muted: #64748b;
+      --chrome-btn-bg: #f8fafc;
       --chrome-btn-hover: #f1f5f9;
-      --chrome-footer-bg: #f1f5f9;
+      --chrome-footer-bg: #ffffff;
       --card-bg: #ffffff;
       --card-border: #cbd5e1;
-      --card-shadow: 0 10px 25px -4px rgba(100, 116, 139, 0.10);
+      --card-shadow: 0 4px 16px -2px rgba(100, 116, 139, 0.12);
     }
     * {
       box-sizing: border-box;
@@ -248,6 +248,21 @@ export function generateInteractiveHtml(
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: linear-gradient(to right, rgba(30, 41, 59, 0.05) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    body.dark::before {
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     }
     /* ─── Dual-Tier Header (بارين علويين) ─── */
     .header-wrapper {
@@ -257,11 +272,16 @@ export function generateInteractiveHtml(
       width: 100%;
       border-bottom-left-radius: 18px;
       border-bottom-right-radius: 18px;
+    }
+    body.dark .header-wrapper {
       box-shadow:
         0 18px 40px -6px rgba(0, 0, 0, 0.70),
         0 8px 18px -3px rgba(0, 0, 0, 0.50),
         inset 0 3px 6px rgba(255, 255, 255, 0.18),
         inset 0 -4px 10px rgba(0, 0, 0, 0.55);
+    }
+    body.light .header-wrapper {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
     /* Bar 1: Branding, Report Title & Status Badges */
     .top-bar-1 {
@@ -349,25 +369,65 @@ export function generateInteractiveHtml(
       color: var(--chrome-text-muted);
       border: 1px solid var(--chrome-border);
     }
-    .badge-live {
+    .badge-secure {
       background-color: rgba(16, 185, 129, 0.1);
       color: #10b981;
       border: 1px solid rgba(16, 185, 129, 0.25);
     }
-    .badge-live::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background-color: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
+    .btn-admin-lock {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
     }
-    .badge-engine {
-      background-color: var(--chrome-btn-bg);
-      color: var(--chrome-text-muted);
-      border: 1px solid var(--chrome-border);
-      font-family: monospace;
-      font-size: 10px;
+    .btn-admin-lock:hover {
+      background-color: rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+    }
+    body.light .btn-admin-lock {
+      background-color: #fef3c7;
+      color: #b45309;
+      border-color: #fde68a;
+    }
+    body.light .btn-admin-lock:hover {
+      background-color: #fde68a;
+    }
+    body.light .badge-secure {
+      background-color: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+    body.light .badge-readonly {
+      background-color: #f8fafc;
+      color: #475569;
+      border-color: #e2e8f0;
+    }
+
+    /* Mobile title bar - shown only on mobile */
+    .mobile-title-bar {
+      display: none;
+    }
+    .desktop-only-flex {
+      display: flex;
+    }
+    @media (max-width: 640px) {
+      .mobile-title-bar {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: 8px;
+      }
+      .desktop-only-flex {
+        display: none !important;
+      }
     }
 
     /* Bar 2: Filters & Actions Toolbar */
@@ -527,6 +587,15 @@ export function generateInteractiveHtml(
       max-width: 1680px;
       margin: 0 auto;
       width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+    body.light main {
+      background: #f1f5f9;
+    }
+    body.dark main {
+      background: #020617;
+    }
     }
     .grid {
       display: grid;
@@ -1712,38 +1781,47 @@ export function generateInteractiveHtml(
 <body class="${theme}">
   <!-- Dual-Tier Header (بارين علويين) -->
   <div class="header-wrapper">
-    <!-- Bar 1: Brand, Report Title & Status Badges (الشريط العلوي الأول) -->
+    <!-- Bar 1: Brand, Report Title & Status Badges -->
     <div class="top-bar-1">
-      <div class="brand-section">
-        <div class="logo-badge">BI</div>
+      <!-- Mobile: title centered only -->
+      <div class="mobile-title-bar">
+        <h1 style="font-size:14px;font-weight:800;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cleanTitle}</h1>
+      </div>
+      <!-- Desktop brand section -->
+      <div class="brand-section desktop-only-flex">
+        <div class="logo-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
         <div class="title-box">
           <div class="title-box-row">
             <h1>${cleanTitle}</h1>
             <span class="platform-tag">LENS BI</span>
           </div>
-          <p>منصة التقارير التفاعلية • معالجة بيانات فورية بالمتصفح</p>
+          <p>تقرير تفاعلي تحليلي • معالجة فورية عبر المتصفح</p>
         </div>
       </div>
       <div class="bar-1-status">
         <span class="badge badge-readonly">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>عرض للقراءة فقط</span>
         </span>
-        <span class="badge badge-live">تفاعلي بالكامل</span>
-        <span class="badge badge-engine">DuckDB Engine</span>
+        <span class="badge badge-secure">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span class="desktop-only">محمي ومؤمن</span>
+        </span>
       </div>
     </div>
 
-    <!-- Bar 2: Controls, Filters & Actions Toolbar (الشريط العلوي الثاني) -->
+    <!-- Bar 2: Controls, Filters & Actions Toolbar -->
     <div class="top-bar-2">
       <div class="filter-status-area">
         <span id="filter-status-indicator" class="filter-indicator-text">
           <span class="status-dot"></span>
-          <span>جميع البيانات معروضة بالكامل (بدون تصفية)</span>
+          <span>جميع البيانات معروضة (بدون تصفية)</span>
         </span>
         <button id="reset-filter-btn" class="btn btn-filter-reset" onclick="resetFilters()" style="display:none;" title="إعادة ضبط كل الفلاتر">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          <span>إعادة ضبط الفلاتر</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>إعادة ضبط</span>
         </button>
       </div>
       <div class="bar-2-actions">
@@ -1751,20 +1829,20 @@ export function generateInteractiveHtml(
         <div class="motion-picker-area">
           <label for="motion-theme-select" class="motion-label">
             <span>✨</span>
-            <span class="desktop-only">نمط الحركة والتصميم:</span>
+            <span class="desktop-only">نمط الحركة:</span>
           </label>
-          <select id="motion-theme-select" class="motion-select" onchange="changeActiveMotionTheme(this.value)" title="تغيير النمط الحركي والتصميم لكافة الكروت">
-            <option value="glassmorphism">💎 جلاس مورفزم (زجاجي شفاف)</option>
-            <option value="skeuomorphism">📻 سكيومورفزم (محاكاة مجسمة 3D)</option>
-            <option value="neumorphism">🔘 نيومورفزم (بروز ناعم هادئ)</option>
-            <option value="claymorphism">🎨 كلاي مورفزم (صلصال كبسولي)</option>
-            <option value="spatial-ui">🔮 سباتيشل (واقع مكاني VisionOS)</option>
-            <option value="liquid-glass">🌊 زجاج سائل (انسيابي مائي)</option>
-            <option value="cyber-neon">⚡ نيون سيبراني (توهج إلكتروني)</option>
-            <option value="brutalism">📐 بروتاليزم (هندسي بارز)</option>
-            <option value="bento-grid">🍱 بينتو جرايد (تقسيم بطاقات)</option>
-            <option value="minimalism">🔲 مينيماليزم (أنيق ومحايد)</option>
-            <option value="glass-capsule">💊 كبسولة زجاجية (عصري)</option>
+          <select id="motion-theme-select" class="motion-select" onchange="changeActiveMotionTheme(this.value)" title="تغيير النمط الحركي والتصميم">
+            <option value="glassmorphism">💎 جلاس مورفزم</option>
+            <option value="skeuomorphism">📻 سكيومورفزم</option>
+            <option value="neumorphism">🔘 نيومورفزم</option>
+            <option value="claymorphism">🎨 كلاي مورفزم</option>
+            <option value="spatial-ui">🔮 سباتيشل</option>
+            <option value="liquid-glass">🌊 زجاج سائل</option>
+            <option value="cyber-neon">⚡ نيون سيبراني</option>
+            <option value="brutalism">📐 بروتاليزم</option>
+            <option value="bento-grid">🍱 بينتو جرايد</option>
+            <option value="minimalism">🔲 مينيماليزم</option>
+            <option value="glass-capsule">💊 كبسولة زجاجية</option>
           </select>
         </div>
         <button id="theme-toggle-btn" class="btn btn-action" onclick="toggleTheme()" title="تبديل بين الثيم الأبيض والداكن">
@@ -1773,7 +1851,7 @@ export function generateInteractiveHtml(
         </button>
         <button class="btn btn-action" onclick="window.print()" title="طباعة أو تصدير PDF">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-          <span>طباعة / PDF</span>
+          <span class="desktop-only">PDF</span>
         </button>
         <button class="btn btn-action" onclick="toggleFullscreen()" title="ملء الشاشة">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
@@ -1823,8 +1901,11 @@ export function generateInteractiveHtml(
 
   <!-- Footer -->
   <footer>
-    <div>LENS BI Platform • ملف HTML تفاعلي محمول يعمل بدون خادم وبدون إنترنت</div>
-    <div>تم الإنشاء: ${formatDateAr(new Date(), true)}</div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>مؤمّن • وضع العرض والمشاهدة فقط</span>
+    </div>
+    <div>آخر تحديث: ${formatDateAr(new Date(), true)}</div>
   </footer>
 
   <!-- ============================================================ -->
@@ -2293,7 +2374,7 @@ ${embeddedPackageJsonSafe}
 
       // Update header sort indicators
       cols.forEach(c => {
-        const thEl = document.getElementById('th-' + w.id + '-' + c.replace(/\s+/g, '_'));
+        const thEl = document.getElementById('th-' + w.id + '-' + encodeURIComponent(c));
         if (thEl) {
           const icon = thEl.querySelector('.sort-icon');
           if (state.sortCol === c) {
@@ -2431,6 +2512,12 @@ ${embeddedPackageJsonSafe}
       }
     }
 
+    function handlePivotRowClick(tr) {
+      const wid = tr.getAttribute('data-wid');
+      const key = decodeURIComponent(tr.getAttribute('data-gkey') || '');
+      togglePivotGroup(wid, key);
+    }
+
     function renderPivotWidget(w, rows) {
       const container = document.getElementById('pivot-container-' + w.id);
       if (!container) return;
@@ -2556,9 +2643,9 @@ ${embeddedPackageJsonSafe}
       groupKeys.forEach(gKey => {
         const gRows = primaryGroups[gKey];
         const isExpanded = state.expandedKeys.has('__all__') || state.expandedKeys.has(gKey);
-        const safeGKey = gKey.replace(/["'\\]/g, '');
+        const safeGKey = encodeURIComponent(gKey);
 
-        html += '<tr class="pivot-parent-row" style="font-weight:700; cursor:pointer;" onclick="togglePivotGroup(&quot;' + w.id + '&quot;, &quot;' + safeGKey + '&quot;)">';
+        html += '<tr class="pivot-parent-row" style="font-weight:700; cursor:pointer;" data-wid="' + w.id + '" data-gkey="' + safeGKey + '" onclick="handlePivotRowClick(this)">';
         html += '<td style="display:flex; align-items:center; gap:6px;">';
         if (isHierarchical) {
           html += '<span style="font-size:10px; color:var(--accent); width:14px;">' + (isExpanded ? '▼' : '▶') + '</span>';
@@ -2659,7 +2746,7 @@ ${embeddedPackageJsonSafe}
       let rowCols = cfg.pivotRowColumns || (cfg.xAxisColumn ? [cfg.xAxisColumn] : ['التصنيف']);
       let valMetrics = cfg.pivotValues || [{ column: cfg.yAxisColumn || 'القيمة', aggregation: cfg.aggregation || 'SUM', customLabel: 'القيمة' }];
 
-      let csv = rowCols.join(',') + ',' + valMetrics.map(m => m.customLabel || m.column).join(',') + '\n';
+      let csv = rowCols.join(',') + ',' + valMetrics.map(m => m.customLabel || m.column).join(',') + String.fromCharCode(10);
 
       const groups = {};
       filtered.forEach(r => {
@@ -2674,10 +2761,10 @@ ${embeddedPackageJsonSafe}
           if (m.aggregation === 'COUNT') return gRows.length;
           return gRows.reduce((acc, r) => acc + (parseFloat(r[m.column]) || 0), 0);
         });
-        csv += '"' + k.replace(/"/g, '""') + '",' + vals.join(',') + '\n';
+        csv += '"' + k.replace(/"/g, '""') + '",' + vals.join(',') + String.fromCharCode(10);
       });
 
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([String.fromCharCode(0xFEFF) + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -3048,7 +3135,7 @@ ${embeddedPackageJsonSafe}
                       <tr>
                         \${cols.map(c => {
                           const safeCol = String(c).replace(/["']/g, '');
-                          const colId = 'th-' + w.id + '-' + safeCol.replace(/\\s+/g, '_');
+                          const colId = 'th-' + w.id + '-' + encodeURIComponent(c);
                           return \`<th id="\${colId}" onclick="sortTableByColumn('\${w.id}', '\${safeCol}')" title="اضغط للترتيب">
                             <span class="th-content">
                               <span>\${safeCol}</span>
