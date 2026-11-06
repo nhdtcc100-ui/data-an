@@ -124,6 +124,18 @@ export function generateInteractiveHtml(
     totalColumns: allColumns.length,
     columns: allColumns,
     rows: allRows,
+    sheets: (dataSource.sheets || []).map(s => ({
+      id: s.id,
+      name: s.name,
+      rowCount: s.rowCount || s.rawRows?.length || 0,
+      columns: s.columns || [],
+      rawRows: s.rawRows || [],
+      isPivot: s.isPivot,
+      pivotDetection: s.pivotDetection
+    })),
+    activeSheetId: dataSource.activeSheetId,
+    isPivot: dataSource.isPivot,
+    pivotDetection: dataSource.pivotDetection,
     dashboard: dashboard,
     theme: theme,
     motionTheme: initialMotionTheme,
@@ -141,7 +153,7 @@ export function generateInteractiveHtml(
   const embeddedPackageJsonSafe = safeJsonStringify(embeddedDataPackage);
 
   return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="${theme}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -162,23 +174,66 @@ export function generateInteractiveHtml(
   </script>
   <style>
     :root {
-      --bg: ${theme === 'dark' ? '#020617' : '#d8e1eb'};
+      --bg: ${theme === 'dark' ? '#020617' : '#f8fafc'};
+      --surface: ${theme === 'dark' ? '#0f172a' : '#ffffff'};
+      --surface-border: ${theme === 'dark' ? '#1e293b' : '#e2e8f0'};
+      --surface-header: ${theme === 'dark' ? '#1e293b80' : '#f1f5f9'};
+      --text: ${theme === 'dark' ? '#f8fafc' : '#0f172a'};
+      --text-muted: ${theme === 'dark' ? '#94a3b8' : '#64748b'};
+      --accent: #0ea5e9;
+      --accent-hover: #38bdf8;
+      --primary-glow: rgba(14, 165, 233, 0.15);
+      --chrome-bar-1: ${theme === 'dark' ? '#0f172ae6' : '#ffffffe6'};
+      --chrome-bar-2: ${theme === 'dark' ? '#090d16f2' : '#f8fafcf2'};
+      --chrome-border: ${theme === 'dark' ? '#1e293b' : '#cbd5e1'};
+      --chrome-text: ${theme === 'dark' ? '#f8fafc' : '#0f172a'};
+      --chrome-text-muted: ${theme === 'dark' ? '#94a3b8' : '#475569'};
+      --chrome-btn-bg: ${theme === 'dark' ? '#1e293b' : '#ffffff'};
+      --chrome-btn-hover: ${theme === 'dark' ? '#334155' : '#f1f5f9'};
+      --chrome-footer-bg: ${theme === 'dark' ? '#0f172a' : '#f1f5f9'};
+      --card-bg: ${theme === 'dark' ? '#0f172a' : '#ffffff'};
+      --card-border: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1'};
+      --card-shadow: ${theme === 'dark' ? '0 20px 45px -8px rgba(0, 0, 0, 0.65)' : '0 10px 25px -4px rgba(100, 116, 139, 0.10)'};
+    }
+
+    body.dark {
+      --bg: #020617;
       --surface: #0f172a;
       --surface-border: #1e293b;
       --surface-header: #1e293b80;
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      --accent: #0ea5e9;
-      --accent-hover: #38bdf8;
-      --primary-glow: rgba(14, 165, 233, 0.15);
-      --chrome-bar-1: ${theme === 'dark' ? '#0f172ae6' : '#e2e8f0e6'};
-      --chrome-bar-2: ${theme === 'dark' ? '#090d16f2' : '#d8e1ebf2'};
-      --chrome-border: ${theme === 'dark' ? '#1e293b' : '#cbd5e1'};
-      --chrome-text: ${theme === 'dark' ? '#f8fafc' : '#0f172a'};
-      --chrome-text-muted: ${theme === 'dark' ? '#94a3b8' : '#475569'};
-      --chrome-btn-bg: ${theme === 'dark' ? '#1e293b' : '#ffffff'};
-      --chrome-btn-hover: ${theme === 'dark' ? '#334155' : '#e2e8f0'};
-      --chrome-footer-bg: ${theme === 'dark' ? '#0f172a' : '#e2e8f0'};
+      --chrome-bar-1: #0f172ae6;
+      --chrome-bar-2: #090d16f2;
+      --chrome-border: #1e293b;
+      --chrome-text: #f8fafc;
+      --chrome-text-muted: #94a3b8;
+      --chrome-btn-bg: #1e293b;
+      --chrome-btn-hover: #334155;
+      --chrome-footer-bg: #0f172a;
+      --card-bg: #0f172a;
+      --card-border: rgba(255, 255, 255, 0.12);
+      --card-shadow: 0 20px 45px -8px rgba(0, 0, 0, 0.65);
+    }
+
+    body.light {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-border: #e2e8f0;
+      --surface-header: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --chrome-bar-1: #ffffffe6;
+      --chrome-bar-2: #f8fafcf2;
+      --chrome-border: #cbd5e1;
+      --chrome-text: #0f172a;
+      --chrome-text-muted: #475569;
+      --chrome-btn-bg: #ffffff;
+      --chrome-btn-hover: #f1f5f9;
+      --chrome-footer-bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --card-shadow: 0 10px 25px -4px rgba(100, 116, 139, 0.10);
     }
     * {
       box-sizing: border-box;
@@ -524,213 +579,334 @@ export function generateInteractiveHtml(
       }
     }
 
-    /* Widget Cards Base - Claymorphism Raised Tactile 3D */
+    /* Widget Cards Base */
     .widget-card {
-      background-color: var(--surface);
-      border: 2px solid rgba(255, 255, 255, 0.12);
+      background-color: var(--card-bg);
+      border: 1.5px solid var(--card-border);
       border-radius: 24px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow:
-        0 20px 45px -8px rgba(0, 0, 0, 0.65),
-        0 12px 24px -4px rgba(0, 0, 0, 0.50),
-        0 4px 10px -2px rgba(0, 0, 0, 0.38),
-        inset 3px 3px 8px rgba(255, 255, 255, 0.16),
-        inset -5px -5px 12px rgba(0, 0, 0, 0.45);
+      box-shadow: var(--card-shadow);
       animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
       transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease !important;
       position: relative;
     }
     .widget-card:hover {
       border-color: rgba(255, 255, 255, 0.25);
-      box-shadow:
-        0 30px 60px -8px rgba(0, 0, 0, 0.75),
-        0 16px 30px -4px rgba(0, 0, 0, 0.52),
-        0 6px 14px -2px rgba(0, 0, 0, 0.40),
-        inset 3px 3px 10px rgba(255, 255, 255, 0.22),
-        inset -6px -6px 15px rgba(0, 0, 0, 0.55);
       transform: translateY(-5px) scale(1.008) !important;
     }
 
-    /* 1. السكيومورفزم (Skeuomorphism - بروز واقعي مجسم) */
-    .theme-skeuomorphism {
+    /* ─── Dark Mode Motion Themes (الأنماط للثيم الداكن) ─── */
+    body.dark .theme-skeuomorphism {
       background: linear-gradient(145deg, #1e293b, #0f172a) !important;
       border: 2px solid #334155 !important;
       border-top-color: #475569 !important;
       border-bottom-color: #020617 !important;
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.22), inset 0 -2px 4px rgba(0, 0, 0, 0.6) !important;
     }
-    .theme-skeuomorphism:hover {
+    body.dark .theme-skeuomorphism:hover {
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85), 0 0 28px rgba(217, 119, 6, 0.28), inset 0 1px 3px rgba(255, 255, 255, 0.28), inset 0 -3px 6px rgba(0, 0, 0, 0.7) !important;
       transform: translateY(-4px) !important;
     }
 
-    /* 2. النيومورفزم (Neumorphism - ناعم هادئ) */
-    .theme-neumorphism {
+    body.dark .theme-neumorphism {
       background: #0f172a !important;
       border: 1px solid rgba(255, 255, 255, 0.05) !important;
       box-shadow: 10px 10px 22px #060b14, -10px -10px 22px #182542 !important;
     }
-    .theme-neumorphism:hover {
+    body.dark .theme-neumorphism:hover {
       box-shadow: 14px 14px 30px #040810, -14px -14px 30px #1e3050, 0 0 20px rgba(96, 165, 250, 0.2) !important;
       transform: translateY(-4px) !important;
     }
 
-    /* 3. الجلاس مورفزم (Glassmorphism - زجاجي شفاف) */
-    .theme-glassmorphism {
+    body.dark .theme-glassmorphism {
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       background: rgba(15, 23, 42, 0.65) !important;
       border: 1px solid rgba(255, 255, 255, 0.16) !important;
       box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45) !important;
     }
-    .theme-glassmorphism:hover {
+    body.dark .theme-glassmorphism:hover {
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
       transform: translateY(-4px) !important;
     }
 
-    /* 4. الكلاي مورفزم (Claymorphism - كبسولي ثلاثي الأبعاد) */
-    .theme-claymorphism {
+    body.dark .theme-claymorphism {
       background: #181b34 !important;
       border-radius: 26px !important;
       border: 2px solid rgba(167, 139, 250, 0.35) !important;
-      box-shadow:
-        0 22px 48px -6px rgba(0, 0, 0, 0.65),
-        0 12px 24px -4px rgba(0, 0, 0, 0.50),
-        0 4px 10px -2px rgba(0, 0, 0, 0.38),
-        inset 4px 4px 10px rgba(255, 255, 255, 0.22),
-        inset -6px -6px 16px rgba(0, 0, 0, 0.55) !important;
-      transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      box-shadow: 0 22px 48px -6px rgba(0, 0, 0, 0.65), 0 12px 24px -4px rgba(0, 0, 0, 0.50), inset 4px 4px 10px rgba(255, 255, 255, 0.22), inset -6px -6px 16px rgba(0, 0, 0, 0.55) !important;
     }
-    .theme-claymorphism:hover {
-      box-shadow:
-        0 32px 64px -8px rgba(0, 0, 0, 0.75),
-        0 18px 32px -4px rgba(0, 0, 0, 0.55),
-        0 6px 14px -2px rgba(0, 0, 0, 0.42),
-        0 0 35px rgba(236, 72, 153, 0.35),
-        inset 4px 4px 12px rgba(255, 255, 255, 0.28),
-        inset -8px -8px 20px rgba(0, 0, 0, 0.65) !important;
+    body.dark .theme-claymorphism:hover {
+      box-shadow: 0 32px 64px -8px rgba(0, 0, 0, 0.75), 0 18px 32px -4px rgba(0, 0, 0, 0.55), inset 4px 4px 12px rgba(255, 255, 255, 0.28), inset -8px -8px 20px rgba(0, 0, 0, 0.65) !important;
       transform: translateY(-6px) scale(1.008) !important;
     }
 
-    /* 5. المينيماليزم (Minimalism - أنيق ومحايد) */
-    .theme-minimalism {
+    body.dark .theme-minimalism {
       background: #080d1a !important;
       border: 1px solid #1e293b !important;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
     }
-    .theme-minimalism:hover {
+    body.dark .theme-minimalism:hover {
       border-color: #38bdf8 !important;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(56, 189, 248, 0.18) !important;
       transform: translateY(-3px) !important;
     }
 
-    /* 6. الماكسيماليزم (Maximalism - ألوان صاخبة) */
-    .theme-maximalism {
+    body.dark .theme-maximalism {
       background: #0a0515 !important;
       border: 2px solid #ec4899 !important;
       box-shadow: 0 0 25px rgba(236, 72, 153, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.18) !important;
     }
-    .theme-maximalism:hover {
+    body.dark .theme-maximalism:hover {
       box-shadow: 0 0 45px rgba(236, 72, 153, 0.65), 0 0 25px rgba(0, 229, 255, 0.35), inset 0 0 25px rgba(6, 182, 212, 0.28) !important;
       transform: translateY(-4px) !important;
     }
 
-    /* 7. البروتاليزم (Brutalism - هندسي بارز) */
-    .theme-brutalism {
+    body.dark .theme-brutalism {
       background: #09090b !important;
       border: 3px solid #38bdf8 !important;
       border-radius: 6px !important;
       box-shadow: 6px 6px 0px #38bdf8 !important;
     }
-    .theme-brutalism:hover {
+    body.dark .theme-brutalism:hover {
       box-shadow: 10px 10px 0px #38bdf8, 4px 4px 0px #facc15 !important;
       transform: translate(-3px, -3px) !important;
     }
 
-    /* 8. الزجاج السائل (Liquid Glass - انسيابي مائي) */
-    .theme-liquid-glass {
+    body.dark .theme-liquid-glass {
       background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(59, 130, 246, 0.08), rgba(15, 23, 42, 0.85)) !important;
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(56, 189, 248, 0.38) !important;
       box-shadow: 0 16px 40px rgba(6, 182, 212, 0.22) !important;
     }
-    .theme-liquid-glass:hover {
+    body.dark .theme-liquid-glass:hover {
       box-shadow: 0 24px 60px rgba(6, 182, 212, 0.38), 0 0 40px rgba(59, 130, 246, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
       transform: translateY(-4px) !important;
     }
 
-    /* 9. البينتو جرايد (Bento Grid - تقسيم بطاقات فخم) */
-    .theme-bento-grid {
+    body.dark .theme-bento-grid {
       background: rgba(15, 23, 42, 0.9) !important;
       border: 1.5px solid rgba(71, 85, 105, 0.6) !important;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38) !important;
     }
-    .theme-bento-grid:hover {
+    body.dark .theme-bento-grid:hover {
       border-color: rgba(2, 132, 199, 0.5) !important;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55), 0 0 22px rgba(2, 132, 199, 0.22) !important;
       transform: translateY(-3px) !important;
     }
 
-    /* 10. السباتيشل ثلاثي الأبعاد (Spatial UI - واقع مكاني VisionOS) */
-    .theme-spatial-ui {
+    body.dark .theme-spatial-ui {
       background: rgba(30, 27, 75, 0.38) !important;
       backdrop-filter: blur(36px);
       -webkit-backdrop-filter: blur(36px);
       border: 1.5px solid rgba(167, 139, 250, 0.35) !important;
       box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(129, 140, 248, 0.28) !important;
     }
-    .theme-spatial-ui:hover {
+    body.dark .theme-spatial-ui:hover {
       box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.9), 0 0 50px rgba(129, 140, 248, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
       transform: translateY(-5px) !important;
     }
 
-    /* 11. النيون السيبراني (Cyber Neon) */
-    .theme-cyber-neon {
+    body.dark .theme-cyber-neon {
       background: #050a14 !important;
       border: 1.5px solid #00f3ff !important;
       box-shadow: 0 0 20px rgba(0, 243, 255, 0.25) !important;
     }
-    .theme-cyber-neon:hover {
+    body.dark .theme-cyber-neon:hover {
       box-shadow: 0 0 40px rgba(0, 243, 255, 0.45), 0 0 20px rgba(255, 0, 127, 0.25) !important;
       transform: translateY(-3px) !important;
     }
 
-    /* 12. الكبسولة الزجاجية (Glass Capsule) */
-    .theme-glass-capsule {
+    body.dark .theme-glass-capsule {
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       background: rgba(15, 23, 42, 0.72) !important;
       border: 1.5px solid rgba(129, 140, 248, 0.3) !important;
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4) !important;
     }
-    .theme-glass-capsule:hover {
+    body.dark .theme-glass-capsule:hover {
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 28px rgba(129, 140, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
       transform: translateY(-3px) !important;
     }
-    /* 13. احترافي WPS/Excel */
-    .theme-wps-professional {
+
+    body.dark .theme-wps-professional {
       background: #0f172a !important;
       border: 1.5px solid rgba(20, 184, 166, 0.35) !important;
       border-radius: 24px !important;
-      box-shadow:
-        0 20px 45px -8px rgba(0, 0, 0, 0.65),
-        0 12px 24px -4px rgba(0, 0, 0, 0.50),
-        0 4px 10px -2px rgba(0, 0, 0, 0.38),
-        inset 3px 3px 8px rgba(255, 255, 255, 0.16),
-        inset -5px -5px 12px rgba(0, 0, 0, 0.45) !important;
+      box-shadow: 0 20px 45px -8px rgba(0, 0, 0, 0.65), 0 12px 24px -4px rgba(0, 0, 0, 0.50), inset 3px 3px 8px rgba(255, 255, 255, 0.16), inset -5px -5px 12px rgba(0, 0, 0, 0.45) !important;
     }
-    .theme-wps-professional:hover {
+    body.dark .theme-wps-professional:hover {
       border-color: rgba(20, 184, 166, 0.6) !important;
-      box-shadow:
-        0 30px 60px -8px rgba(0, 0, 0, 0.75),
-        0 16px 30px -4px rgba(0, 0, 0, 0.52),
-        0 6px 14px -2px rgba(0, 0, 0, 0.40),
-        inset 3px 3px 10px rgba(255, 255, 255, 0.22),
-        inset -6px -6px 15px rgba(0, 0, 0, 0.55) !important;
+      box-shadow: 0 30px 60px -8px rgba(0, 0, 0, 0.75), 0 16px 30px -4px rgba(0, 0, 0, 0.52), inset 3px 3px 10px rgba(255, 255, 255, 0.22), inset -6px -6px 15px rgba(0, 0, 0, 0.55) !important;
       transform: translateY(-5px) scale(1.008) !important;
+    }
+
+    /* ─── Light Mode Motion Themes (الأنماط للثيم الأبيض الهادئ والمريح للعينين) ─── */
+    body.light .theme-skeuomorphism {
+      background: linear-gradient(165deg, #ffffff 0%, #f8fafc 45%, #eef2f6 100%) !important;
+      border: 2px solid #cbd5e1 !important;
+      border-top-color: #ffffff !important;
+      border-left-color: #e2e8f0 !important;
+      border-right-color: #cbd5e1 !important;
+      border-bottom-color: #94a3b8 !important;
+      border-radius: 20px !important;
+      box-shadow: 0 10px 24px -4px rgba(100, 116, 139, 0.18), 0 3px 6px -1px rgba(100, 116, 139, 0.10), inset 0 2px 2px #ffffff, inset 0 -2px 3px rgba(148, 163, 184, 0.25) !important;
+      color: #1e293b !important;
+    }
+    body.light .theme-skeuomorphism:hover {
+      box-shadow: 0 16px 32px -4px rgba(100, 116, 139, 0.24), 0 0 20px rgba(217, 119, 6, 0.18), inset 0 2px 3px #ffffff, inset 0 -3px 4px rgba(148, 163, 184, 0.35) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    body.light .theme-neumorphism {
+      background: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.85) !important;
+      border-radius: 26px !important;
+      box-shadow: 9px 9px 20px rgba(166, 180, 200, 0.35), -9px -9px 20px rgba(255, 255, 255, 0.95) !important;
+      color: #1e293b !important;
+    }
+    body.light .theme-neumorphism:hover {
+      box-shadow: 13px 13px 26px rgba(166, 180, 200, 0.42), -11px -11px 24px #ffffff, 0 0 16px rgba(96, 165, 250, 0.15) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    body.light .theme-glassmorphism {
+      background: rgba(255, 255, 255, 0.75) !important;
+      backdrop-filter: blur(24px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+      border-radius: 22px !important;
+      box-shadow: 0 12px 30px -4px rgba(100, 116, 139, 0.12), 0 4px 10px -2px rgba(100, 116, 139, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.95), 0 0 20px rgba(56, 189, 248, 0.08) !important;
+      color: #1e293b !important;
+    }
+    body.light .theme-glassmorphism:hover {
+      box-shadow: 0 18px 40px -4px rgba(100, 116, 139, 0.18), 0 0 28px rgba(56, 189, 248, 0.16) !important;
+      transform: translateY(-3px) !important;
+    }
+
+    body.light .theme-claymorphism {
+      background: #f1f5f9 !important;
+      border-radius: 26px !important;
+      border: 2px solid rgba(167, 139, 250, 0.4) !important;
+      box-shadow: 0 16px 36px -6px rgba(148, 163, 184, 0.35), 0 8px 18px -4px rgba(148, 163, 184, 0.25), inset 3px 3px 8px #ffffff, inset -4px -4px 10px rgba(148, 163, 184, 0.3) !important;
+      color: #1e293b !important;
+    }
+    body.light .theme-claymorphism:hover {
+      box-shadow: 0 24px 48px -6px rgba(148, 163, 184, 0.45), 0 0 28px rgba(236, 72, 153, 0.2), inset 4px 4px 10px #ffffff, inset -6px -6px 14px rgba(148, 163, 184, 0.35) !important;
+      transform: translateY(-4px) !important;
+    }
+
+    body.light .theme-minimalism {
+      background: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      box-shadow: 0 2px 8px rgba(148, 163, 184, 0.15) !important;
+      color: #0f172a !important;
+    }
+    body.light .theme-minimalism:hover {
+      border-color: #0284c7 !important;
+      box-shadow: 0 8px 20px rgba(148, 163, 184, 0.22), 0 0 12px rgba(2, 132, 199, 0.12) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    body.light .theme-maximalism {
+      background: #faf5ff !important;
+      border: 2px solid #db2777 !important;
+      box-shadow: 0 4px 20px rgba(219, 39, 119, 0.18), inset 0 0 12px rgba(6, 182, 212, 0.1) !important;
+      color: #1e293b !important;
+    }
+    body.light .theme-maximalism:hover {
+      box-shadow: 0 8px 30px rgba(219, 39, 119, 0.3), 0 0 20px rgba(6, 182, 212, 0.2) !important;
+      transform: translateY(-3px) !important;
+    }
+
+    body.light .theme-brutalism {
+      background: #ffffff !important;
+      border: 3px solid #0284c7 !important;
+      border-radius: 6px !important;
+      box-shadow: 6px 6px 0px #0284c7 !important;
+      color: #0f172a !important;
+    }
+    body.light .theme-brutalism:hover {
+      box-shadow: 9px 9px 0px #0284c7, 3px 3px 0px #eab308 !important;
+      transform: translate(-3px, -3px) !important;
+    }
+
+    body.light .theme-liquid-glass {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.06), rgba(255, 255, 255, 0.9)) !important;
+      backdrop-filter: blur(24px) !important;
+      -webkit-backdrop-filter: blur(24px) !important;
+      border: 1px solid rgba(2, 132, 199, 0.3) !important;
+      box-shadow: 0 12px 32px rgba(6, 182, 212, 0.14) !important;
+      color: #0f172a !important;
+    }
+    body.light .theme-liquid-glass:hover {
+      box-shadow: 0 20px 48px rgba(6, 182, 212, 0.22), 0 0 30px rgba(59, 130, 246, 0.18) !important;
+      transform: translateY(-3px) !important;
+    }
+
+    body.light .theme-bento-grid {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 10px 25px rgba(148, 163, 184, 0.18) !important;
+      color: #0f172a !important;
+    }
+    body.light .theme-bento-grid:hover {
+      border-color: #0284c7 !important;
+      box-shadow: 0 16px 36px rgba(148, 163, 184, 0.28) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    body.light .theme-spatial-ui {
+      background: rgba(248, 250, 252, 0.85) !important;
+      backdrop-filter: blur(32px) !important;
+      -webkit-backdrop-filter: blur(32px) !important;
+      border: 1.5px solid rgba(167, 139, 250, 0.4) !important;
+      box-shadow: 0 18px 45px -10px rgba(148, 163, 184, 0.35), 0 0 25px rgba(129, 140, 248, 0.15) !important;
+      color: #1e293b !important;
+    }
+    body.light .theme-spatial-ui:hover {
+      box-shadow: 0 26px 60px -10px rgba(148, 163, 184, 0.45), 0 0 35px rgba(129, 140, 248, 0.25) !important;
+      transform: translateY(-4px) !important;
+    }
+
+    body.light .theme-wps-professional {
+      background: #ffffff !important;
+      border: 1.5px solid rgba(13, 148, 136, 0.35) !important;
+      border-radius: 20px !important;
+      box-shadow: 0 12px 28px -6px rgba(148, 163, 184, 0.2), inset 0 1px 2px #ffffff !important;
+      color: #0f172a !important;
+    }
+    body.light .theme-wps-professional:hover {
+      border-color: rgba(13, 148, 136, 0.6) !important;
+      box-shadow: 0 20px 42px -6px rgba(148, 163, 184, 0.3), 0 0 20px rgba(13, 148, 136, 0.12) !important;
+      transform: translateY(-3px) !important;
+    }
+
+    body.light .theme-cyber-neon {
+      background: #f0fdfa !important;
+      border: 1.5px solid #06b6d4 !important;
+      box-shadow: 0 0 18px rgba(6, 182, 212, 0.2) !important;
+      color: #0f172a !important;
+    }
+    body.light .theme-cyber-neon:hover {
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.35), 0 0 16px rgba(236, 72, 153, 0.18) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    body.light .theme-glass-capsule {
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border: 1.5px solid rgba(99, 102, 241, 0.3) !important;
+      box-shadow: 0 12px 30px rgba(148, 163, 184, 0.2) !important;
+      color: #1e293b !important;
+    }
+    body.light .theme-glass-capsule:hover {
+      box-shadow: 0 18px 42px rgba(148, 163, 184, 0.3), 0 0 22px rgba(99, 102, 241, 0.2) !important;
+      transform: translateY(-2px) !important;
     }
 
     .widget-header {
@@ -891,7 +1067,7 @@ export function generateInteractiveHtml(
     .table-container td {
       /* Fluid padding for data cells */
       padding: clamp(4px, 1.2vw, 8px) clamp(6px, 1.8vw, 12px);
-      border-bottom: 1px solid #1e293b40;
+      border-bottom: 1px solid var(--surface-border);
       color: var(--text);
       font-size: inherit; /* Scales dynamically with table font-size */
       white-space: nowrap;
@@ -905,7 +1081,7 @@ export function generateInteractiveHtml(
       text-align: left;
     }
     .table-container tr:hover td {
-      background-color: #1e293b40;
+      background-color: var(--surface-header);
     }
 
     /* Targeted mobile responsive scaling: specifically for tables on small phone screens */
@@ -1138,7 +1314,7 @@ export function generateInteractiveHtml(
       min-height: 200px;
     }
     footer {
-      border-top: 2px solid rgba(255, 255, 255, 0.12);
+      border-top: 2px solid var(--chrome-border);
       border-top-left-radius: 18px;
       border-top-right-radius: 18px;
       padding: 10px 24px;
@@ -1146,13 +1322,11 @@ export function generateInteractiveHtml(
       align-items: center;
       justify-content: space-between;
       font-size: 11px;
-      color: #94a3b8;
-      background: #0f172a;
+      color: var(--chrome-text-muted);
+      background: var(--chrome-footer-bg);
       box-shadow:
-        0 -14px 34px -4px rgba(0, 0, 0, 0.65),
-        0 -6px 14px -2px rgba(0, 0, 0, 0.45),
-        inset 0 3px 6px rgba(255, 255, 255, 0.16),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.40);
+        0 -6px 20px -2px rgba(0, 0, 0, 0.12),
+        inset 0 1px 3px rgba(255, 255, 255, 0.08);
     }
 
     /* ─── Table Widget: Pagination, Sorting & Live Search ─── */
@@ -1167,7 +1341,7 @@ export function generateInteractiveHtml(
       display: flex;
       align-items: center;
       gap: 6px;
-      background: #02061790;
+      background: var(--surface-header);
       border: 1px solid var(--surface-border);
       border-radius: 8px;
       padding: 3px 8px;
@@ -1232,7 +1406,7 @@ export function generateInteractiveHtml(
       font-size: 11px;
     }
     .page-size-select {
-      background: #0f172a;
+      background: var(--chrome-btn-bg);
       color: var(--text);
       border: 1px solid var(--surface-border);
       border-radius: 6px;
@@ -1256,7 +1430,7 @@ export function generateInteractiveHtml(
       font-size: 11px;
       font-weight: 600;
       border: 1px solid var(--surface-border);
-      background: #1e293b80;
+      background: var(--chrome-btn-bg);
       color: var(--text);
       cursor: pointer;
       transition: all 0.15s ease;
@@ -1302,17 +1476,27 @@ export function generateInteractiveHtml(
       display: none;
     }
 
-    /* Contrast Contract: Any card, text background, upper/lower bar, or component in black/dark MUST have white inner text */
-    [class*="bg-black"], [class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-slate-800"],
-    .theme-skeuomorphism, .theme-neumorphism, .theme-claymorphism, .theme-maximalism,
-    .theme-brutalism, .theme-liquid-glass, .theme-bento-grid, .theme-spatial-ui {
+    /* Contrast Contract: dark themes always use white text */
+    body.dark [class*="bg-black"], body.dark [class*="bg-slate-950"], body.dark [class*="bg-slate-900"], body.dark [class*="bg-slate-800"],
+    body.dark .theme-skeuomorphism, body.dark .theme-neumorphism, body.dark .theme-claymorphism, body.dark .theme-maximalism,
+    body.dark .theme-brutalism, body.dark .theme-liquid-glass, body.dark .theme-bento-grid, body.dark .theme-spatial-ui,
+    body.dark .theme-cyber-neon, body.dark .theme-glass-capsule, body.dark .theme-minimalism, body.dark .theme-wps-professional {
       color: #ffffff !important;
     }
-    [class*="bg-black"] *, [class*="bg-slate-950"] *, [class*="bg-slate-900"] *, [class*="bg-slate-800"] *,
-    .theme-skeuomorphism *, .theme-neumorphism *, .theme-claymorphism *, .theme-maximalism *,
-    .theme-brutalism *, .theme-liquid-glass *, .theme-bento-grid *, .theme-spatial-ui * {
+    body.dark [class*="bg-black"] *, body.dark [class*="bg-slate-950"] *, body.dark [class*="bg-slate-900"] *, body.dark [class*="bg-slate-800"] *,
+    body.dark .theme-skeuomorphism *, body.dark .theme-neumorphism *, body.dark .theme-claymorphism *, body.dark .theme-maximalism *,
+    body.dark .theme-brutalism *, body.dark .theme-liquid-glass *, body.dark .theme-bento-grid *, body.dark .theme-spatial-ui *,
+    body.dark .theme-cyber-neon *, body.dark .theme-glass-capsule *, body.dark .theme-minimalism *, body.dark .theme-wps-professional * {
       color: #ffffff !important;
     }
+    /* Light theme: enforce dark text on all cards */
+    body.light .widget-card, body.light .widget-card * {
+      color: var(--text) !important;
+    }
+    body.light .widget-title { color: #0f172a !important; }
+    body.light .kpi-value { color: #0f172a !important; }
+    body.light .kpi-count { color: #64748b !important; }
+    body.light .table-container td { color: #1e293b !important; }
 
     @media print {
       @page {
@@ -1525,7 +1709,7 @@ export function generateInteractiveHtml(
     }
   </style>
 </head>
-<body>
+<body class="${theme}">
   <!-- Dual-Tier Header (بارين علويين) -->
   <div class="header-wrapper">
     <!-- Bar 1: Brand, Report Title & Status Badges (الشريط العلوي الأول) -->
@@ -1583,6 +1767,10 @@ export function generateInteractiveHtml(
             <option value="glass-capsule">💊 كبسولة زجاجية (عصري)</option>
           </select>
         </div>
+        <button id="theme-toggle-btn" class="btn btn-action" onclick="toggleTheme()" title="تبديل بين الثيم الأبيض والداكن">
+          <span id="theme-toggle-icon">${theme === 'dark' ? '☀️' : '🌙'}</span>
+          <span id="theme-toggle-label" class="desktop-only">${theme === 'dark' ? 'الثيم الأبيض' : 'الثيم الداكن'}</span>
+        </button>
         <button class="btn btn-action" onclick="window.print()" title="طباعة أو تصدير PDF">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
           <span>طباعة / PDF</span>
@@ -1664,7 +1852,7 @@ ${embeddedPackageJsonSafe}
     };
 
     // ── Parse embedded JSON dataset ──
-    var EMBEDDED_PACKAGE, DASHBOARD, RAW_ROWS, COLUMNS, THEME;
+    var EMBEDDED_PACKAGE, DASHBOARD, RAW_ROWS, ALL_SHEETS, COLUMNS, THEME;
     try {
       var embedEl = document.getElementById('lens-bi-embedded-data');
       if (!embedEl) throw new Error('Embedded data element not found in DOM');
@@ -1673,6 +1861,7 @@ ${embeddedPackageJsonSafe}
       EMBEDDED_PACKAGE = JSON.parse(rawText);
       DASHBOARD = EMBEDDED_PACKAGE.dashboard;
       RAW_ROWS = EMBEDDED_PACKAGE.rows || [];
+      ALL_SHEETS = EMBEDDED_PACKAGE.sheets || [];
       COLUMNS = EMBEDDED_PACKAGE.columns || [];
       THEME = EMBEDDED_PACKAGE.theme || '${theme}';
       if (!DASHBOARD || !DASHBOARD.widgets) throw new Error('Dashboard data is missing or malformed');
@@ -1688,6 +1877,28 @@ ${embeddedPackageJsonSafe}
             + '</div>';
         }
       });
+    }
+
+    // Apply page theme class to body
+    if (THEME === 'light') {
+      document.body.classList.remove('dark');
+      document.body.classList.add('light');
+    } else {
+      document.body.classList.remove('light');
+      document.body.classList.add('dark');
+    }
+
+    // Helper: get rows for a specific widget (using per-widget sheet binding if present)
+    function getWidgetRows(w) {
+      if (w.config && (w.config.sheetId || w.config.sheetName) && ALL_SHEETS.length > 0) {
+        var sheet = ALL_SHEETS.find(function(s) {
+          return s.id === w.config.sheetId || s.name === w.config.sheetName;
+        });
+        if (sheet && Array.isArray(sheet.rawRows) && sheet.rawRows.length > 0) {
+          return sheet.rawRows;
+        }
+      }
+      return RAW_ROWS;
     }
 
     // Pre-applied filters from the original dashboard state
@@ -1874,6 +2085,36 @@ ${embeddedPackageJsonSafe}
       }
     }
 
+    function toggleTheme() {
+      THEME = THEME === 'light' ? 'dark' : 'light';
+      if (THEME === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.remove('dark');
+        document.body.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+        document.body.classList.remove('light');
+        document.body.classList.add('dark');
+      }
+
+      var iconEl = document.getElementById('theme-toggle-icon');
+      var labelEl = document.getElementById('theme-toggle-label');
+      if (iconEl) iconEl.textContent = THEME === 'dark' ? '☀️' : '🌙';
+      if (labelEl) labelEl.textContent = THEME === 'dark' ? 'الثيم الأبيض' : 'الثيم الداكن';
+
+      // Dispose existing chart instances so they cleanly re-render with the new theme
+      Object.keys(chartInstances).forEach(function(id) {
+        if (chartInstances[id] && !chartInstances[id].isDisposed()) {
+          try { chartInstances[id].dispose(); } catch(e) {}
+        }
+        delete chartInstances[id];
+      });
+
+      renderAllWidgets();
+    }
+
     function resetFilters() {
       activeFilters = {};
       Object.keys(drillDownStates).forEach(k => {
@@ -1907,14 +2148,20 @@ ${embeddedPackageJsonSafe}
       const filtered = filterRows(RAW_ROWS, activeFilters);
 
       DASHBOARD.widgets.forEach(w => {
+        // ── get per-widget rows (using sheet binding if available) ──
+        const wRows = getWidgetRows(w);
+        const wFiltered = filterRows(wRows, activeFilters);
+
         if (w.type === 'kpi') {
-          renderKpiWidget(w, filtered);
+          renderKpiWidget(w, wFiltered);
         } else if (w.type === 'slicer') {
-          renderSlicerWidget(w, RAW_ROWS);
+          renderSlicerWidget(w, wRows);
         } else if (w.type === 'table') {
-          renderTableWidget(w, filtered);
+          renderTableWidget(w, wFiltered);
+        } else if (w.type === 'pivot') {
+          renderPivotWidget(w, wFiltered);
         } else {
-          renderChartWidget(w, filtered);
+          renderChartWidget(w, wFiltered);
         }
       });
       renderAllBreadcrumbs();
@@ -2115,7 +2362,7 @@ ${embeddedPackageJsonSafe}
       const state = initTableState(widgetId);
       state.page = page;
       const w = DASHBOARD.widgets.find(x => x.id === widgetId);
-      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
+      if (w) renderTableWidget(w, filterRows(getWidgetRows(w), activeFilters));
     }
 
     function changeTablePageSize(widgetId, size) {
@@ -2123,7 +2370,7 @@ ${embeddedPackageJsonSafe}
       state.pageSize = size;
       state.page = 1;
       const w = DASHBOARD.widgets.find(x => x.id === widgetId);
-      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
+      if (w) renderTableWidget(w, filterRows(getWidgetRows(w), activeFilters));
     }
 
     function sortTableByColumn(widgetId, colName) {
@@ -2136,7 +2383,7 @@ ${embeddedPackageJsonSafe}
       }
       state.page = 1;
       const w = DASHBOARD.widgets.find(x => x.id === widgetId);
-      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
+      if (w) renderTableWidget(w, filterRows(getWidgetRows(w), activeFilters));
     }
 
     function filterTableSearch(widgetId, query) {
@@ -2144,7 +2391,301 @@ ${embeddedPackageJsonSafe}
       state.searchQuery = query;
       state.page = 1;
       const w = DASHBOARD.widgets.find(x => x.id === widgetId);
-      if (w) renderTableWidget(w, filterRows(RAW_ROWS, activeFilters));
+      if (w) renderTableWidget(w, filterRows(getWidgetRows(w), activeFilters));
+    }
+
+    // ─── Pivot Table Engine for Standalone Export ───
+    const pivotStates = {};
+
+    function initPivotState(widgetId) {
+      if (!pivotStates[widgetId]) {
+        pivotStates[widgetId] = {
+          expandedKeys: new Set(['__all__']),
+          searchQuery: ''
+        };
+      }
+      return pivotStates[widgetId];
+    }
+
+    function filterPivotSearch(widgetId, query) {
+      const state = initPivotState(widgetId);
+      state.searchQuery = query || '';
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) {
+        const wRows = getWidgetRows(w);
+        renderPivotWidget(w, filterRows(wRows, activeFilters));
+      }
+    }
+
+    function togglePivotGroup(widgetId, groupKey) {
+      const state = initPivotState(widgetId);
+      if (state.expandedKeys.has(groupKey)) {
+        state.expandedKeys.delete(groupKey);
+      } else {
+        state.expandedKeys.add(groupKey);
+      }
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) {
+        const wRows = getWidgetRows(w);
+        renderPivotWidget(w, filterRows(wRows, activeFilters));
+      }
+    }
+
+    function renderPivotWidget(w, rows) {
+      const container = document.getElementById('pivot-container-' + w.id);
+      if (!container) return;
+
+      const state = initPivotState(w.id);
+      const cfg = w.config || {};
+      const sheetCols = (w.config && (w.config.sheetId || w.config.sheetName) && ALL_SHEETS.length > 0)
+        ? (ALL_SHEETS.find(s => s.id === w.config.sheetId || s.name === w.config.sheetName)?.columns || COLUMNS)
+        : COLUMNS;
+
+      // 1. Row dimensions
+      let rowCols = cfg.pivotRowColumns || [];
+      if (!rowCols.length && cfg.xAxisColumn) rowCols = [cfg.xAxisColumn];
+      if (!rowCols.length && sheetCols.length > 0) {
+        const firstCat = sheetCols.find(c => c.dataType === 'string' || c.dataType === 'date') || sheetCols[0];
+        rowCols = [firstCat.columnName || firstCat];
+      }
+
+      // 2. Column dimensions
+      const colCols = cfg.pivotColumnColumns || [];
+
+      // 3. Values / Metrics
+      let valMetrics = cfg.pivotValues || [];
+      if (!valMetrics.length) {
+        const metricCol = cfg.yAxisColumn || sheetCols.find(c => c.dataType === 'numeric')?.columnName;
+        if (metricCol) {
+          valMetrics = [{
+            id: 'val_1',
+            column: metricCol,
+            aggregation: cfg.aggregation || 'SUM',
+            customLabel: metricCol
+          }];
+        } else if (rowCols.length > 0) {
+          valMetrics = [{
+            id: 'val_1',
+            column: rowCols[0],
+            aggregation: 'COUNT',
+            customLabel: 'العدد'
+          }];
+        }
+      }
+
+      // Filter by search query if present
+      let processedRows = rows;
+      if (state.searchQuery && state.searchQuery.trim()) {
+        const q = state.searchQuery.trim().toLowerCase();
+        processedRows = processedRows.filter(r => {
+          return Object.values(r).some(v => v !== undefined && v !== null && String(v).toLowerCase().includes(q));
+        });
+      }
+
+      if (!processedRows.length) {
+        container.innerHTML = '<div style="text-align:center; padding:32px; color:var(--text-muted); font-size:12px;">لا توجد بيانات مطابقة في الجدول المحوري</div>';
+        return;
+      }
+
+      // Aggregation helper
+      function calcVal(items, col, agg) {
+        if (!items || !items.length) return 0;
+        if (agg === 'COUNT') return items.length;
+        const nums = items.map(it => {
+          const v = it[col];
+          if (typeof v === 'number') return v;
+          const parsed = parseFloat(String(v ?? '').replace(/[,$\\sد\\.ع]/g, ''));
+          return isNaN(parsed) ? null : parsed;
+        }).filter(v => v !== null);
+        if (!nums.length) return 0;
+        if (agg === 'SUM') return nums.reduce((a, b) => a + b, 0);
+        if (agg === 'AVG') return nums.reduce((a, b) => a + b, 0) / nums.length;
+        if (agg === 'MAX') return Math.max(...nums);
+        if (agg === 'MIN') return Math.min(...nums);
+        return nums.reduce((a, b) => a + b, 0);
+      }
+
+      function formatVal(num, agg) {
+        if (agg === 'COUNT') return num.toLocaleString();
+        if (Math.abs(num) >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+        if (agg === 'AVG') return num.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+        return Number.isInteger(num) ? num.toLocaleString() : num.toFixed(2);
+      }
+
+      const colDimensionValues = (colCols.length > 0 && colCols[0])
+        ? Array.from(new Set(processedRows.map(r => String(r[colCols[0]] ?? '')).filter(v => v.trim() !== ''))).sort()
+        : [];
+
+      const isHierarchical = rowCols.length > 1;
+      const primaryRowCol = rowCols[0];
+      const secondaryRowCol = isHierarchical ? rowCols[1] : null;
+
+      // Group by primary row dimension
+      const primaryGroups = {};
+      processedRows.forEach(r => {
+        const key = String(r[primaryRowCol] ?? '(فارغ)');
+        if (!primaryGroups[key]) primaryGroups[key] = [];
+        primaryGroups[key].push(r);
+      });
+
+      const groupKeys = Object.keys(primaryGroups).sort((a, b) => {
+        const valA = calcVal(primaryGroups[a], valMetrics[0]?.column, valMetrics[0]?.aggregation || 'SUM');
+        const valB = calcVal(primaryGroups[b], valMetrics[0]?.column, valMetrics[0]?.aggregation || 'SUM');
+        return valB - valA;
+      });
+
+      let html = '<table><thead><tr>';
+      html += '<th style="min-width:180px;">' + rowCols.join(' ❯ ') + '</th>';
+
+      if (colDimensionValues.length > 0) {
+        colDimensionValues.forEach(cv => {
+          valMetrics.forEach(m => {
+            html += '<th style="text-align:center;">' + cv + ' (' + (m.customLabel || m.column) + ')</th>';
+          });
+        });
+        valMetrics.forEach(m => {
+          html += '<th style="text-align:center; font-weight:800; background:rgba(14,165,233,0.12);">إجمالي ' + (m.customLabel || m.column) + '</th>';
+        });
+      } else {
+        valMetrics.forEach(m => {
+          html += '<th style="text-align:center;">' + (m.customLabel || (m.aggregation + ' ' + m.column)) + '</th>';
+        });
+      }
+      html += '</tr></thead><tbody>';
+
+      groupKeys.forEach(gKey => {
+        const gRows = primaryGroups[gKey];
+        const isExpanded = state.expandedKeys.has('__all__') || state.expandedKeys.has(gKey);
+        const safeGKey = gKey.replace(/["'\\]/g, '');
+
+        html += '<tr class="pivot-parent-row" style="font-weight:700; cursor:pointer;" onclick="togglePivotGroup(&quot;' + w.id + '&quot;, &quot;' + safeGKey + '&quot;)">';
+        html += '<td style="display:flex; align-items:center; gap:6px;">';
+        if (isHierarchical) {
+          html += '<span style="font-size:10px; color:var(--accent); width:14px;">' + (isExpanded ? '▼' : '▶') + '</span>';
+        }
+        html += '<span>' + gKey + '</span>';
+        html += '<span style="font-size:10px; opacity:0.6; margin-right:4px;">(' + gRows.length + ')</span>';
+        html += '</td>';
+
+        if (colDimensionValues.length > 0) {
+          colDimensionValues.forEach(cv => {
+            const subItems = gRows.filter(r => String(r[colCols[0]] ?? '') === cv);
+            valMetrics.forEach(m => {
+              const val = calcVal(subItems, m.column, m.aggregation);
+              html += '<td class="num-cell" style="text-align:center;">' + (val ? formatVal(val, m.aggregation) : '-') + '</td>';
+            });
+          });
+          valMetrics.forEach(m => {
+            const tot = calcVal(gRows, m.column, m.aggregation);
+            html += '<td class="num-cell" style="text-align:center; font-weight:700; color:var(--accent);">' + formatVal(tot, m.aggregation) + '</td>';
+          });
+        } else {
+          valMetrics.forEach(m => {
+            const val = calcVal(gRows, m.column, m.aggregation);
+            html += '<td class="num-cell" style="text-align:center;">' + formatVal(val, m.aggregation) + '</td>';
+          });
+        }
+        html += '</tr>';
+
+        if (isHierarchical && isExpanded && secondaryRowCol) {
+          const childGroups = {};
+          gRows.forEach(r => {
+            const cKey = String(r[secondaryRowCol] ?? '(فارغ)');
+            if (!childGroups[cKey]) childGroups[cKey] = [];
+            childGroups[cKey].push(r);
+          });
+          Object.keys(childGroups).sort().forEach(cKey => {
+            const cRows = childGroups[cKey];
+            html += '<tr class="pivot-child-row" style="font-size:11px; opacity:0.9;">';
+            html += '<td style="padding-right:28px; color:var(--text-muted);">' + cKey + '</td>';
+
+            if (colDimensionValues.length > 0) {
+              colDimensionValues.forEach(cv => {
+                const subItems = cRows.filter(r => String(r[colCols[0]] ?? '') === cv);
+                valMetrics.forEach(m => {
+                  const val = calcVal(subItems, m.column, m.aggregation);
+                  html += '<td class="num-cell" style="text-align:center;">' + (val ? formatVal(val, m.aggregation) : '-') + '</td>';
+                });
+              });
+              valMetrics.forEach(m => {
+                const tot = calcVal(cRows, m.column, m.aggregation);
+                html += '<td class="num-cell" style="text-align:center;">' + formatVal(tot, m.aggregation) + '</td>';
+              });
+            } else {
+              valMetrics.forEach(m => {
+                const val = calcVal(cRows, m.column, m.aggregation);
+                html += '<td class="num-cell" style="text-align:center;">' + formatVal(val, m.aggregation) + '</td>';
+              });
+            }
+            html += '</tr>';
+          });
+        }
+      });
+
+      // Grand Total Row
+      html += '<tr style="font-weight:900; background:rgba(14,165,233,0.15); border-top:2px solid var(--accent);">';
+      html += '<td>الإجمالي الكلي (Grand Total)</td>';
+      if (colDimensionValues.length > 0) {
+        colDimensionValues.forEach(cv => {
+          const colItems = processedRows.filter(r => String(r[colCols[0]] ?? '') === cv);
+          valMetrics.forEach(m => {
+            const val = calcVal(colItems, m.column, m.aggregation);
+            html += '<td class="num-cell" style="text-align:center;">' + formatVal(val, m.aggregation) + '</td>';
+          });
+        });
+        valMetrics.forEach(m => {
+          const tot = calcVal(processedRows, m.column, m.aggregation);
+          html += '<td class="num-cell" style="text-align:center; color:var(--accent);">' + formatVal(tot, m.aggregation) + '</td>';
+        });
+      } else {
+        valMetrics.forEach(m => {
+          const val = calcVal(processedRows, m.column, m.aggregation);
+          html += '<td class="num-cell" style="text-align:center; color:var(--accent);">' + formatVal(val, m.aggregation) + '</td>';
+        });
+      }
+      html += '</tr>';
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function exportPivotToExcel(widgetId) {
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (!w) return;
+      const rows = getWidgetRows(w);
+      const filtered = filterRows(rows, activeFilters);
+
+      const cfg = w.config || {};
+      let rowCols = cfg.pivotRowColumns || (cfg.xAxisColumn ? [cfg.xAxisColumn] : ['التصنيف']);
+      let valMetrics = cfg.pivotValues || [{ column: cfg.yAxisColumn || 'القيمة', aggregation: cfg.aggregation || 'SUM', customLabel: 'القيمة' }];
+
+      let csv = rowCols.join(',') + ',' + valMetrics.map(m => m.customLabel || m.column).join(',') + '\n';
+
+      const groups = {};
+      filtered.forEach(r => {
+        const key = String(r[rowCols[0]] ?? '');
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(r);
+      });
+
+      Object.keys(groups).sort().forEach(k => {
+        const gRows = groups[k];
+        const vals = valMetrics.map(m => {
+          if (m.aggregation === 'COUNT') return gRows.length;
+          return gRows.reduce((acc, r) => acc + (parseFloat(r[m.column]) || 0), 0);
+        });
+        csv += '"' + k.replace(/"/g, '""') + '",' + vals.join(',') + '\n';
+      });
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (w.title || 'Pivot_Table').replace(/[^a-zA-Z0-9_\u0600-\u06FF]+/g, '_') + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     function getChartOption(w, rows) {
@@ -2170,10 +2711,10 @@ ${embeddedPackageJsonSafe}
       const agg = aggregateGroupData(chartRows, activeCol, yCol, w.config.aggregation, w.config.sortOrder, w.config.topN);
       const themeColors = MOTION_PALETTES[currentActiveMotionTheme];
       const palette = themeColors ? [themeColors[0], themeColors[1] || themeColors[0]] : (PALETTES[w.config.colorTheme || 'sky'] || PALETTES.sky);
-      // Charts always use dark palette regardless of page theme to preserve vibrant colors
-      const isDark = true;
-      const textColor = '#94a3b8';
-      const splitLine = '#1e293b';
+      // Use page theme for chart axis/grid colors
+      const isDark = THEME !== 'light';
+      const textColor = isDark ? '#94a3b8' : '#475569';
+      const splitLine = isDark ? '#1e293b' : '#e2e8f0';
 
       const base = {
         backgroundColor: 'transparent',
@@ -2280,7 +2821,8 @@ ${embeddedPackageJsonSafe}
         if (chart && !chart.isDisposed()) {
           try { chart.dispose(); } catch(e) {}
         }
-        chart = echarts.init(dom, 'dark'); // Always dark so charts keep vibrant colors
+        const chartTheme = THEME === 'light' ? undefined : 'dark';
+        chart = echarts.init(dom, chartTheme);
         chartInstances[w.id] = chart;
         chart.on('click', (params) => {
           const clickedName = params.name || params.value;
@@ -2418,8 +2960,10 @@ ${embeddedPackageJsonSafe}
       title.textContent = w.title;
       modal.classList.add('open');
       if (modalChartInstance) modalChartInstance.dispose();
-      modalChartInstance = echarts.init(dom, 'dark'); // Always dark so charts keep vibrant colors
-      const filtered = filterRows(RAW_ROWS, activeFilters);
+      const modalChartTheme = THEME === 'light' ? undefined : 'dark';
+      modalChartInstance = echarts.init(dom, modalChartTheme);
+      const wRows = getWidgetRows(w);
+      const filtered = filterRows(wRows, activeFilters);
       modalChartInstance.setOption(getChartOption(w, filtered));
     }
 
@@ -2538,6 +3082,30 @@ ${embeddedPackageJsonSafe}
           \`;
         }
 
+        if (w.type === 'pivot') {
+          return \`
+            <div class="widget-card \${colClass} is-table-card \${themeClass}" id="pivot-card-\${w.id}" style="\${animDelay}">
+              <div class="widget-header table-widget-header">
+                <div class="widget-title">🧩 \${safeTitle}</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div class="table-search-box">
+                    <span style="font-size:11px;opacity:0.7;">🔍</span>
+                    <input type="text" class="table-search-input" placeholder="بحث في الجدول المحوري..." oninput="filterPivotSearch('\${w.id}', this.value)" />
+                  </div>
+                  <button class="btn btn-action" onclick="exportPivotToExcel('\${w.id}')" title="تصدير جدول الـ Pivot إلى Excel / CSV">
+                    <span>📥 تصدير Excel</span>
+                  </button>
+                </div>
+              </div>
+              <div class="widget-body" style="padding:0;">
+                <div class="table-container" id="pivot-container-\${w.id}" style="max-height: 480px;">
+                  <div style="text-align:center; padding:24px; color:var(--text-muted); font-size:12px;">جاري تجهيز بيانات الجدول المحوري...</div>
+                </div>
+              </div>
+            </div>
+          \`;
+        }
+
         const isDrill = Boolean(config.drillDownEnabled && config.drillDownLevels && config.drillDownLevels.length > 0);
         const drill = drillDownStates[w.id] || { path: [], levelIndex: 0 };
         const totalLevels = isDrill ? config.drillDownLevels.length : 0;
@@ -2589,10 +3157,11 @@ ${embeddedPackageJsonSafe}
       // initializes before the DOM has rendered chart containers
       setTimeout(() => {
         DASHBOARD.widgets.forEach(w => {
-          if (w.type !== 'kpi' && w.type !== 'slicer' && w.type !== 'table') {
+          if (w.type !== 'kpi' && w.type !== 'slicer' && w.type !== 'table' && w.type !== 'pivot') {
             const dom = document.getElementById('chart-' + w.id);
             if (dom && (!chartInstances[w.id] || chartInstances[w.id].isDisposed())) {
-              renderChartWidget(w, filterRows(RAW_ROWS, activeFilters));
+              const wRows = getWidgetRows(w);
+              renderChartWidget(w, filterRows(wRows, activeFilters));
             } else if (dom && chartInstances[w.id]) {
               chartInstances[w.id].resize();
             }

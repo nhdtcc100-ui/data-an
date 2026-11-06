@@ -677,10 +677,14 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Export Interactive HTML Button */}
           <button
             onClick={() => downloadInteractiveHtml(currentDashboard, currentDataSource, theme, widgetFilters, activeFilters, drillDownStates, motionTheme)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-755 text-sky-300 hover:text-white border border-slate-700/80 text-xs font-medium transition cursor-pointer"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer border ${
+              isDark
+                ? 'bg-slate-800/80 hover:bg-slate-700 text-sky-300 hover:text-white border-slate-700/80'
+                : 'bg-white hover:bg-slate-100 text-sky-700 hover:text-sky-900 border-slate-300 shadow-sm'
+            }`}
             title="تصدير التقرير كملف HTML تفاعلي مستقل يعمل أوفلاين بالكامل"
           >
-            <FileCode className="w-3.5 h-3.5 text-sky-400" />
+            <FileCode className={`w-3.5 h-3.5 ${isDark ? 'text-sky-400' : 'text-sky-600'}`} />
             <span className="hidden sm:inline">تصدير HTML</span>
           </button>
 
