@@ -172,6 +172,15 @@ export function generateInteractiveHtml(
       document.head.appendChild(fallbackScript);
     }
   </script>
+  <!-- GSAP Animation Library for smooth professional cinematic transitions (primary CDN + fallback) -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    if (typeof gsap === 'undefined') {
+      var fallbackGsap = document.createElement('script');
+      fallbackGsap.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js';
+      document.head.appendChild(fallbackGsap);
+    }
+  </script>
   <style>
     :root {
       --bg: ${theme === 'dark' ? '#020617' : '#f8fafc'};
@@ -394,19 +403,64 @@ export function generateInteractiveHtml(
       animation: drillTransitionPulse 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
-    /* Mobile title bar - shown only on mobile */
+    /* Mobile title bar - shown only on mobile with responsive typography */
     .mobile-title-bar {
       display: none;
     }
     .desktop-only-flex {
       display: flex;
     }
-    @media (max-width: 640px) {
+    .mobile-logo-badge {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+    .mobile-title-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+    }
+    .mobile-report-title {
+      font-size: clamp(11.5px, 3.4vw, 15px) !important;
+      font-weight: 800 !important;
+      color: var(--chrome-text);
+      line-height: 1.35 !important;
+      margin: 0 !important;
+      text-align: center;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-word;
+    }
+    .mobile-platform-tag {
+      font-size: 8.5px;
+      padding: 1.5px 5px;
+      border-radius: 4px;
+      background-color: rgba(14, 165, 233, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    @media (max-width: 768px) {
       .mobile-title-bar {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        gap: 8px;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 8px !important;
+        justify-content: center !important;
       }
       .desktop-only-flex {
         display: none !important;
@@ -496,61 +550,54 @@ export function generateInteractiveHtml(
       flex-shrink: 0;
     }
 
-    /* Mobile Responsive Header: Title takes the top bar alone on mobile */
+    /* Mobile Responsive Header: Fully responsive typography & layout */
     @media (max-width: 768px) {
       .top-bar-1 {
-        padding: 10px 14px !important;
+        padding: clamp(6px, 1.8vw, 10px) clamp(8px, 2.8vw, 16px) !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
+        justify-content: space-between !important;
         width: 100% !important;
+        min-height: 42px !important;
       }
-      .brand-section {
-        width: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
-      }
-      /* Hide platform logo, platform tag, subtitle, and badges on mobile top bar */
-      .logo-badge,
-      .platform-tag,
-      .title-box p,
       .bar-1-status {
         display: none !important;
       }
-      .title-box {
-        width: 100% !important;
-        text-align: center !important;
-      }
-      .title-box-row {
-        justify-content: center !important;
-        width: 100% !important;
-      }
-      .title-box h1 {
-        font-size: 15px !important;
-        font-weight: 800 !important;
-        max-width: 100% !important;
-        text-align: center !important;
-        white-space: normal !important;
-        line-height: 1.35 !important;
-        margin: 0 !important;
-      }
       .top-bar-2 {
-        padding: 6px 12px !important;
+        padding: clamp(4px, 1.2vw, 7px) clamp(8px, 2.5vw, 14px) !important;
         flex-wrap: wrap !important;
         gap: 6px !important;
+        min-height: 38px !important;
+      }
+      .filter-status-area {
+        min-width: 0 !important;
+        flex: 1 !important;
       }
       .filter-indicator-text {
-        font-size: 10.5px;
+        font-size: clamp(9px, 2.6vw, 11px) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: clamp(120px, 46vw, 220px) !important;
+      }
+      .motion-picker-area {
+        flex-shrink: 0 !important;
+      }
+      .motion-label {
+        font-size: clamp(9.5px, 2.6vw, 11px) !important;
+      }
+      .motion-select {
+        font-size: clamp(9.5px, 2.6vw, 11px) !important;
+        padding: 3px clamp(4px, 1.5vw, 8px) !important;
+        max-width: clamp(100px, 32vw, 140px) !important;
+        border-radius: 7px !important;
       }
       .btn {
-        padding: 4px 8px;
-        font-size: 10.5px;
+        padding: 3px clamp(6px, 1.5vw, 10px) !important;
+        font-size: clamp(9.5px, 2.5vw, 10.5px) !important;
       }
       .desktop-only {
-        display: none;
+        display: none !important;
       }
       /* Mobile card single column flow */
       .grid {
@@ -2183,9 +2230,15 @@ export function generateInteractiveHtml(
   <div class="header-wrapper">
     <!-- Bar 1: Brand, Report Title & Status Badges -->
     <div class="top-bar-1">
-      <!-- Mobile: title centered -->
+      <!-- Mobile: responsive brand & title -->
       <div class="mobile-title-bar">
-        <h1 style="font-size:14px;font-weight:800;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cleanTitle}</h1>
+        <div class="mobile-logo-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="mobile-title-wrapper">
+          <h1 class="mobile-report-title">${cleanTitle}</h1>
+          <span class="mobile-platform-tag">LENS BI</span>
+        </div>
       </div>
       <!-- Desktop brand section -->
       <div class="brand-section desktop-only-flex">
@@ -3051,54 +3104,110 @@ ${embeddedPackageJsonSafe}
       renderPivotWidget(w, filterRows(wRows, activeFilters));
     }
 
-    function drillIntoPivot(widgetId, colName, colVal) {
-      const state = initPivotState(widgetId);
-      state.drillPath.push({ col: colName, value: colVal });
-      state.collapsedKeys = new Set();
-      triggerWidgetDrillPulse(widgetId);
-      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
-      if (w) {
-        const wRows = getWidgetRows(w);
-        renderPivotWidget(w, filterRows(wRows, activeFilters));
+    function performCinematicPivotTransition(widgetId, callback) {
+      const container = document.getElementById('pivot-container-' + widgetId);
+      const cardDom = document.getElementById('widget-card-' + widgetId);
+
+      if (typeof gsap === 'undefined' || !container) {
+        triggerWidgetDrillPulse(widgetId);
+        if (callback) callback();
+        return;
+      }
+
+      if (cardDom) {
+        try {
+          gsap.killTweensOf(cardDom);
+          gsap.fromTo(cardDom,
+            { boxShadow: '0 0 0px rgba(14, 165, 233, 0)' },
+            {
+              boxShadow: '0 0 30px rgba(14, 165, 233, 0.45)',
+              duration: 0.5,
+              ease: 'power2.inOut',
+              yoyo: true,
+              repeat: 1
+            }
+          );
+        } catch(e) {}
+      }
+
+      try {
+        gsap.killTweensOf(container);
+        gsap.to(container, {
+          opacity: 0.25,
+          y: 8,
+          duration: 0.35,
+          ease: 'power2.inOut',
+          onComplete: function() {
+            if (callback) callback();
+            gsap.fromTo(container,
+              { opacity: 0.25, y: -8 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                clearProps: 'transform,opacity'
+              }
+            );
+          }
+        });
+      } catch(e) {
+        if (callback) callback();
       }
     }
 
-    function drillUpPivot(widgetId) {
-      const state = initPivotState(widgetId);
-      if (state.drillPath.length > 0) {
-        state.drillPath.pop();
+    function drillIntoPivot(widgetId, colName, colVal) {
+      performCinematicPivotTransition(widgetId, function() {
+        const state = initPivotState(widgetId);
+        state.drillPath.push({ col: colName, value: colVal });
         state.collapsedKeys = new Set();
-        triggerWidgetDrillPulse(widgetId);
         const w = DASHBOARD.widgets.find(x => x.id === widgetId);
         if (w) {
           const wRows = getWidgetRows(w);
           renderPivotWidget(w, filterRows(wRows, activeFilters));
         }
-      }
+      });
+    }
+
+    function drillUpPivot(widgetId) {
+      performCinematicPivotTransition(widgetId, function() {
+        const state = initPivotState(widgetId);
+        if (state.drillPath.length > 0) {
+          state.drillPath.pop();
+          state.collapsedKeys = new Set();
+          const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+          if (w) {
+            const wRows = getWidgetRows(w);
+            renderPivotWidget(w, filterRows(wRows, activeFilters));
+          }
+        }
+      });
     }
 
     function drillToPivotStep(widgetId, stepIdx) {
-      const state = initPivotState(widgetId);
-      state.drillPath = state.drillPath.slice(0, stepIdx);
-      state.collapsedKeys = new Set();
-      triggerWidgetDrillPulse(widgetId);
-      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
-      if (w) {
-        const wRows = getWidgetRows(w);
-        renderPivotWidget(w, filterRows(wRows, activeFilters));
-      }
+      performCinematicPivotTransition(widgetId, function() {
+        const state = initPivotState(widgetId);
+        state.drillPath = state.drillPath.slice(0, stepIdx);
+        state.collapsedKeys = new Set();
+        const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+        if (w) {
+          const wRows = getWidgetRows(w);
+          renderPivotWidget(w, filterRows(wRows, activeFilters));
+        }
+      });
     }
 
     function resetPivotDrill(widgetId) {
-      const state = initPivotState(widgetId);
-      state.drillPath = [];
-      state.collapsedKeys = new Set();
-      triggerWidgetDrillPulse(widgetId);
-      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
-      if (w) {
-        const wRows = getWidgetRows(w);
-        renderPivotWidget(w, filterRows(wRows, activeFilters));
-      }
+      performCinematicPivotTransition(widgetId, function() {
+        const state = initPivotState(widgetId);
+        state.drillPath = [];
+        state.collapsedKeys = new Set();
+        const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+        if (w) {
+          const wRows = getWidgetRows(w);
+          renderPivotWidget(w, filterRows(wRows, activeFilters));
+        }
+      });
     }
 
     function renderPivotWidget(w, rows) {
@@ -3445,8 +3554,8 @@ ${embeddedPackageJsonSafe}
         animationDuration: mCfg.duration,
         animationEasing: mCfg.easing,
         animationDelay: function(idx) { return idx * mCfg.delayStep; },
-        animationDurationUpdate: 900,
-        animationEasingUpdate: 'cubicOut',
+        animationDurationUpdate: 1800,
+        animationEasingUpdate: 'cubicInOut',
         tooltip: {
           trigger: w.type === 'donut' || w.type === 'pie' ? 'item' : 'axis',
           backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.98)',
@@ -3469,7 +3578,9 @@ ${embeddedPackageJsonSafe}
           series: [{
             id: 'series_' + w.id,
             type: 'pie',
-            universalTransition: { enabled: true },
+            universalTransition: { enabled: true, divideShape: 'split' },
+            animationDurationUpdate: 1800,
+            animationEasingUpdate: 'cubicInOut',
             radius: w.type === 'donut' ? ['45%', '72%'] : '70%',
             center: ['50%', '50%'],
             data: agg.categories.map((c, i) => ({ name: c, value: agg.values[i] })),
@@ -3495,7 +3606,9 @@ ${embeddedPackageJsonSafe}
           series: [{
             id: 'series_' + w.id,
             type: 'bar',
-            universalTransition: { enabled: true, divideShape: 'split' },
+            universalTransition: { enabled: true, divideShape: 'split', delay: function(idx) { return (idx || 0) * 65; } },
+            animationDurationUpdate: 1800,
+            animationEasingUpdate: 'cubicInOut',
             data: revVals,
             itemStyle: {
               borderRadius: [0, barR[0] || 6, barR[1] || 6, 0],
@@ -3518,6 +3631,8 @@ ${embeddedPackageJsonSafe}
             id: 'series_' + w.id,
             type: 'line',
             universalTransition: { enabled: true },
+            animationDurationUpdate: 1800,
+            animationEasingUpdate: 'cubicInOut',
             data: agg.values,
             smooth: true,
             lineStyle: { width: 3.2, color: palette[0] },
@@ -3542,7 +3657,9 @@ ${embeddedPackageJsonSafe}
         series: [{
           id: 'series_' + w.id,
           type: 'bar',
-          universalTransition: { enabled: true, divideShape: 'split' },
+          universalTransition: { enabled: true, divideShape: 'split', delay: function(idx) { return (idx || 0) * 65; } },
+          animationDurationUpdate: 1800,
+          animationEasingUpdate: 'cubicInOut',
           data: agg.values,
           itemStyle: {
             borderRadius: mCfg.barRadius || [6, 6, 0, 0],
@@ -3561,6 +3678,99 @@ ${embeddedPackageJsonSafe}
         card.classList.remove('widget-drill-pulse');
         void card.offsetWidth;
         card.classList.add('widget-drill-pulse');
+      }
+    }
+
+    function performCinematicDrillTransition(widgetId, isDrillDown, callback) {
+      const chartDom = document.getElementById('chart-' + widgetId);
+      const cardDom = document.getElementById('widget-card-' + widgetId);
+      const bcContainer = document.getElementById('drill-bc-' + widgetId);
+
+      if (typeof gsap === 'undefined' || !chartDom) {
+        triggerWidgetDrillPulse(widgetId);
+        if (callback) callback();
+        return;
+      }
+
+      // Card glowing aura highlight wave
+      if (cardDom) {
+        try {
+          gsap.killTweensOf(cardDom);
+          gsap.fromTo(cardDom,
+            { boxShadow: '0 0 0px rgba(14, 165, 233, 0)' },
+            {
+              boxShadow: '0 0 35px rgba(14, 165, 233, 0.45), 0 0 12px rgba(14, 165, 233, 0.25)',
+              duration: 0.7,
+              ease: 'power2.inOut',
+              yoyo: true,
+              repeat: 1
+            }
+          );
+        } catch(e) {}
+      }
+
+      try {
+        gsap.killTweensOf(chartDom);
+        const outScale = isDrillDown ? 0.93 : 1.07;
+        const inStartScale = isDrillDown ? 1.07 : 0.93;
+        const outY = isDrillDown ? 8 : -8;
+        const inStartY = isDrillDown ? -10 : 10;
+
+        // Phase 1: Deep slow dive/recede (takes 480ms)
+        gsap.to(chartDom, {
+          scale: outScale,
+          y: outY,
+          opacity: 0.25,
+          filter: 'blur(3.5px)',
+          duration: 0.48,
+          ease: 'power2.inOut',
+          onComplete: function() {
+            // Phase 2: Execute data transition at the lowest point
+            if (callback) {
+              callback();
+            }
+
+            // Phase 3: Grand cinematic emerge (takes 1.25s)
+            gsap.fromTo(chartDom,
+              {
+                scale: inStartScale,
+                y: inStartY,
+                opacity: 0.25,
+                filter: 'blur(3.5px)'
+              },
+              {
+                scale: 1,
+                y: 0,
+                opacity: 1,
+                filter: 'blur(0px)',
+                duration: 1.25,
+                ease: 'power3.out',
+                clearProps: 'transform,filter,opacity'
+              }
+            );
+
+            // Phase 4: Staggered entrance for breadcrumbs
+            if (bcContainer) {
+              const pills = bcContainer.querySelectorAll('.drill-btn-root, .drill-step-pill, .drill-active-col-pill, .drill-btn-back, .drill-chevron');
+              if (pills.length > 0) {
+                gsap.fromTo(pills,
+                  { opacity: 0, y: -8, scale: 0.85 },
+                  {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.6,
+                    stagger: 0.07,
+                    ease: 'back.out(1.5)',
+                    clearProps: 'transform,opacity'
+                  }
+                );
+              }
+            }
+          }
+        });
+      } catch(e) {
+        if (callback) callback();
       }
     }
 
@@ -3588,18 +3798,20 @@ ${embeddedPackageJsonSafe}
             if (currentLevel < drillLevels.length - 1) {
               const currentCol = drillLevels[currentLevel];
               const newPath = [...(currentDrill.path || []), { column: currentCol, value: String(clickedName) }];
-              drillDownStates[w.id] = {
-                path: newPath,
-                levelIndex: currentLevel + 1
-              };
+              
+              performCinematicDrillTransition(w.id, true, function() {
+                drillDownStates[w.id] = {
+                  path: newPath,
+                  levelIndex: currentLevel + 1
+                };
 
-              // Propagate drill filter to activeFilters if crossFilter is not disabled
-              if (w.config.crossFilterMode !== 'none') {
-                activeFilters[currentCol] = String(clickedName);
-              }
-              triggerWidgetDrillPulse(w.id);
-              renderAllWidgets();
-              updateActiveFilterBadge();
+                // Propagate drill filter to activeFilters if crossFilter is not disabled
+                if (w.config.crossFilterMode !== 'none') {
+                  activeFilters[currentCol] = String(clickedName);
+                }
+                renderAllWidgets();
+                updateActiveFilterBadge();
+              });
               return;
             }
           }
@@ -3676,37 +3888,40 @@ ${embeddedPackageJsonSafe}
       if (!w) return;
       const currentDrill = drillDownStates[widgetId] || { path: [], levelIndex: 0 };
       const path = currentDrill.path || [];
-      if (path.length > 0) {
-        const popped = path[path.length - 1];
-        const newPath = path.slice(0, -1);
-        const newLevel = Math.max(0, (currentDrill.levelIndex || 1) - 1);
-        drillDownStates[widgetId] = {
-          path: newPath,
-          levelIndex: newLevel
-        };
 
-        if (activeFilters[popped.column] === popped.value) {
-          delete activeFilters[popped.column];
+      performCinematicDrillTransition(widgetId, false, function() {
+        if (path.length > 0) {
+          const popped = path[path.length - 1];
+          const newPath = path.slice(0, -1);
+          const newLevel = Math.max(0, (currentDrill.levelIndex || 1) - 1);
+          drillDownStates[widgetId] = {
+            path: newPath,
+            levelIndex: newLevel
+          };
+
+          if (activeFilters[popped.column] === popped.value) {
+            delete activeFilters[popped.column];
+          }
+        } else {
+          drillDownStates[widgetId] = { path: [], levelIndex: 0 };
         }
-      } else {
-        drillDownStates[widgetId] = { path: [], levelIndex: 0 };
-      }
-      triggerWidgetDrillPulse(widgetId);
-      renderAllWidgets();
-      updateActiveFilterBadge();
+        renderAllWidgets();
+        updateActiveFilterBadge();
+      });
     }
 
     function resetWidgetDrill(widgetId) {
-      const currentDrill = drillDownStates[widgetId] || { path: [], levelIndex: 0 };
-      (currentDrill.path || []).forEach(step => {
-        if (activeFilters[step.column] === step.value) {
-          delete activeFilters[step.column];
-        }
+      performCinematicDrillTransition(widgetId, false, function() {
+        const currentDrill = drillDownStates[widgetId] || { path: [], levelIndex: 0 };
+        (currentDrill.path || []).forEach(step => {
+          if (activeFilters[step.column] === step.value) {
+            delete activeFilters[step.column];
+          }
+        });
+        drillDownStates[widgetId] = { path: [], levelIndex: 0 };
+        renderAllWidgets();
+        updateActiveFilterBadge();
       });
-      drillDownStates[widgetId] = { path: [], levelIndex: 0 };
-      triggerWidgetDrillPulse(widgetId);
-      renderAllWidgets();
-      updateActiveFilterBadge();
     }
 
     function openModal(widgetId) {
