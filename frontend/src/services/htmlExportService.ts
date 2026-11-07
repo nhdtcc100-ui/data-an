@@ -599,7 +599,7 @@ export function generateInteractiveHtml(
       .desktop-only {
         display: none !important;
       }
-      /* Mobile card single column flow & responsive view-mode heights */
+      /* Mobile card single column flow */
       .grid {
         grid-template-columns: 1fr !important;
         gap: 12px !important;
@@ -608,15 +608,12 @@ export function generateInteractiveHtml(
       .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
         grid-column: span 1 !important;
       }
-      .widget-card {
-        min-height: var(--card-mobile-h, 280px) !important;
+      .chart-container {
+        min-height: 290px !important;
+        height: 100% !important;
       }
       .widget-body {
-        padding: 8px 10px 10px !important;
-      }
-      .chart-container {
-        height: var(--chart-mobile-h, 225px) !important;
-        min-height: var(--chart-mobile-h, 225px) !important;
+        padding: 10px !important;
       }
     }
 
@@ -696,7 +693,6 @@ export function generateInteractiveHtml(
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      min-height: var(--card-h, 340px);
       box-shadow: var(--card-shadow);
       animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
       transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease !important;
@@ -1310,11 +1306,9 @@ export function generateInteractiveHtml(
     }
     .widget-body {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 12px 14px 14px;
+      padding: 14px;
       position: relative;
-      min-height: 0;
+      min-height: 220px;
     }
     /* Col Spans */
     .col-3  { grid-column: span 3; }
@@ -1692,9 +1686,9 @@ export function generateInteractiveHtml(
     }
     .chart-container {
       width: 100%;
+      height: 100%;
+      min-height: 300px;
       flex: 1;
-      height: var(--chart-h, 285px);
-      min-height: var(--chart-h, 285px);
     }
     footer {
       border-top: 2px solid var(--chrome-border);
@@ -3612,40 +3606,19 @@ ${embeddedPackageJsonSafe}
         const revCats = [...agg.categories].reverse();
         const revVals = [...agg.values].reverse();
         const barR = mCfg.barRadius || [6, 6, 0, 0];
-        const hBarWidth = w.config.barWidth ? (w.config.barWidth + '%') : '45%';
-        const showLabels = Boolean(w.config.showDataLabels);
-
         return {
           ...base,
-          grid: { left: 16, right: 24, bottom: 20, top: 20, containLabel: true },
-          xAxis: {
-            type: 'value',
-            axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10, formatter: (v) => formatNumber(v, w.config.numberFormat) },
-            splitLine: { lineStyle: { color: splitLine } }
-          },
-          yAxis: {
-            type: 'category',
-            data: revCats,
-            axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10 },
-            axisLine: { lineStyle: { color: axisLine } }
-          },
+          grid: { left: '4%', right: '8%', bottom: '5%', top: '6%', containLabel: true },
+          xAxis: { type: 'value', axisLabel: { color: textColor, fontFamily: 'Cairo' }, splitLine: { lineStyle: { color: splitLine } } },
+          yAxis: { type: 'category', data: revCats, axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10 }, axisLine: { lineStyle: { color: axisLine } } },
           series: [{
             id: 'series_' + w.id,
-            name: yCol,
             type: 'bar',
-            barWidth: hBarWidth,
+            barMaxWidth: 36,
             universalTransition: { enabled: true, divideShape: 'split', delay: function(idx) { return (idx || 0) * 65; } },
             animationDurationUpdate: 1800,
             animationEasingUpdate: 'cubicInOut',
             data: revVals,
-            label: {
-              show: showLabels,
-              position: 'right',
-              color: textColor,
-              fontFamily: 'Cairo',
-              fontSize: 10,
-              formatter: (p) => formatNumber(p.value, w.config.numberFormat)
-            },
             itemStyle: {
               borderRadius: [0, barR[0] || 6, barR[1] || 6, 0],
               color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
@@ -3660,9 +3633,9 @@ ${embeddedPackageJsonSafe}
       if (w.type === 'line' || w.type === 'area') {
         return {
           ...base,
-          grid: { left: 16, right: 16, bottom: 22, top: 25, containLabel: true },
+          grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
           xAxis: { type: 'category', data: agg.categories, axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10 }, axisLine: { lineStyle: { color: axisLine } } },
-          yAxis: { type: 'value', axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10, formatter: (v) => formatNumber(v, w.config.numberFormat) }, splitLine: { lineStyle: { color: splitLine } } },
+          yAxis: { type: 'value', axisLabel: { color: textColor, fontFamily: 'Cairo' }, splitLine: { lineStyle: { color: splitLine } } },
           series: [{
             id: 'series_' + w.id,
             type: 'line',
@@ -3684,68 +3657,22 @@ ${embeddedPackageJsonSafe}
         };
       }
 
-      // Default: Vertical Bar
-      const vBarWidth = w.config.barWidth ? (w.config.barWidth + '%') : '45%';
-      const showLabels = Boolean(w.config.showDataLabels);
-      const vBarRadius = mCfg.barRadius || [6, 6, 0, 0];
-
+      // Default: Bar
       return {
         ...base,
-        grid: {
-          left: 16,
-          right: 16,
-          top: 26,
-          bottom: agg.categories.length > 8 ? 38 : 22,
-          containLabel: true
-        },
-        dataZoom: agg.categories.length > 8 ? [
-          { type: 'inside', xAxisIndex: 0 },
-          {
-            type: 'slider',
-            xAxisIndex: 0,
-            height: 12,
-            bottom: 2,
-            borderColor: 'transparent',
-            backgroundColor: isDark ? 'rgba(30,41,59,0.6)' : 'rgba(241,245,249,0.8)',
-            fillerColor: 'rgba(56,189,248,0.25)',
-            handleStyle: { color: palette[0] }
-          }
-        ] : undefined,
-        xAxis: {
-          type: 'category',
-          data: agg.categories,
-          axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10 },
-          axisLine: { lineStyle: { color: axisLine } }
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            color: textColor,
-            fontFamily: 'Cairo',
-            fontSize: 10,
-            formatter: (v) => formatNumber(v, w.config.numberFormat)
-          },
-          splitLine: { lineStyle: { color: splitLine } }
-        },
+        grid: { left: '4%', right: '4%', bottom: '8%', top: '10%', containLabel: true },
+        xAxis: { type: 'category', data: agg.categories, axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 11 }, axisLine: { lineStyle: { color: axisLine } } },
+        yAxis: { type: 'value', axisLabel: { color: textColor, fontFamily: 'Cairo' }, splitLine: { lineStyle: { color: splitLine } } },
         series: [{
           id: 'series_' + w.id,
-          name: yCol,
           type: 'bar',
-          barWidth: vBarWidth,
+          barMaxWidth: 44,
           universalTransition: { enabled: true, divideShape: 'split', delay: function(idx) { return (idx || 0) * 65; } },
           animationDurationUpdate: 1800,
           animationEasingUpdate: 'cubicInOut',
           data: agg.values,
-          label: {
-            show: showLabels,
-            position: 'top',
-            color: textColor,
-            fontFamily: 'Cairo',
-            fontSize: 10,
-            formatter: (p) => formatNumber(p.value, w.config.numberFormat)
-          },
           itemStyle: {
-            borderRadius: vBarRadius,
+            borderRadius: mCfg.barRadius || [6, 6, 0, 0],
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: palette[0] },
               { offset: 1, color: palette[1] }
@@ -3910,9 +3837,6 @@ ${embeddedPackageJsonSafe}
         lazyUpdate: false
       });
       chart.resize();
-      setTimeout(function() {
-        try { chart.resize(); } catch(e) {}
-      }, 50);
     }
 
     function renderAllBreadcrumbs() {
@@ -4035,33 +3959,6 @@ ${embeddedPackageJsonSafe}
       }
     }
 
-    // Compute responsive card and chart dimensions matching platform View Mode
-    function getWidgetDimensions(w) {
-      const h = (w && w.layout && w.layout.h) || 4;
-      const isDrill = Boolean(w && w.config && w.config.drillDownEnabled && w.config.drillDownLevels && w.config.drillDownLevels.length > 0);
-      const drillOffset = isDrill ? 38 : 0;
-
-      let desktopCardH, mobileCardH;
-      if (w.type === 'kpi') {
-        desktopCardH = Math.max(140, h * 75);
-        mobileCardH = 120;
-      } else if (w.type === 'slicer') {
-        desktopCardH = Math.max(150, h * 65);
-        mobileCardH = 160;
-      } else if (w.type === 'table' || w.type === 'pivot') {
-        desktopCardH = Math.max(400, h * 75);
-        mobileCardH = 380;
-      } else {
-        desktopCardH = Math.max(280, h * 85);
-        mobileCardH = 280;
-      }
-
-      const desktopChartH = Math.max(220, desktopCardH - 52 - drillOffset);
-      const mobileChartH = Math.max(190, mobileCardH - 48 - drillOffset);
-
-      return { desktopCardH, mobileCardH, desktopChartH, mobileChartH };
-    }
-
     // Build DOM structure initially
     function initDOM() {
       const grid = document.getElementById('widgets-grid');
@@ -4075,13 +3972,9 @@ ${embeddedPackageJsonSafe}
         const animDelay = 'animation-delay: ' + (idx * 0.05).toFixed(2) + 's;';
         const themeClass = 'theme-' + currentActiveMotionTheme;
 
-        const dims = getWidgetDimensions(w);
-        const cardStyle = animDelay + ' --card-h:' + dims.desktopCardH + 'px; --card-mobile-h:' + dims.mobileCardH + 'px; min-height:' + dims.desktopCardH + 'px;';
-        const chartStyle = '--chart-h:' + dims.desktopChartH + 'px; --chart-mobile-h:' + dims.mobileChartH + 'px; height:' + dims.desktopChartH + 'px;';
-
         if (w.type === 'kpi') {
           return \`
-            <div class="widget-card \${colClass} \${themeClass}" id="widget-card-\${w.id}" style="\${cardStyle}">
+            <div class="widget-card \${colClass} \${themeClass}" style="\${animDelay} min-height:140px;">
               <div class="widget-header">
                 <div class="widget-title">\${safeTitle}</div>
               </div>
@@ -4102,7 +3995,7 @@ ${embeddedPackageJsonSafe}
             : (config.xAxisColumn ? [config.xAxisColumn] : (COLUMNS && COLUMNS.length > 0 ? COLUMNS.slice(0, 3).map(c => c.columnName || c) : []));
           const activeCol = config.activeSlicerColumn || slicerCols[0] || '';
           return \`
-            <div class="widget-card \${colClass} \${themeClass}" id="widget-card-\${w.id}" style="\${cardStyle}">
+            <div class="widget-card \${colClass} \${themeClass}" id="slicer-\${w.id}" style="\${animDelay}">
               <div class="widget-header">
                 <div class="widget-title">🔍 \${safeTitle}</div>
               </div>
@@ -4123,7 +4016,7 @@ ${embeddedPackageJsonSafe}
             ? config.tableColumns
             : (COLUMNS && COLUMNS.length > 0 ? COLUMNS.slice(0, 7).map(c => c.columnName || c) : (RAW_ROWS[0] ? Object.keys(RAW_ROWS[0]).slice(0, 7) : []));
           return \`
-            <div class="widget-card \${colClass} is-table-card \${themeClass}" id="widget-card-\${w.id}" style="\${cardStyle}">
+            <div class="widget-card \${colClass} is-table-card \${themeClass}" style="\${animDelay}">
               <div class="widget-header table-widget-header">
                 <div class="widget-title">📋 \${safeTitle}</div>
                 <div class="table-search-box">
@@ -4174,7 +4067,7 @@ ${embeddedPackageJsonSafe}
 
         if (w.type === 'pivot') {
           return \`
-            <div class="widget-card \${colClass} is-table-card \${themeClass}" id="widget-card-\${w.id}" style="\${cardStyle}">
+            <div class="widget-card \${colClass} is-table-card \${themeClass}" id="pivot-card-\${w.id}" style="\${animDelay}">
               <div class="widget-header table-widget-header">
                 <div class="widget-title">🧩 \${safeTitle}</div>
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -4201,8 +4094,13 @@ ${embeddedPackageJsonSafe}
         const totalLevels = isDrill ? config.drillDownLevels.length : 0;
         const currentLvl = (drill.path?.length || 0) + 1;
 
+        // Presentation mode height: match platform view mode exactly, generous on desktop and mobile
+        const layoutH = layout.h || 4;
+        const cardMinH = Math.max(360, layoutH * 88);
+        const chartMinH = Math.max(300, cardMinH - (isDrill ? 95 : 60));
+
         return \`
-          <div class="widget-card \${colClass} \${themeClass}" id="widget-card-\${w.id}" style="\${cardStyle}">
+          <div class="widget-card \${colClass} \${themeClass}" id="widget-card-\${w.id}" style="\${animDelay} min-height: \${cardMinH}px;">
             <div class="widget-header">
               <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
                 <div class="widget-title">\${safeTitle}</div>
@@ -4211,8 +4109,8 @@ ${embeddedPackageJsonSafe}
               <button class="btn btn-secondary" style="padding:2px 8px; font-size:10px;" onclick="openModal('\${w.id}')">تكبير ⛶</button>
             </div>
             \${isDrill ? \`<div class="drill-breadcrumb" id="drill-bc-\${w.id}"></div>\` : ''}
-            <div class="widget-body">
-              <div id="chart-\${w.id}" class="chart-container" style="\${chartStyle}"></div>
+            <div class="widget-body" style="flex:1; display:flex; flex-direction:column; min-height:\${chartMinH}px;">
+              <div id="chart-\${w.id}" class="chart-container" style="flex:1; width:100%; min-height:\${chartMinH}px; height:100%;"></div>
             </div>
           </div>
         \`;
