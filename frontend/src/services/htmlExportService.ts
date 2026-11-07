@@ -374,32 +374,6 @@ export function generateInteractiveHtml(
       color: #10b981;
       border: 1px solid rgba(16, 185, 129, 0.25);
     }
-    .btn-admin-lock {
-      background-color: rgba(245, 158, 11, 0.15);
-      color: #f59e0b;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s;
-    }
-    .btn-admin-lock:hover {
-      background-color: rgba(245, 158, 11, 0.25);
-      color: #fbbf24;
-    }
-    body.light .btn-admin-lock {
-      background-color: #fef3c7;
-      color: #b45309;
-      border-color: #fde68a;
-    }
-    body.light .btn-admin-lock:hover {
-      background-color: #fde68a;
-    }
     body.light .badge-secure {
       background-color: #ecfdf5;
       color: #047857;
@@ -409,6 +383,15 @@ export function generateInteractiveHtml(
       background-color: #f8fafc;
       color: #475569;
       border-color: #e2e8f0;
+    }
+
+    /* Drill Transition Pulse (حركة انتقال هرمية انسيابية ناعمة مريحة للعين) */
+    @keyframes drillTransitionPulse {
+      0% { transform: scale(0.992); opacity: 0.88; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .widget-drill-pulse {
+      animation: drillTransitionPulse 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
     /* Mobile title bar - shown only on mobile */
@@ -2197,42 +2180,12 @@ export function generateInteractiveHtml(
 </head>
 <body class="${theme}">
   <!-- Dual-Tier Header (بارين علويين) -->
-  <!-- Admin PIN Modal (4444) -->
-  <div id="admin-pin-modal" style="display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); padding:16px;">
-    <div id="pin-modal-card" style="background:var(--surface); border:1.5px solid var(--surface-border); border-radius:20px; padding:24px; width:100%; max-width:360px; box-shadow:0 25px 60px rgba(0,0,0,0.6); display:flex; flex-direction:column; gap:16px; position:relative;">
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div style="width:38px; height:38px; border-radius:12px; background:linear-gradient(135deg, #f59e0b, #ef4444); display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 4px 12px rgba(245,158,11,0.3);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <div>
-            <h3 style="font-size:14px; font-weight:800; color:var(--text); margin:0;">دخول الأدمن</h3>
-            <p style="font-size:11px; color:var(--text-muted); margin:0;">أدخل الرمز السري للرجوع إلى وضع التعديل</p>
-          </div>
-        </div>
-        <button onclick="closeAdminPinModal()" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:4px;" title="إغلاق">✕</button>
-      </div>
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        <label style="font-size:11.5px; font-weight:700; color:var(--text);">رمز الأدمن السري (PIN)</label>
-        <input id="admin-pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="أدخل الرمز (4444)" onkeydown="if(event.key==='Enter')submitAdminPin()" style="width:100%; text-align:center; font-size:18px; letter-spacing:0.4em; padding:10px; border-radius:12px; border:1.5px solid var(--surface-border); background:var(--chrome-btn-bg); color:var(--text); outline:none;" />
-        <div id="pin-error-msg" style="display:none; font-size:11px; color:#ef4444; background:rgba(239,68,68,0.1); padding:6px 10px; border-radius:8px; border:1px solid rgba(239,68,68,0.25);">رمز الأدمن غير صحيح!</div>
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button onclick="submitAdminPin()" style="flex:1; padding:9px; border-radius:10px; background:linear-gradient(135deg, #f59e0b, #ef4444); border:none; color:#fff; font-weight:700; font-size:12px; cursor:pointer;">فتح وضع التعديل</button>
-        <button onclick="closeAdminPinModal()" style="padding:9px 16px; border-radius:10px; background:var(--chrome-btn-bg); border:1px solid var(--surface-border); color:var(--text); font-size:12px; cursor:pointer;">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
   <div class="header-wrapper">
     <!-- Bar 1: Brand, Report Title & Status Badges -->
     <div class="top-bar-1">
-      <!-- Mobile: title centered + admin lock -->
+      <!-- Mobile: title centered -->
       <div class="mobile-title-bar">
         <h1 style="font-size:14px;font-weight:800;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cleanTitle}</h1>
-        <button class="btn-admin-lock" onclick="openAdminPinModal()" style="padding:4px 7px;" title="دخول الأدمن برمز PIN">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </button>
       </div>
       <!-- Desktop brand section -->
       <div class="brand-section desktop-only-flex">
@@ -2256,10 +2209,6 @@ export function generateInteractiveHtml(
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <span class="desktop-only">محمي ومؤمن</span>
         </span>
-        <button class="btn-admin-lock" onclick="openAdminPinModal()" title="دخول الأدمن برمز PIN (4444) للعودة لوضع التعديل">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span class="desktop-only">دخول الأدمن</span>
-        </button>
       </div>
     </div>
 
@@ -2471,36 +2420,6 @@ ${embeddedPackageJsonSafe}
 
       // Re-render charts with new theme colors & fresh fluid animation
       renderAllWidgets();
-    }
-
-    // Admin PIN Modal Functions
-    function openAdminPinModal() {
-      var modal = document.getElementById('admin-pin-modal');
-      var input = document.getElementById('admin-pin-input');
-      var err = document.getElementById('pin-error-msg');
-      if (err) err.style.display = 'none';
-      if (input) input.value = '';
-      if (modal) modal.style.display = 'flex';
-      setTimeout(function() { if (input) input.focus(); }, 100);
-    }
-
-    function closeAdminPinModal() {
-      var modal = document.getElementById('admin-pin-modal');
-      if (modal) modal.style.display = 'none';
-    }
-
-    function submitAdminPin() {
-      var input = document.getElementById('admin-pin-input');
-      var err = document.getElementById('pin-error-msg');
-      if (!input) return;
-      if (input.value.trim() === '4444') {
-        closeAdminPinModal();
-        alert('تم تأكيد رمز الأدمن (4444) بنجاح! للعودة لوضع التعديل الكامل، افتح صفحة لوحة التحكم الأصلية.');
-      } else {
-        if (err) err.style.display = 'block';
-        input.value = '';
-        input.focus();
-      }
     }
 
 
@@ -3086,7 +3005,8 @@ ${embeddedPackageJsonSafe}
     function initPivotState(widgetId) {
       if (!pivotStates[widgetId]) {
         pivotStates[widgetId] = {
-          expandedKeys: new Set(['__all__']),
+          collapsedKeys: new Set(),
+          drillPath: [],
           searchQuery: ''
         };
       }
@@ -3105,10 +3025,10 @@ ${embeddedPackageJsonSafe}
 
     function togglePivotGroup(widgetId, groupKey) {
       const state = initPivotState(widgetId);
-      if (state.expandedKeys.has(groupKey)) {
-        state.expandedKeys.delete(groupKey);
+      if (state.collapsedKeys.has(groupKey)) {
+        state.collapsedKeys.delete(groupKey);
       } else {
-        state.expandedKeys.add(groupKey);
+        state.collapsedKeys.add(groupKey);
       }
       const w = DASHBOARD.widgets.find(x => x.id === widgetId);
       if (w) {
@@ -3117,10 +3037,68 @@ ${embeddedPackageJsonSafe}
       }
     }
 
-    function handlePivotRowClick(tr) {
-      const wid = tr.getAttribute('data-wid');
-      const key = decodeURIComponent(tr.getAttribute('data-gkey') || '');
-      togglePivotGroup(wid, key);
+    function togglePivotExpandAll(widgetId) {
+      const state = initPivotState(widgetId);
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (!w) return;
+      if (state.collapsedKeys.size === 0) {
+        state._collapseAll = true;
+      } else {
+        state.collapsedKeys = new Set();
+        state._collapseAll = false;
+      }
+      const wRows = getWidgetRows(w);
+      renderPivotWidget(w, filterRows(wRows, activeFilters));
+    }
+
+    function drillIntoPivot(widgetId, colName, colVal) {
+      const state = initPivotState(widgetId);
+      state.drillPath.push({ col: colName, value: colVal });
+      state.collapsedKeys = new Set();
+      triggerWidgetDrillPulse(widgetId);
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) {
+        const wRows = getWidgetRows(w);
+        renderPivotWidget(w, filterRows(wRows, activeFilters));
+      }
+    }
+
+    function drillUpPivot(widgetId) {
+      const state = initPivotState(widgetId);
+      if (state.drillPath.length > 0) {
+        state.drillPath.pop();
+        state.collapsedKeys = new Set();
+        triggerWidgetDrillPulse(widgetId);
+        const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+        if (w) {
+          const wRows = getWidgetRows(w);
+          renderPivotWidget(w, filterRows(wRows, activeFilters));
+        }
+      }
+    }
+
+    function drillToPivotStep(widgetId, stepIdx) {
+      const state = initPivotState(widgetId);
+      state.drillPath = state.drillPath.slice(0, stepIdx);
+      state.collapsedKeys = new Set();
+      triggerWidgetDrillPulse(widgetId);
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) {
+        const wRows = getWidgetRows(w);
+        renderPivotWidget(w, filterRows(wRows, activeFilters));
+      }
+    }
+
+    function resetPivotDrill(widgetId) {
+      const state = initPivotState(widgetId);
+      state.drillPath = [];
+      state.collapsedKeys = new Set();
+      triggerWidgetDrillPulse(widgetId);
+      const w = DASHBOARD.widgets.find(x => x.id === widgetId);
+      if (w) {
+        const wRows = getWidgetRows(w);
+        renderPivotWidget(w, filterRows(wRows, activeFilters));
+      }
     }
 
     function renderPivotWidget(w, rows) {
@@ -3174,6 +3152,15 @@ ${embeddedPackageJsonSafe}
         });
       }
 
+      // Filter by drillPath if present
+      if (state.drillPath && state.drillPath.length > 0) {
+        processedRows = processedRows.filter(r => {
+          return state.drillPath.every(st => String(r[st.col] ?? '(فارغ)') === st.value);
+        });
+      }
+
+      const effectiveRowCols = rowCols.slice(state.drillPath ? state.drillPath.length : 0);
+
       if (!processedRows.length) {
         container.innerHTML = '<div style="text-align:center; padding:32px; color:var(--text-muted); font-size:12px;">لا توجد بيانات مطابقة في الجدول المحوري</div>';
         return;
@@ -3208,26 +3195,92 @@ ${embeddedPackageJsonSafe}
         ? Array.from(new Set(processedRows.map(r => String(r[colCols[0]] ?? '')).filter(v => v.trim() !== ''))).sort()
         : [];
 
-      const isHierarchical = rowCols.length > 1;
-      const primaryRowCol = rowCols[0];
-      const secondaryRowCol = isHierarchical ? rowCols[1] : null;
+      // Recursive N-Level tree builder
+      function buildPivotTree(items, colIdx, parentPrefix) {
+        if (colIdx >= effectiveRowCols.length || !items.length) return [];
+        const colName = effectiveRowCols[colIdx];
+        const isLast = colIdx === effectiveRowCols.length - 1;
 
-      // Group by primary row dimension
-      const primaryGroups = {};
-      processedRows.forEach(r => {
-        const key = String(r[primaryRowCol] ?? '(فارغ)');
-        if (!primaryGroups[key]) primaryGroups[key] = [];
-        primaryGroups[key].push(r);
-      });
+        const groupMap = {};
+        items.forEach(r => {
+          const v = String(r[colName] ?? '(فارغ)');
+          if (!groupMap[v]) groupMap[v] = [];
+          groupMap[v].push(r);
+        });
 
-      const groupKeys = Object.keys(primaryGroups).sort((a, b) => {
-        const valA = calcVal(primaryGroups[a], valMetrics[0]?.column, valMetrics[0]?.aggregation || 'SUM');
-        const valB = calcVal(primaryGroups[b], valMetrics[0]?.column, valMetrics[0]?.aggregation || 'SUM');
-        return valB - valA;
-      });
+        const list = [];
+        Object.keys(groupMap).sort((a, b) => {
+          const valA = calcVal(groupMap[a], valMetrics[0]?.column, valMetrics[0]?.aggregation || 'SUM');
+          const valB = calcVal(groupMap[b], valMetrics[0]?.column, valMetrics[0]?.aggregation || 'SUM');
+          return valB - valA;
+        }).forEach(gVal => {
+          const matching = groupMap[gVal];
+          const key = parentPrefix ? parentPrefix + ':::' + gVal : gVal;
+          const children = isLast ? [] : buildPivotTree(matching, colIdx + 1, key);
+          list.push({
+            key: key,
+            level: colIdx,
+            label: gVal,
+            rows: matching,
+            children: children
+          });
+        });
+        return list;
+      }
 
-      let html = '<table><thead><tr>';
-      html += '<th style="min-width:180px;">' + rowCols.join(' ❯ ') + '</th>';
+      const tree = buildPivotTree(processedRows, 0, '');
+
+      // Handle collapse all if requested
+      if (state._collapseAll) {
+        const collect = (nodes) => {
+          nodes.forEach(n => {
+            if (n.children && n.children.length > 0) {
+              state.collapsedKeys.add(n.key);
+              collect(n.children);
+            }
+          });
+        };
+        state.collapsedKeys = new Set();
+        collect(tree);
+        state._collapseAll = false;
+      }
+
+      // Flatten tree
+      const flatRows = [];
+      function flattenPivot(nodes) {
+        nodes.forEach(n => {
+          flatRows.push(n);
+          const isCollapsed = state.collapsedKeys.has(n.key);
+          if (n.children && n.children.length > 0 && !isCollapsed) {
+            flattenPivot(n.children);
+          }
+        });
+      }
+      flattenPivot(tree);
+
+      let html = '';
+
+      // Breadcrumb & Expand/Collapse toolbar if multi-row
+      if (rowCols.length > 1) {
+        html += '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; margin-bottom:10px; border-radius:10px; background:rgba(14,165,233,0.07); border:1px solid rgba(14,165,233,0.18); font-size:11px; flex-wrap:wrap;">';
+        html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">';
+        html += '<span style="font-weight:800; color:var(--accent);">❖ المسار الهرمي:</span>';
+        html += '<button data-wid="' + w.id + '" onclick="resetPivotDrill(this.dataset.wid)" style="padding:2px 8px; border-radius:6px; border:none; cursor:pointer; font-weight:700; font-family:Cairo; background:' + (state.drillPath.length === 0 ? 'var(--accent)' : 'transparent') + '; color:' + (state.drillPath.length === 0 ? '#fff' : 'var(--text)') + ';">⌂ الكل</button>';
+        state.drillPath.forEach((st, idx) => {
+          html += '<span style="opacity:0.4;">‹</span>';
+          html += '<button data-wid="' + w.id + '" data-step="' + (idx + 1) + '" onclick="drillToPivotStep(this.dataset.wid, parseInt(this.dataset.step))" style="padding:2px 8px; border-radius:6px; border:none; cursor:pointer; font-weight:700; font-family:Cairo; background:' + (idx === state.drillPath.length - 1 ? 'var(--accent)' : 'transparent') + '; color:' + (idx === state.drillPath.length - 1 ? '#fff' : 'var(--text)') + ';">' + st.col + ': ' + st.value + '</button>';
+        });
+        if (state.drillPath.length > 0) {
+          html += '<button data-wid="' + w.id + '" onclick="drillUpPivot(this.dataset.wid)" style="padding:3px 10px; border-radius:6px; border:1px solid var(--surface-border); background:var(--chrome-btn-bg); color:var(--text); cursor:pointer; font-weight:700; font-family:Cairo; margin-right:6px;">⮌ صعود للخلف</button>';
+        }
+        html += '</div>';
+
+        html += '<button data-wid="' + w.id + '" onclick="togglePivotExpandAll(this.dataset.wid)" style="padding:3px 10px; border-radius:6px; border:1px solid var(--surface-border); background:var(--chrome-btn-bg); color:var(--text); cursor:pointer; font-weight:700; font-family:Cairo;" title="طي أو توسيع كافة الصفوف الهرمية">' + (state.collapsedKeys.size > 0 ? 'توسيع الكل' : 'طي الكل') + '</button>';
+        html += '</div>';
+      }
+
+      html += '<table style="width:100%; border-collapse:collapse; text-align:right;"><thead><tr>';
+      html += '<th style="min-width:180px;">' + (effectiveRowCols.length ? effectiveRowCols : rowCols).join(' ❯ ') + '</th>';
 
       if (colDimensionValues.length > 0) {
         colDimensionValues.forEach(cv => {
@@ -3245,78 +3298,53 @@ ${embeddedPackageJsonSafe}
       }
       html += '</tr></thead><tbody>';
 
-      groupKeys.forEach(gKey => {
-        const gRows = primaryGroups[gKey];
-        const isExpanded = state.expandedKeys.has('__all__') || state.expandedKeys.has(gKey);
-        const safeGKey = encodeURIComponent(gKey);
+      flatRows.forEach(row => {
+        const hasChildren = row.children && row.children.length > 0;
+        const isCollapsed = state.collapsedKeys.has(row.key);
+        const safeGKey = encodeURIComponent(row.key);
+        const currentColName = effectiveRowCols[row.level] || '';
+        const safeColName = encodeURIComponent(currentColName);
+        const safeVal = encodeURIComponent(row.label);
 
-        html += '<tr class="pivot-parent-row" style="font-weight:700; cursor:pointer;" data-wid="' + w.id + '" data-gkey="' + safeGKey + '" onclick="handlePivotRowClick(this)">';
-        html += '<td style="display:flex; align-items:center; gap:6px;">';
-        if (isHierarchical) {
-          html += '<span style="font-size:10px; color:var(--accent); width:14px;">' + (isExpanded ? '▼' : '▶') + '</span>';
+        html += '<tr class="pivot-parent-row" style="font-weight:' + (row.level === 0 ? '700' : '500') + '; font-size:' + (row.level === 0 ? '12px' : '11px') + ';">';
+        html += '<td>';
+        html += '<div style="display:flex; align-items:center; gap:6px; padding-right:' + (row.level * 18 + 4) + 'px;">';
+
+        if (hasChildren) {
+          html += '<button data-wid="' + w.id + '" data-gkey="' + safeGKey + '" onclick="togglePivotGroup(this.dataset.wid, decodeURIComponent(this.dataset.gkey))" style="background:transparent; border:none; cursor:pointer; color:var(--accent); font-size:11px; padding:0 3px;" title="' + (isCollapsed ? 'توسيع الفئة' : 'طي الفئة') + '">' + (isCollapsed ? '▶' : '▼') + '</button>';
+          html += '<button data-wid="' + w.id + '" data-col="' + safeColName + '" data-val="' + safeVal + '" onclick="drillIntoPivot(this.dataset.wid, decodeURIComponent(this.dataset.col), decodeURIComponent(this.dataset.val))" style="background:rgba(14,165,233,0.12); color:var(--accent); border:none; border-radius:4px; padding:1px 6px; font-size:9.5px; font-weight:700; cursor:pointer; font-family:Cairo;" title="دخول في تفاصيل هذا الصف (Drill Into)">دخول ‹</button>';
+        } else if (row.level > 0) {
+          html += '<span style="opacity:0.4; font-size:10px; width:12px; text-align:center;">↳</span>';
         }
-        html += '<span>' + gKey + '</span>';
-        html += '<span style="font-size:10px; opacity:0.6; margin-right:4px;">(' + gRows.length + ')</span>';
-        html += '</td>';
+
+        html += '<span data-wid="' + w.id + '" data-gkey="' + safeGKey + '" onclick="' + (hasChildren ? 'togglePivotGroup(this.dataset.wid, decodeURIComponent(this.dataset.gkey))' : '') + '" style="' + (hasChildren ? 'cursor:pointer;' : '') + '">' + row.label + '</span>';
+        html += '<span style="font-size:10px; opacity:0.5; margin-right:4px;">(' + row.rows.length + ')</span>';
+        html += '</div></td>';
 
         if (colDimensionValues.length > 0) {
           colDimensionValues.forEach(cv => {
-            const subItems = gRows.filter(r => String(r[colCols[0]] ?? '') === cv);
+            const subItems = row.rows.filter(r => String(r[colCols[0]] ?? '') === cv);
             valMetrics.forEach(m => {
               const val = calcVal(subItems, m.column, m.aggregation);
               html += '<td class="num-cell" style="text-align:center;">' + (val ? formatVal(val, m.aggregation) : '-') + '</td>';
             });
           });
           valMetrics.forEach(m => {
-            const tot = calcVal(gRows, m.column, m.aggregation);
+            const tot = calcVal(row.rows, m.column, m.aggregation);
             html += '<td class="num-cell" style="text-align:center; font-weight:700; color:var(--accent);">' + formatVal(tot, m.aggregation) + '</td>';
           });
         } else {
           valMetrics.forEach(m => {
-            const val = calcVal(gRows, m.column, m.aggregation);
+            const val = calcVal(row.rows, m.column, m.aggregation);
             html += '<td class="num-cell" style="text-align:center;">' + formatVal(val, m.aggregation) + '</td>';
           });
         }
         html += '</tr>';
-
-        if (isHierarchical && isExpanded && secondaryRowCol) {
-          const childGroups = {};
-          gRows.forEach(r => {
-            const cKey = String(r[secondaryRowCol] ?? '(فارغ)');
-            if (!childGroups[cKey]) childGroups[cKey] = [];
-            childGroups[cKey].push(r);
-          });
-          Object.keys(childGroups).sort().forEach(cKey => {
-            const cRows = childGroups[cKey];
-            html += '<tr class="pivot-child-row" style="font-size:11px; opacity:0.9;">';
-            html += '<td style="padding-right:28px; color:var(--text-muted);">' + cKey + '</td>';
-
-            if (colDimensionValues.length > 0) {
-              colDimensionValues.forEach(cv => {
-                const subItems = cRows.filter(r => String(r[colCols[0]] ?? '') === cv);
-                valMetrics.forEach(m => {
-                  const val = calcVal(subItems, m.column, m.aggregation);
-                  html += '<td class="num-cell" style="text-align:center;">' + (val ? formatVal(val, m.aggregation) : '-') + '</td>';
-                });
-              });
-              valMetrics.forEach(m => {
-                const tot = calcVal(cRows, m.column, m.aggregation);
-                html += '<td class="num-cell" style="text-align:center;">' + formatVal(tot, m.aggregation) + '</td>';
-              });
-            } else {
-              valMetrics.forEach(m => {
-                const val = calcVal(cRows, m.column, m.aggregation);
-                html += '<td class="num-cell" style="text-align:center;">' + formatVal(val, m.aggregation) + '</td>';
-              });
-            }
-            html += '</tr>';
-          });
-        }
       });
 
       // Grand Total Row
       html += '<tr style="font-weight:900; background:rgba(14,165,233,0.15); border-top:2px solid var(--accent);">';
-      html += '<td>الإجمالي الكلي (Grand Total)</td>';
+      html += '<td>المجموع الكلي (Grand Total)</td>';
       if (colDimensionValues.length > 0) {
         colDimensionValues.forEach(cv => {
           const colItems = processedRows.filter(r => String(r[colCols[0]] ?? '') === cv);
@@ -3439,7 +3467,9 @@ ${embeddedPackageJsonSafe}
           ...base,
           color: themeColors,
           series: [{
+            id: 'series_' + w.id,
             type: 'pie',
+            universalTransition: { enabled: true },
             radius: w.type === 'donut' ? ['45%', '72%'] : '70%',
             center: ['50%', '50%'],
             data: agg.categories.map((c, i) => ({ name: c, value: agg.values[i] })),
@@ -3463,7 +3493,9 @@ ${embeddedPackageJsonSafe}
           xAxis: { type: 'value', axisLabel: { color: textColor, fontFamily: 'Cairo' }, splitLine: { lineStyle: { color: splitLine } } },
           yAxis: { type: 'category', data: revCats, axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10 }, axisLine: { lineStyle: { color: axisLine } } },
           series: [{
+            id: 'series_' + w.id,
             type: 'bar',
+            universalTransition: { enabled: true, divideShape: 'split' },
             data: revVals,
             itemStyle: {
               borderRadius: [0, barR[0] || 6, barR[1] || 6, 0],
@@ -3483,7 +3515,9 @@ ${embeddedPackageJsonSafe}
           xAxis: { type: 'category', data: agg.categories, axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10 }, axisLine: { lineStyle: { color: axisLine } } },
           yAxis: { type: 'value', axisLabel: { color: textColor, fontFamily: 'Cairo' }, splitLine: { lineStyle: { color: splitLine } } },
           series: [{
+            id: 'series_' + w.id,
             type: 'line',
+            universalTransition: { enabled: true },
             data: agg.values,
             smooth: true,
             lineStyle: { width: 3.2, color: palette[0] },
@@ -3506,7 +3540,9 @@ ${embeddedPackageJsonSafe}
         xAxis: { type: 'category', data: agg.categories, axisLabel: { color: textColor, fontFamily: 'Cairo', fontSize: 10 }, axisLine: { lineStyle: { color: axisLine } } },
         yAxis: { type: 'value', axisLabel: { color: textColor, fontFamily: 'Cairo' }, splitLine: { lineStyle: { color: splitLine } } },
         series: [{
+          id: 'series_' + w.id,
           type: 'bar',
+          universalTransition: { enabled: true, divideShape: 'split' },
           data: agg.values,
           itemStyle: {
             borderRadius: mCfg.barRadius || [6, 6, 0, 0],
@@ -3517,6 +3553,15 @@ ${embeddedPackageJsonSafe}
           }
         }]
       };
+    }
+
+    function triggerWidgetDrillPulse(widgetId) {
+      const card = document.getElementById('widget-card-' + widgetId);
+      if (card) {
+        card.classList.remove('widget-drill-pulse');
+        void card.offsetWidth;
+        card.classList.add('widget-drill-pulse');
+      }
     }
 
     function renderChartWidget(w, rows) {
@@ -3552,6 +3597,7 @@ ${embeddedPackageJsonSafe}
               if (w.config.crossFilterMode !== 'none') {
                 activeFilters[currentCol] = String(clickedName);
               }
+              triggerWidgetDrillPulse(w.id);
               renderAllWidgets();
               updateActiveFilterBadge();
               return;
@@ -3563,7 +3609,11 @@ ${embeddedPackageJsonSafe}
           handleFilterChange(xCol, clickedName);
         });
       }
-      chart.setOption(getChartOption(w, rows), true);
+      chart.setOption(getChartOption(w, rows), {
+        notMerge: false,
+        replaceMerge: ['xAxis', 'yAxis', 'series'],
+        lazyUpdate: false
+      });
       chart.resize();
     }
 
@@ -3595,7 +3645,7 @@ ${embeddedPackageJsonSafe}
 
       // Root button (الكل)
       const isRootActive = path.length === 0;
-      crumbsHtml += '<button class="drill-btn-root ' + (isRootActive ? 'active' : '') + '" data-wid="' + w.id + '" onclick="resetWidgetDrill(this.getAttribute(\\'data-wid\\'))" title="العودة للمستوى الرئيسي (الكل)"><span>⌂ الكل</span></button>';
+      crumbsHtml += '<button class="drill-btn-root ' + (isRootActive ? 'active' : '') + '" data-wid="' + w.id + '" onclick="resetWidgetDrill(this.dataset.wid)" title="العودة للمستوى الرئيسي (الكل)"><span>⌂ الكل</span></button>';
 
       // Breadcrumb steps
       path.forEach((step) => {
@@ -3614,7 +3664,7 @@ ${embeddedPackageJsonSafe}
       crumbsHtml += '<div class="drill-actions">';
       crumbsHtml += '<span class="drill-level-badge">مستوى ' + (path.length + 1) + '/' + drillLevels.length + '</span>';
       if (path.length > 0) {
-        crumbsHtml += '<button class="drill-btn-back" data-wid="' + w.id + '" onclick="drillUpWidget(this.getAttribute(\\'data-wid\\'))" title="رجوع مستوى واحد للخلف"><span>⮌ رجوع</span></button>';
+        crumbsHtml += '<button class="drill-btn-back" data-wid="' + w.id + '" onclick="drillUpWidget(this.dataset.wid)" title="رجوع مستوى واحد للخلف"><span>⮌ رجوع</span></button>';
       }
       crumbsHtml += '</div>';
 
@@ -3641,6 +3691,7 @@ ${embeddedPackageJsonSafe}
       } else {
         drillDownStates[widgetId] = { path: [], levelIndex: 0 };
       }
+      triggerWidgetDrillPulse(widgetId);
       renderAllWidgets();
       updateActiveFilterBadge();
     }
@@ -3653,6 +3704,7 @@ ${embeddedPackageJsonSafe}
         }
       });
       drillDownStates[widgetId] = { path: [], levelIndex: 0 };
+      triggerWidgetDrillPulse(widgetId);
       renderAllWidgets();
       updateActiveFilterBadge();
     }

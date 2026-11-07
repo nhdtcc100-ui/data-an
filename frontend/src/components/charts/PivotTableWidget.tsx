@@ -79,8 +79,10 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
   const [showFieldList, setShowFieldList] = useState(false);
   // Search within pivot rows
   const [searchQuery, setSearchQuery] = useState('');
-  // Expanded hierarchical row keys: Set<string>
-  const [expandedRowKeys, setExpandedRowKeys] = useState<Set<string>>(() => new Set(['__all__']));
+  // Collapsed hierarchical row keys: Set<string> (empty by default means all rows are expanded)
+  const [collapsedKeys, setCollapsedKeys] = useState<Set<string>>(() => new Set());
+  // Hierarchical Drill-in Path: e.g. [{ col: 'المنطقة', value: 'الوسط' }]
+  const [drillPath, setDrillPath] = useState<Array<{ col: string; value: string }>>([]);
   // Internal filter selections state (for zone 1: الفلاتر)
   const [localFilters, setLocalFilters] = useState<Record<string, string>>(() => config?.pivotFilterValues || {});
 
@@ -245,8 +247,21 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
     matchingRows: Record<string, any>[];
   }
 
-  const { flatRows, grandTotalsByCol, grandRowTotals } = useMemo(() => {
-    if (!rowCols.length || !filteredDataset.length) {
+  // Filter dataset by current drill-in path if any
+  const datasetForRows = useMemo(() => {
+    if (!drillPath.length) return filteredDataset;
+    return filteredDataset.filter((r) => {
+      return drillPath.every((step) => String(r[step.col] ?? '(فارغ)') === step.value);
+    });
+  }, [filteredDataset, drillPath]);
+
+  // Effective row columns based on current drill depth
+  const effectiveRowCols = useMemo(() => {
+    return rowCols.slice(drillPath.length);
+  }, [rowCols, drillPath.length]);
+
+  const { rowTree, flatRows, grandTotalsByCol, grandRowTotals } = useMemo(() => {
+    if (!effectiveRowCols.length || !datasetForRows.length) {
       return {
         rowTree: [],
         flatRows: [],
@@ -255,31 +270,16 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
       };
     }
 
-    const firstRowCol = rowCols[0];
-    const hasSecondLevel = rowCols.length > 1;
-    const secondRowCol = hasSecondLevel ? rowCols[1] : null;
-
-    // Group rows by first level
-    const l1Map = new Map<string, Record<string, any>[]>();
-    filteredDataset.forEach((r) => {
-      const k = String(r[firstRowCol] ?? '(فارغ)');
-      if (!l1Map.has(k)) l1Map.set(k, []);
-      l1Map.get(k)!.push(r);
-    });
-
-    const tree: PivotRowItem[] = [];
-    const flat: PivotRowItem[] = [];
-
-    // Grand totals structure
+    // Grand totals structure (computed over datasetForRows)
     const gTotalsByCol: Record<string, Record<string, number>> = {};
     const gRowTotals: Record<string, number> = {};
 
     valMetrics.forEach((m) => {
-      gRowTotals[m.id] = aggregateValues(filteredDataset, m.column, m.aggregation);
+      gRowTotals[m.id] = aggregateValues(datasetForRows, m.column, m.aggregation);
       if (colDimensionValues.length > 0) {
         colDimensionValues.forEach((cVal) => {
           if (!gTotalsByCol[cVal]) gTotalsByCol[cVal] = {};
-          const cRows = filteredDataset.filter((r) => String(r[colCols[0]] ?? '(فارغ)') === cVal);
+          const cRows = datasetForRows.filter((r) => String(r[colCols[0]] ?? '(فارغ)') === cVal);
           gTotalsByCol[cVal][m.id] = aggregateValues(cRows, m.column, m.aggregation);
         });
       } else {
@@ -288,88 +288,78 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
       }
     });
 
-    // Build L1 & optional L2
-    Array.from(l1Map.keys())
-      .sort()
-      .forEach((l1Key) => {
-        const l1Matching = l1Map.get(l1Key)!;
+    // Recursive N-Level Tree Builder
+    function buildTreeLevel(
+      items: Record<string, any>[],
+      colIdx: number,
+      parentKeyPrefix = ''
+    ): PivotRowItem[] {
+      if (colIdx >= effectiveRowCols.length || !items.length) return [];
+      const colName = effectiveRowCols[colIdx];
+      const isLast = colIdx === effectiveRowCols.length - 1;
 
-        // Compute L1 values
-        const valuesByCol: Record<string, Record<string, number>> = {};
-        const rowTotals: Record<string, number> = {};
+      const groupMap = new Map<string, Record<string, any>[]>();
+      items.forEach((r) => {
+        const val = String(r[colName] ?? '(فارغ)');
+        if (!groupMap.has(val)) groupMap.set(val, []);
+        groupMap.get(val)!.push(r);
+      });
 
-        valMetrics.forEach((m) => {
-          rowTotals[m.id] = aggregateValues(l1Matching, m.column, m.aggregation);
-          if (colDimensionValues.length > 0) {
-            colDimensionValues.forEach((cVal) => {
-              if (!valuesByCol[cVal]) valuesByCol[cVal] = {};
-              const cRows = l1Matching.filter((r) => String(r[colCols[0]] ?? '(فارغ)') === cVal);
-              valuesByCol[cVal][m.id] = aggregateValues(cRows, m.column, m.aggregation);
-            });
-          } else {
-            if (!valuesByCol['__DEFAULT__']) valuesByCol['__DEFAULT__'] = {};
-            valuesByCol['__DEFAULT__'][m.id] = rowTotals[m.id];
-          }
-        });
+      const result: PivotRowItem[] = [];
+      Array.from(groupMap.keys())
+        .sort()
+        .forEach((groupVal) => {
+          const matching = groupMap.get(groupVal)!;
+          const key = parentKeyPrefix ? `${parentKeyPrefix}:::${groupVal}` : groupVal;
 
-        const l1Item: PivotRowItem = {
-          key: l1Key,
-          level: 0,
-          label: l1Key,
-          valuesByCol,
-          rowTotals,
-          matchingRows: l1Matching,
-          children: []
-        };
+          const valuesByCol: Record<string, Record<string, number>> = {};
+          const rowTotals: Record<string, number> = {};
 
-        if (hasSecondLevel && secondRowCol) {
-          const l2Map = new Map<string, Record<string, any>[]>();
-          l1Matching.forEach((r) => {
-            const k2 = String(r[secondRowCol] ?? '(فارغ)');
-            if (!l2Map.has(k2)) l2Map.set(k2, []);
-            l2Map.get(k2)!.push(r);
+          valMetrics.forEach((m) => {
+            rowTotals[m.id] = aggregateValues(matching, m.column, m.aggregation);
+            if (colDimensionValues.length > 0) {
+              colDimensionValues.forEach((cVal) => {
+                if (!valuesByCol[cVal]) valuesByCol[cVal] = {};
+                const cRows = matching.filter((r) => String(r[colCols[0]] ?? '(فارغ)') === cVal);
+                valuesByCol[cVal][m.id] = aggregateValues(cRows, m.column, m.aggregation);
+              });
+            } else {
+              if (!valuesByCol['__DEFAULT__']) valuesByCol['__DEFAULT__'] = {};
+              valuesByCol['__DEFAULT__'][m.id] = rowTotals[m.id];
+            }
           });
 
-          Array.from(l2Map.keys())
-            .sort()
-            .forEach((l2Key) => {
-              const l2Matching = l2Map.get(l2Key)!;
-              const l2ValuesByCol: Record<string, Record<string, number>> = {};
-              const l2RowTotals: Record<string, number> = {};
+          const children = isLast ? [] : buildTreeLevel(matching, colIdx + 1, key);
 
-              valMetrics.forEach((m) => {
-                l2RowTotals[m.id] = aggregateValues(l2Matching, m.column, m.aggregation);
-                if (colDimensionValues.length > 0) {
-                  colDimensionValues.forEach((cVal) => {
-                    if (!l2ValuesByCol[cVal]) l2ValuesByCol[cVal] = {};
-                    const cRows = l2Matching.filter((r) => String(r[colCols[0]] ?? '(فارغ)') === cVal);
-                    l2ValuesByCol[cVal][m.id] = aggregateValues(cRows, m.column, m.aggregation);
-                  });
-                } else {
-                  if (!l2ValuesByCol['__DEFAULT__']) l2ValuesByCol['__DEFAULT__'] = {};
-                  l2ValuesByCol['__DEFAULT__'][m.id] = l2RowTotals[m.id];
-                }
-              });
+          result.push({
+            key,
+            level: colIdx,
+            parentKey: parentKeyPrefix || undefined,
+            label: groupVal,
+            valuesByCol,
+            rowTotals,
+            matchingRows: matching,
+            children
+          });
+        });
 
-              const l2Item: PivotRowItem = {
-                key: `${l1Key}:::${l2Key}`,
-                parentKey: l1Key,
-                level: 1,
-                label: l2Key,
-                valuesByCol: l2ValuesByCol,
-                rowTotals: l2RowTotals,
-                matchingRows: l2Matching
-              };
-              l1Item.children!.push(l2Item);
-            });
-        }
+      return result;
+    }
 
-        tree.push(l1Item);
-        flat.push(l1Item);
-        if (l1Item.children && (expandedRowKeys.has('__all__') || expandedRowKeys.has(l1Key))) {
-          l1Item.children.forEach((c) => flat.push(c));
+    const tree = buildTreeLevel(datasetForRows, 0, '');
+
+    // Flatten tree respecting collapsedKeys
+    const flat: PivotRowItem[] = [];
+    function flatten(nodes: PivotRowItem[]) {
+      nodes.forEach((node) => {
+        flat.push(node);
+        const isCollapsed = collapsedKeys.has(node.key);
+        if (node.children && node.children.length > 0 && !isCollapsed) {
+          flatten(node.children);
         }
       });
+    }
+    flatten(tree);
 
     return {
       rowTree: tree,
@@ -377,7 +367,7 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
       grandTotalsByCol: gTotalsByCol,
       grandRowTotals: gRowTotals
     };
-  }, [rowCols, colCols, valMetrics, colDimensionValues, filteredDataset, expandedRowKeys]);
+  }, [effectiveRowCols, colCols, valMetrics, colDimensionValues, datasetForRows, collapsedKeys]);
 
   // Filter flatRows by search query if any
   const displayedRows = useMemo(() => {
@@ -386,9 +376,9 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
     return flatRows.filter((r) => r.label.toLowerCase().includes(q) || r.key.toLowerCase().includes(q));
   }, [flatRows, searchQuery]);
 
-  // Toggle row expand / collapse
+  // Toggle individual row expand / collapse
   const toggleRowExpand = (rowKey: string) => {
-    setExpandedRowKeys((prev) => {
+    setCollapsedKeys((prev) => {
       const next = new Set(prev);
       if (next.has(rowKey)) {
         next.delete(rowKey);
@@ -399,13 +389,32 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
     });
   };
 
-  // Toggle expand all
+  // Toggle expand all / collapse all
   const toggleExpandAll = () => {
-    if (expandedRowKeys.has('__all__')) {
-      setExpandedRowKeys(new Set());
+    if (collapsedKeys.size === 0) {
+      // Collapse all nodes that have children
+      const allParentKeys = new Set<string>();
+      const collect = (nodes: PivotRowItem[]) => {
+        nodes.forEach((n) => {
+          if (n.children && n.children.length > 0) {
+            allParentKeys.add(n.key);
+            collect(n.children);
+          }
+        });
+      };
+      collect(rowTree);
+      setCollapsedKeys(allParentKeys);
     } else {
-      setExpandedRowKeys(new Set(['__all__']));
+      setCollapsedKeys(new Set());
     }
+  };
+
+  // Drill into a specific row category
+  const handleDrillInto = (row: PivotRowItem) => {
+    const colName = effectiveRowCols[row.level];
+    if (!colName) return;
+    setDrillPath((prev) => [...prev, { col: colName, value: row.label }]);
+    setCollapsedKeys(new Set());
   };
 
   // Export matrix to Excel
@@ -630,7 +639,7 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
               title="طي / توسيع كافة الصفوف الهرمية"
             >
               <Layers className="w-3 h-3 text-sky-500" />
-              <span className="hidden sm:inline">{expandedRowKeys.has('__all__') ? 'طي الكل' : 'توسيع الكل'}</span>
+              <span className="hidden sm:inline">{collapsedKeys.size > 0 ? 'توسيع الكل' : 'طي الكل'}</span>
             </button>
           )}
 
@@ -664,6 +673,72 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
         </div>
       </div>
 
+      {/* ── Hierarchical Pivot Breadcrumbs Bar (شريط المسار الهرمي والدخول/الصعود) ── */}
+      {rowCols.length > 1 && (
+        <div
+          className={`flex items-center gap-1.5 px-3 py-1.5 border-b text-xs shrink-0 select-none overflow-x-auto ${
+            isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-sky-50/70 border-sky-100'
+          }`}
+        >
+          <div className="flex items-center gap-1 text-[11px] font-bold text-sky-600 dark:text-sky-400 shrink-0">
+            <Layers className="w-3.5 h-3.5" />
+            <span>المسار الهرمي:</span>
+          </div>
+
+          <button
+            onClick={() => {
+              setDrillPath([]);
+              setCollapsedKeys(new Set());
+            }}
+            className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
+              drillPath.length === 0
+                ? 'bg-sky-500 text-white shadow-xs'
+                : isDark
+                ? 'hover:bg-slate-800 text-slate-300'
+                : 'hover:bg-sky-100 text-slate-700'
+            }`}
+            title="الرجوع إلى المستوى الرئيسي (كافة الفئات)"
+          >
+            ⌂ الكل
+          </button>
+
+          {drillPath.map((step, idx) => (
+            <React.Fragment key={idx}>
+              <span className="text-slate-400 font-bold">‹</span>
+              <button
+                onClick={() => {
+                  setDrillPath(drillPath.slice(0, idx + 1));
+                  setCollapsedKeys(new Set());
+                }}
+                className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
+                  idx === drillPath.length - 1
+                    ? 'bg-sky-500 text-white shadow-xs'
+                    : isDark
+                    ? 'hover:bg-slate-800 text-slate-300'
+                    : 'hover:bg-sky-100 text-slate-700'
+                }`}
+              >
+                <span className="opacity-70 ml-1">{step.col}:</span>
+                <span>{step.value}</span>
+              </button>
+            </React.Fragment>
+          ))}
+
+          {drillPath.length > 0 && (
+            <button
+              onClick={() => {
+                setDrillPath(drillPath.slice(0, -1));
+                setCollapsedKeys(new Set());
+              }}
+              className="mr-auto px-2 py-0.5 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer"
+              title="صعود مستوى واحد للأعلى"
+            >
+              <span>⮌ صعود للخلف</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ── Main Pivot Body with Cross-Tabulation Matrix ── */}
       <div className="flex-1 overflow-auto custom-scrollbar relative flex">
         <table className="w-full text-right border-collapse text-xs select-text">
@@ -682,7 +757,7 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
                 >
                   <div className="flex items-center gap-1.5">
                     <Rows className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{rowCols.join(' ‹ ')}</span>
+                    <span>{(effectiveRowCols.length ? effectiveRowCols : rowCols).join(' ‹ ')}</span>
                   </div>
                 </th>
 
@@ -798,7 +873,7 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
               displayedRows.map((row) => {
                 const isL1 = row.level === 0;
                 const hasChildren = (row.children?.length || 0) > 0;
-                const isExpanded = expandedRowKeys.has('__all__') || expandedRowKeys.has(row.key);
+                const isExpanded = !collapsedKeys.has(row.key);
 
                 return (
                   <tr
@@ -830,19 +905,43 @@ export const PivotTableWidget: React.FC<PivotTableWidgetProps> = ({
                         style={{ paddingRight: row.level > 0 ? `${row.level * 18}px` : 0 }}
                       >
                         {hasChildren ? (
-                          <button
-                            onClick={() => toggleRowExpand(row.key)}
-                            className="p-0.5 rounded hover:bg-sky-500/20 text-sky-500 transition cursor-pointer shrink-0"
-                            title={isExpanded ? 'طي الفئة' : 'توسيع الفئة'}
-                          >
-                            {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                          </button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleRowExpand(row.key);
+                              }}
+                              className="p-0.5 rounded hover:bg-sky-500/20 text-sky-500 transition cursor-pointer"
+                              title={isExpanded ? 'طي الفئة' : 'توسيع الفئة'}
+                            >
+                              {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDrillInto(row);
+                              }}
+                              className="px-1 py-0.2 rounded text-[9px] bg-sky-500/10 hover:bg-sky-500 text-sky-600 hover:text-white dark:text-sky-400 dark:hover:text-white font-bold transition cursor-pointer flex items-center gap-0.5"
+                              title="دخول في هذه الفئة (صعود/دخول هرمي)"
+                            >
+                              <span>دخول</span>
+                              <ChevronLeft className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
                         ) : row.level > 0 ? (
                           <span className="w-3.5 text-center text-slate-400 text-[10px]">↳</span>
                         ) : (
                           <span className="w-3.5" />
                         )}
-                        <span className="truncate">{row.label}</span>
+                        <span
+                          className={`truncate select-text ${hasChildren ? 'cursor-pointer hover:text-sky-500' : ''}`}
+                          onClick={() => {
+                            if (hasChildren) toggleRowExpand(row.key);
+                          }}
+                          title={hasChildren ? (isExpanded ? 'انقر للطي' : 'انقر للتوسيع') : undefined}
+                        >
+                          {row.label}
+                        </span>
                       </div>
                     </td>
 
